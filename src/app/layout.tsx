@@ -1,15 +1,28 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Rethink_Sans, Marck_Script } from "next/font/google";
 import "./globals.css";
+import Menu from "@/components/Menu";
+import Loading from "@/components/Loading";
+import { SessionProvider } from "next-auth/react";
+import { QueryProvider } from "@/providers/QueryPovider";
+import { Toaster } from "@/components/Toaster";
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
+  variable: "--font-geist",
   subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const rethink_sans = Rethink_Sans({
+  variable: "--font-rethink",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
+
+const marck_script = Marck_Script({
+  weight: ["400"],
+  subsets: ["latin"],
+  variable: "--font-marck-script",
 });
 
 export const metadata: Metadata = {
@@ -23,11 +36,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${rethink_sans.variable} ${marck_script.variable} antialiased`}
       >
-        {children}
+        <Loading />
+        <SessionProvider>
+          <QueryProvider>
+            <Menu />
+            {children}
+          </QueryProvider>
+          <Toaster />
+        </SessionProvider>
       </body>
     </html>
   );

@@ -1,0 +1,135 @@
+"use client";
+
+import { createColumnFromBoard } from "@/actions/actions";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useClientKeys } from "@/hooks/useClientKeys";
+import useOutClick from "@/hooks/useOutClick";
+import { BoardFull, ColumnSkeleton } from "@/types/dataTypes";
+import { useMutation } from "@tanstack/react-query";
+import {
+  Activity,
+  MouseEvent,
+  SubmitEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { TbPlus } from "react-icons/tb";
+
+interface Iprops {
+  columns: ColumnSkeleton[];
+  boardId: string;
+}
+
+const CreateColumnItemBtn = ({ boardId, columns }: Iprops) => {
+  const [createMode, setCreateMode] = useState(false);
+  const queryKey = useClientKeys().getBoardKey(boardId);
+  const ref = useOutClick<HTMLFormElement>(() => setCreateMode(false));
+  const refInput = useRef<HTMLInputElement>(null);
+  //Quando colocar drag and drop, reformular o update pra não bugar
+  const { mutate, isPending } = useMutation({
+    mutationFn: createColumnFromBoard,
+    onMutate: (variables, context) => {
+      context.client.cancelQueries({ queryKey });
+
+      const previusBoard: BoardFull | undefined =
+        context.client.getQueryData(queryKey);
+
+      if (!previusBoard) throw new Error("Erro ao obter o board");
+
+      context.client.setQueryData(queryKey, {
+        ...previusBoard,
+        columns: [
+          ...previusBoard.columns,
+          {
+            title: variables.titleColumn,
+            order: Infinity,
+            id: variables.idColumn,
+          },
+        ],
+      });
+
+      return { previusBoard };
+    },
+    onError: (error, variables, result, context) => {
+      if (!result) return;
+      context.client.setQueryData(queryKey, result.previusBoard);
+    },
+
+    onSuccess: (data, variables, result, context) => {
+      const trueNewBoard: BoardFull | null = result?.previusBoard
+        ? {
+            ...result.previusBoard,
+            columns: [...result.previusBoard.columns, data],
+          }
+        : null;
+
+      context.client.setQueryData(queryKey, trueNewBoard);
+    },
+  });
+
+  const handleChangeCreateMode = (e: MouseEvent) => {
+    e.preventDefault();
+    setCreateMode(true);
+  };
+
+  const onCreateColumn = (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const titleColumn = formData.get("title_column") as string;
+    const idColumn = crypto.randomUUID();
+
+    mutate(
+      { boardId, idColumn, titleColumn, columns },
+      {
+        onSuccess: () => {
+          setCreateMode(false);
+          e.target.reset();
+        },
+      },
+    );
+  };
+
+  useEffect(() => {
+    if (!createMode || !refInput.current) return;
+    refInput.current.focus();
+  }, [createMode]);
+
+  return (
+    <li className="rounded-lg min-w-65 h-12">
+      <Activity mode={createMode ? "hidden" : "visible"}>
+        <button
+          className="w-full h-full flex items-center gap-2 cursor-pointer shadow-shadow shadow-default p-4 rounded-lg hover:bg-text/10"
+          onClick={handleChangeCreateMode}
+        >
+          <TbPlus size={24} />
+          <span>Create new Column</span>
+        </button>
+      </Activity>
+
+      <Activity mode={!createMode ? "hidden" : "visible"}>
+        <form
+          onSubmit={onCreateColumn}
+          ref={ref}
+          className="flex flex-col gap-1"
+        >
+          <input
+            type="text"
+            name="title_column"
+            className="default-input"
+            ref={refInput}
+            required
+          />
+          <button
+            type="submit"
+            className="default-button flex items-center justify-center w-15 h-8"
+          >
+            {!isPending ? <span>Criar</span> : <LoadingSpinner size={18} />}
+          </button>
+        </form>
+      </Activity>
+    </li>
+  );
+};
+
+export default CreateColumnItemBtn;

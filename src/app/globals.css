@@ -1,26 +1,123 @@
 @import "tailwindcss";
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+    --color-primary: oklch(0.1323 0.0527 310.15);
+    --color-secondary: oklch(0.4217 0.0701 231.59);
+    --color-test: oklch(0.95 0.01 310.15);
+    --color-accent: oklch(0.4634 0.0701 231.59);
+    --color-gray: oklch(0.3491 0.0786 306.88);
+    --color-btn: oklch(0.2018 0.15455 271.34);
+    --color-text: oklch(0.9664 0.0011 197.14);
+    --color-error: oklch(0.625 0.2491 22.76);
+    --color-success: oklch(0.6231 0.1973 151.94);
+    --color-info: oklch(0.6015 0.1406 253.59);
+    --color-shadow: oklch(0.9664 0.0011 197.14 / 30%);
+    --shadow-default-size: 0 0 0 1px;
+    --shadow-default: var(--shadow-default-size) var(--tw-shadow-color);
+    --shadow-bottom-left-size: -6px 2px 7px 1px;
+    --shadow-bottom-left:
+        var(--shadow-bottom-left-size) var(--tw-shadow-color),
+        var(--shadow-default-size) var(--tw-shadow-color);
+    --font-rethink: var(--font-rethink);
+    --font-geist: var(--font-geist);
+    --font-marck-script: var(--font-marck-script);
+    --animate-up-width: upWidth 1s ease-in-out;
+    --animate-down-for-top-left: downForTopLeft 0.5s ease-in-out;
+    --animate-to-jump: toJump 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite
+        alternate;
+
+    @keyframes upWidth {
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
+    }
+
+    @keyframes downForTopLeft {
+        from {
+            transform: translate(-20px, -20px);
+        }
+    }
+
+    @keyframes toJump {
+        0% {
+            transform: translateY(0) scale(0.9, 1.05);
+        }
+        90% {
+            transform: translateY(-2px) scale(1, 1);
+        }
+        100% {
+            transform: translateY(-2px) scale(1.1, 0.9);
+        }
+    }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer base {
+    :where(.dark, .dark *) {
+        --color-primary: #000;
+    }
+
+    :where(.light, .light *) {
+        --color-primary: #000;
+    }
+
+    svg {
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+        color: var(--color-text);
+        transition: stroke-width 0.3s ease;
+    }
+
+    .default-input {
+        @apply shadow-shadow shadow-default h-10 outline-none font-rethink px-4 py-1 text-xs rounded-lg focus:shadow-accent text-text;
+    }
+    .default-button {
+        @apply flex text-sm gap-2 justify-center items-center px-2 py-1 shadow-default font-semibold shadow-shadow rounded-lg cursor-pointer font-rethink text-text;
+    }
+    .button-ghost {
+        @apply px-2 h-10 text-xs font-rethink hover:brightness-130 cursor-pointer;
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@layer utilities {
+    .btn-default {
+        @apply h-8 rounded-lg px-2 py-1 shadow-shadow shadow-default duration-300 text-xs cursor-pointer font-thin;
+    }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+body,
+html {
+    background: var(--color-primary);
+    color: var(--color-text);
+    font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(from var(--color-text) l c h / 0.3) transparent;
+}
+
+@media (max-width: 768px) {
+    *::-webkit-scrollbar {
+        width: 8px;
+    }
+    *::-webkit-scrollbar-thumb {
+        background-color: oklch(from var(--color-text) l c h / 0.3);
+    }
+    *::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
 }
