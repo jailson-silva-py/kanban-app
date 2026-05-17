@@ -7,6 +7,7 @@ import { globalSearchWithText } from "@/actions/actions";
 import { useQuery } from "@tanstack/react-query";
 import { Url } from "next/dist/shared/lib/router/router";
 import { PromiseReturnType } from "@prisma/client/extension";
+import { useRouter } from "next/navigation";
 
 interface FormSearchProps {
   refInput: React.RefObject<HTMLInputElement | null>;
@@ -19,6 +20,7 @@ type ListItemProps = {
   valor: Result[keyof Result][number];
   children: React.ReactNode;
   href: Url;
+  onClose: () => void;
 } & React.ComponentProps<"li">;
 
 const FormSearch = ({ refInput, setDebouncedText }: FormSearchProps) => {
@@ -64,8 +66,16 @@ const ListItem = ({
   href,
   children,
   valor: value,
+  onClose,
   ...props
 }: ListItemProps) => {
+  const router = useRouter();
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    onClose();
+    router.push(e.currentTarget.href);
+  };
+
   return (
     <li
       key={value.id}
@@ -73,7 +83,7 @@ const ListItem = ({
       {...props}
     >
       <Link
-        onClick={() => {}}
+        onClick={handleClick}
         href={href}
         className={`w-full h-full flex flex-col justify-center`}
       >
@@ -148,7 +158,7 @@ const ListResultSearch = ({
             key={value.id}
             href={`/board/${value.id}`}
             valor={value}
-            onClick={onClose}
+            onClose={onClose}
           >
             <div className="flex gap-1 items-center">
               <TbChalkboard size={16} />
@@ -161,7 +171,7 @@ const ListResultSearch = ({
             key={value.id}
             href={`/board/${value.boardId}#column-${value.id}`}
             valor={value}
-            onClick={onClose}
+            onClose={onClose}
           >
             <div className="flex gap-1 items-center">
               <TbColumns size={16} />
@@ -174,7 +184,7 @@ const ListResultSearch = ({
             key={value.id}
             href={`/board/${value.column.boardId}#card-${value.id}`}
             valor={value}
-            onClick={onClose}
+            onClose={onClose}
           >
             <div className="flex gap-1 items-center">
               <TbFile size={16} />
@@ -189,6 +199,7 @@ const ListResultSearch = ({
 export default function GlobalSearch() {
   const [isSearching, setIsSearching] = useState(false);
   const [debouncedText, setDebouncedText] = useState("");
+
   const refContextSearchContext = useOutClick<HTMLDivElement>(() =>
     setIsSearching(false),
   );
@@ -205,6 +216,10 @@ export default function GlobalSearch() {
   const handleSearchClick = () => {
     setDebouncedText("");
     setIsSearching(true);
+  };
+
+  const onClose = () => {
+    setIsSearching(false);
   };
 
   useEffect(() => {
@@ -238,7 +253,7 @@ export default function GlobalSearch() {
             <ListResultSearch
               isPending={isLoading}
               data={data}
-              onClose={() => setIsSearching(false)}
+              onClose={onClose}
             />
           </div>
         </div>

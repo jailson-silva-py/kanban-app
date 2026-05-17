@@ -12,6 +12,7 @@ import {
   redirect,
   useParams,
   usePathname,
+  useRouter,
   useSearchParams,
 } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,7 +24,8 @@ interface Iprops {
 const Board = ({ initialData }: Iprops) => {
   const queryKey = useClientKeys().getBoardKey(initialData.id);
   const [activeHash, setActiveHash] = useState("");
-  const params = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const { data: board, isLoading } = useQuery({
     initialData,
@@ -33,23 +35,39 @@ const Board = ({ initialData }: Iprops) => {
   if (!board) redirect("/home");
 
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "");
+    const hash = window.location.hash;
 
-    if (!hash || isLoading) return;
+    if (!hash || isLoading || !board) return;
 
-    const timeout = setTimeout(() => {
-      setActiveHash(hash);
-      const target = document.getElementById(hash);
-      if (!target) return;
-      target.scrollIntoView({
+    const executeScroll = (el: Element) => {
+      el.scrollIntoView({
         behavior: "smooth",
         block: "center",
-        inline: "start",
+        inline: "center",
       });
-    }, 500);
+      router.replace(pathname);
+    };
 
-    return () => clearTimeout(timeout);
-  }, [params, isLoading]);
+    const elementoImediato = document.querySelector(hash);
+
+    if (elementoImediato) {
+      executeScroll(elementoImediato);
+      return;
+    }
+
+    const callback = (mutations: MutationRecord[], obs: MutationObserver) => {
+      const elemento = document.querySelector(hash);
+      if (!elemento) return;
+      executeScroll(elemento);
+      obs.disconnect();
+    };
+
+    const observer = new MutationObserver(callback);
+
+    observer.observe(document.body, { subtree: true, childList: true });
+
+    return () => observer.disconnect();
+  }, [isLoading, pathname, router, board]);
 
   return (
     <div className=" shadow-shadow shadow-default bg-secondary/30  overflow-hidden h-full flex-4 rounded-xl flex flex-col gap-4">
