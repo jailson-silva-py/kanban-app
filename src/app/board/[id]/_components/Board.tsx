@@ -8,14 +8,8 @@ import { useClientKeys } from "@/hooks/useClientKeys";
 import { getBoardById } from "@/actions/actions";
 import ColumnBoard from "./ColumnBoard";
 import CreateColumnItemBtn from "./CreateColumn";
-import {
-  redirect,
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
-import { useEffect, useState } from "react";
+import { redirect, usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface Iprops {
   initialData: BoardFull;
@@ -23,7 +17,6 @@ interface Iprops {
 
 const Board = ({ initialData }: Iprops) => {
   const queryKey = useClientKeys().getBoardKey(initialData.id);
-  const [activeHash, setActiveHash] = useState("");
   const router = useRouter();
   const pathname = usePathname();
 

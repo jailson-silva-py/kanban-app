@@ -1,5 +1,4 @@
 "use client";
-
 import { changeBoardTitle } from "@/actions/actions";
 import { useClientKeys } from "@/hooks/useClientKeys";
 import useOutClick from "@/hooks/useOutClick";
@@ -7,7 +6,7 @@ import { BoardFull } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
 import {
   Activity,
-  InputEvent,
+  ChangeEvent,
   MouseEvent,
   SubmitEvent,
   useLayoutEffect,
@@ -25,7 +24,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
   const [editMode, setEditMode] = useState(false);
   const [titleBoard, setTitleBoard] = useState(title);
 
-  const refSpanEditTitle = useRef<HTMLSpanElement>(null);
+  const refTextAreaTitle = useRef<HTMLTextAreaElement>(null);
   const ref = useOutClick<HTMLFormElement>(() => setEditMode(false));
 
   const queryKey = useClientKeys().getBoardKey(id);
@@ -51,30 +50,14 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
   });
 
   useLayoutEffect(() => {
-    if (!refSpanEditTitle.current || !editMode) return;
+    if (!refTextAreaTitle.current || !editMode) return;
 
-    refSpanEditTitle.current.innerHTML = data || title;
+    refTextAreaTitle.current.innerHTML = data || title;
 
-    const range = document.createRange();
-    const selecao = window.getSelection();
+    const end = titleBoard.length;
 
-    if (!selecao) {
-      refSpanEditTitle.current.focus();
-      return;
-    }
-
-    // Seleciona todos os nós dentro do elemento
-    range.selectNodeContents(refSpanEditTitle.current);
-
-    // Colapsa o range para o ponto final (false = fim, true = início)
-    range.collapse(false);
-
-    // Limpa seleções anteriores e aplica a nova
-    selecao.removeAllRanges();
-    selecao.addRange(range);
-
-    // Garante que o elemento ganhe foco
-    refSpanEditTitle.current.focus();
+    refTextAreaTitle.current.setSelectionRange(end, end);
+    refTextAreaTitle.current.focus();
   }, [editMode]);
 
   const onChangeName = (e: SubmitEvent<HTMLFormElement>) => {
@@ -89,19 +72,24 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
   const handleChangeEditMode = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setEditMode(true);
-    refSpanEditTitle.current?.focus();
+    refTextAreaTitle.current?.focus();
   };
 
-  const handleEditTitle = (e: InputEvent<HTMLSpanElement>) => {
+  const handleEditTitle = (e: ChangeEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
-    setTitleBoard(e.currentTarget.textContent);
+    const text = e.target.value;
+    if (text.length > 100) return;
+    e.target.style.width = "auto";
+    e.target.style.width = `${e.target.scrollWidth + 16}px`;
+    setTitleBoard(text);
   };
 
+  console.log(titleBoard);
   return (
     <>
       <Activity mode={!editMode ? "visible" : "hidden"}>
         <button
-          className="hover:shadow-default hover:shadow-shadow rounded-lg  text-xs py-2 h-10 px-4 w-auto"
+          className="hover:shadow-default hover:shadow-shadow rounded-lg max-w-[60vw] text-xs py-2 h-10 px-4 w-auto text-nowrap truncate"
           onClick={handleChangeEditMode}
         >
           {variables?.title && isPending ? variables.title : data || title}
@@ -109,16 +97,23 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
       </Activity>
 
       <Activity mode={!editMode ? "hidden" : "visible"}>
-        <form onSubmit={onChangeName} className="relative flex w-200" ref={ref}>
-          <label>
-            <span
-              ref={refSpanEditTitle}
-              contentEditable={true}
-              role="textBox"
-              onInput={handleEditTitle}
-              className="default-input flex items-center w-auto cursor-text"
-            />
-            <input type="hidden" value={titleBoard} name="title_board" />
+        <form
+          onSubmit={onChangeName}
+          className="relative flex w-max max-w-[60vw] h-10"
+          ref={ref}
+        >
+          <label className="w-full h-full">
+            <textarea
+              style={{ width: `${titleBoard.length * 9 + 16}px` }}
+              ref={refTextAreaTitle}
+              onChange={handleEditTitle}
+              value={titleBoard}
+              className={` default-input px-4 py-2 max-h-full min-w-20 max-w-full text-nowrap overflow-hidden resize-none`}
+              name="title_board"
+              id="title_board"
+            >
+              {titleBoard}
+            </textarea>
           </label>
           <button
             type="submit"
