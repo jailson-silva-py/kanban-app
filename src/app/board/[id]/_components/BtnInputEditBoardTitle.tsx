@@ -78,9 +78,12 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
   const handleEditTitle = (e: ChangeEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
     const text = e.target.value;
+    const width = parseInt(e.target.style.width.replace("px", ""));
     if (text.length > 100) return;
+
     e.target.style.width = "auto";
-    e.target.style.width = `${e.target.scrollWidth + 16}px`;
+    e.target.style.width = `${width < 188 ? width + 9 : e.target.scrollWidth + 16}px`;
+    console.log(e.target.scrollWidth);
     setTitleBoard(text);
   };
 
@@ -104,13 +107,14 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
         >
           <label className="w-full h-full">
             <textarea
-              style={{ width: `${titleBoard.length * 9 + 16}px` }}
+              style={{ width: `${title.length * 12 + 16}px` }}
               ref={refTextAreaTitle}
               onChange={handleEditTitle}
               value={titleBoard}
-              className={` default-input px-4 py-2 max-h-full min-w-20 max-w-full text-nowrap overflow-hidden resize-none`}
+              className={` default-input px-4 py-2 max-h-full max-w-full text-nowrap w-20 overflow-hidden resize-none`}
               name="title_board"
               id="title_board"
+              required
             >
               {titleBoard}
             </textarea>

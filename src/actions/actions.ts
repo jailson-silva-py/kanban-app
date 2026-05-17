@@ -220,6 +220,7 @@ export async function changeBoardTitle({
   id: string;
   title: string;
 }) {
+  title = title.length > 100 ? title.slice(0, 101) : title;
   const { title: newTitle } = await protectedActions(() =>
     Promise.race([
       prisma.board.update({
