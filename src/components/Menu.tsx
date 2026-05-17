@@ -1,6 +1,7 @@
-import { TbCategory, TbSearch } from "react-icons/tb";
+import { TbCategory } from "react-icons/tb";
 import ProfileButton from "./ProfileButton";
 import { getUser } from "@/actions/actions";
+import GlobalSearch from "./GlobalSearch";
 
 const Menu = async () => {
   const user = await getUser();
@@ -18,17 +19,7 @@ const Menu = async () => {
         </li>
 
         <li className="flex-6 flex justify-center items-center">
-          <form className="relative">
-            <TbSearch
-              size={18}
-              className="absolute left-2 top-1/2 -translate-y-1/2"
-            />
-            <input
-              type="search"
-              placeholder="Pesquise algo..."
-              className="font-geist font-extralight bg-secondary/20 pl-8 pr-4 py-2 text-xs h-8 w-100 outline-none shadow-default rounded-lg tracking-widest shadow-shadow focus:shadow-primary/80"
-            />
-          </form>
+          <GlobalSearch />
         </li>
 
         <li className="flex-2">

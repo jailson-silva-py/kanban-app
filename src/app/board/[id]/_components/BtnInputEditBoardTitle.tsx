@@ -31,6 +31,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
   const queryKey = useClientKeys().getBoardKey(id);
 
   const { variables, data, mutate, isPending } = useMutation({
+    mutationKey: ["board", "change-title"],
     mutationFn: changeBoardTitle,
     onMutate: async (variables, context) => {
       context.client.setQueriesData<BoardFull>({ queryKey }, (previusBoard) => {

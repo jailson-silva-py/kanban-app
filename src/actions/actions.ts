@@ -42,9 +42,11 @@ export async function getInBoxBoard(ownerId: string) {
 }
 
 export async function createCartForColumn({
+  id,
   column,
   title,
 }: {
+  id?: string;
   column: ColumnSimple;
   title: string;
 }): Promise<Card | null> {
@@ -59,7 +61,7 @@ export async function createCartForColumn({
   const position = maxPositionCard.position + 100;
 
   return prisma.card.create({
-    data: { columnId: column.id, title, position },
+    data: { id, columnId: column.id, title, position },
     select: {
       id: true,
       title: true,
@@ -70,9 +72,13 @@ export async function createCartForColumn({
   });
 }
 
-export async function createCartForColumnInBox(
-  title: string,
-): Promise<Card | null> {
+export async function createCartForColumnInBox({
+  title,
+  id,
+}: {
+  title: string;
+  id?: string;
+}): Promise<Card | null> {
   return protectedActions(async (session) => {
     const userId = session.user?.id;
     let inBoxBoard = await prisma.board.findFirst({
@@ -117,7 +123,7 @@ export async function createCartForColumnInBox(
       data: { title: "Inbox Column", order: 100, boardId: inBoxBoard.id },
       select: { id: true, cards: { select: { id: true, position: true } } },
     });
-    return await createCartForColumn({ column, title });
+    return await createCartForColumn({ id, column, title });
   });
 }
 
@@ -138,7 +144,7 @@ export async function getCardsForInBoxUser(): Promise<{ cards: Card[] | [] }> {
                   completed: true,
                   columnId: true,
                 },
-                orderBy: { position: "asc" },
+                orderBy: { position: "desc" },
               },
             },
           },
@@ -151,16 +157,20 @@ export async function getCardsForInBoxUser(): Promise<{ cards: Card[] | [] }> {
   return column?.columns[0] ?? { cards: [] };
 }
 
-export async function createBoardFromUser(
-  title: string,
-): Promise<BoardSimple | undefined> {
+export async function createBoardFromUser({
+  title,
+  id,
+}: {
+  title: string;
+  id?: string;
+}): Promise<BoardSimple | undefined> {
   const ownerId = (await auth())?.user?.id;
 
   if (!ownerId) return;
 
   try {
     const board = await prisma.board.create({
-      data: { title, ownerId },
+      data: { id, title, ownerId },
       select: { id: true, title: true },
     });
 
@@ -333,7 +343,7 @@ export const DeleteCard = async ({ id }: { id: string }): Promise<Card> => {
 };
 
 export const DeleteColumn = async ({ id }: { id: string }) => {
-  return protectedActions(async (session) =>
+  return protectedActions(async () =>
     Promise.race([
       prisma.column.delete({
         where: { id },
@@ -341,4 +351,55 @@ export const DeleteColumn = async ({ id }: { id: string }) => {
       timeout,
     ]),
   );
+};
+
+export const globalSearchWithText = async ({ text }: { text: string }) => {
+  return protectedActions(async () => {
+    const resultBoards = prisma.board.findMany({
+      where: {
+        title: { contains: text, mode: "insensitive" },
+        isInbox: false,
+      },
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+      },
+    });
+
+    const resultColumns = prisma.column.findMany({
+      where: {
+        title: { contains: text, mode: "insensitive" },
+        board: { isInbox: false },
+      },
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+        boardId: true,
+      },
+    });
+
+    const resultCards = prisma.card.findMany({
+      where: {
+        title: { contains: text, mode: "insensitive" },
+        column: { board: { isInbox: false } },
+      },
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+        column: { select: { boardId: true } },
+      },
+    });
+
+    const resultAll = await Promise.race([
+      Promise.all([resultBoards, resultColumns, resultCards]),
+      timeout,
+    ]);
+
+    const [boards, columns, cards] = resultAll;
+
+    return { boards, columns, cards };
+  });
 };

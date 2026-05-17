@@ -25,6 +25,7 @@ const BtnInputEditColumnTitle = ({
   const ref = useOutClick<HTMLFormElement>(() => setEditMode(false));
 
   const { data, isPending, mutate } = useMutation({
+    mutationKey: ["column", "change-title"],
     mutationFn: ChangeColumnTitle,
     onMutate: async (variables, context) => {
       context.client.setQueriesData<Column>({ queryKey }, (previusColumn) => {

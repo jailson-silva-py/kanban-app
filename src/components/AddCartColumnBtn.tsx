@@ -21,14 +21,16 @@ export const AddCartColumn = ({ children, textForArea, column }: Props) => {
   const refTextArea = useRef<HTMLTextAreaElement>(null);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (title: string) => createCartForColumn({ column, title }),
-    onMutate: async (title, context) => {
+    mutationKey: ["card", "create", "column"],
+    mutationFn: ({ title, id }: { title: string; id: string }) =>
+      createCartForColumn({ column, title, id }),
+    onMutate: async (variable, context) => {
       await context.client.cancelQueries({ queryKey });
       const previousCards = context.client.getQueryData<Column>(queryKey);
       context.client.setQueryData(queryKey, (old: Column) => {
         return {
           ...old,
-          cards: [{ id: crypto.randomUUID(), title }, ...old.cards],
+          cards: [{ id: variable.id, title: variable.title }, ...old.cards],
         };
       });
       return { previousCards };
@@ -42,7 +44,8 @@ export const AddCartColumn = ({ children, textForArea, column }: Props) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const title = formData.get("title_cart") as string;
-    mutate(title);
+    const id = crypto.randomUUID();
+    mutate({ id, title });
     e.currentTarget.reset();
   };
 

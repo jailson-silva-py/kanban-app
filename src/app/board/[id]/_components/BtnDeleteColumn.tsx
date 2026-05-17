@@ -15,6 +15,7 @@ type BtnDeleteColumnProps = {
 const BtnDeleteColumn = ({ columnId, boardId }: BtnDeleteColumnProps) => {
   const queryKey = useClientKeys().getBoardKey(boardId);
   const { isPending, mutate } = useMutation({
+    mutationKey: ["column", "delete"],
     mutationFn: DeleteColumn,
     onMutate: (variables, context) => {
       context.client.cancelQueries({ queryKey });

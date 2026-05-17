@@ -22,7 +22,12 @@ export const CardsContent: React.FC<CardsContentProps> = ({
       className={`flex flex-col items-center gap-2 ${props.className ?? ""}`}
     >
       {cards.map((card) => (
-        <Card key={card.id} card={card} cardsKey={cardsKey} />
+        <Card
+          key={card.id}
+          card={card}
+          cardsKey={cardsKey}
+          id={`card-${card.id}`}
+        />
       ))}
     </ul>
   );
@@ -50,7 +55,7 @@ export const Cards = () => {
     );
 
   return (
-    <div className="w-full flex-6 overflow-y-auto px-4 py-1">
+    <div className="w-full flex-6 overflow-y-auto scroll-smooth px-4 py- duration-700 ease-in-out">
       <CardsContent cards={data.cards} cardsKey={queryKey} />
     </div>
   );

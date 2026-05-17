@@ -1,7 +1,7 @@
 "use client";
 import { createCartForColumnInBox } from "@/actions/actions";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Card } from "@/types/dataTypes";
 import { useClientKeys } from "@/hooks/useClientKeys";
 import LoadingSpinner from "./LoadingSpinner";
@@ -13,28 +13,35 @@ type Props = {
 
 export const AddCartInBox = ({ children, textForArea }: Props) => {
   const { cardsKey } = useClientKeys();
-  const queryClient = useQueryClient();
   const [edition, setEdition] = useState(false);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (title: string) => createCartForColumnInBox(title),
-    onMutate: async (title) => {
-      await queryClient.cancelQueries({ queryKey: cardsKey });
-      const previousCards = queryClient.getQueryData<{ cards: Card[] }>(
+    mutationKey: ["card", "create", "inbox"],
+    mutationFn: ({ title, id }: { title: string; id?: string }) =>
+      createCartForColumnInBox({ title, id }),
+    onMutate: (variables, context) => {
+      context.client.cancelQueries({ queryKey: cardsKey });
+      const previousCards = context.client.getQueryData<{ cards: Card[] }>(
         cardsKey,
       );
-      queryClient.setQueryData(cardsKey, (old: { cards: Card[] }) => {
+      context.client.setQueryData(cardsKey, (old: { cards: Card[] }) => {
         return {
-          cards: [...old.cards, { id: crypto.randomUUID(), title }],
+          cards: [{ id: variables.id, title: variables.title }, ...old.cards],
         };
       });
       return { previousCards };
     },
-    onError: (_err, _title, context) => {
-      queryClient.setQueryData(cardsKey, context?.previousCards);
+
+    onSuccess: (data, variables, result, context) => {
+      const previous = result?.previousCards?.cards ?? [];
+      const filteredCards = previous.filter((card) => card.id !== variables.id);
+      const trueNewCards = [data, ...filteredCards];
+
+      context.client.setQueryData(cardsKey, { cards: trueNewCards });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: cardsKey });
+
+    onError: (_err, _title, result, context) => {
+      context.client.setQueryData(cardsKey, result?.previousCards);
     },
   });
 
@@ -42,7 +49,8 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const title = formData.get("title_cart") as string;
-    mutate(title);
+    const id = crypto.randomUUID();
+    mutate({ id, title });
   };
 
   return (

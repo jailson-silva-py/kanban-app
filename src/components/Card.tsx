@@ -75,7 +75,6 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
     e.currentTarget.form?.requestSubmit();
   };
 
-  console.log(card.title, completed);
   return (
     <li
       style={{
