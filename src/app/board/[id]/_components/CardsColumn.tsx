@@ -18,7 +18,7 @@ const CardsColumn: React.FC<Iprops> = ({ data }) => {
         columnId={data.id}
         id={`column-${data.id}`}
         cards={data.cards}
-        className="p-4 flex-8 overflow-y-auto scroll-smooth shrink-0 basis-96 duration-2000 ease-in-out"
+        className="p-4 flex-8 overflow-y-auto shrink-0 basis-96 duration-2000 ease-in-out"
       />
     </div>
   );

@@ -123,7 +123,7 @@ const Board = ({ initialData }: Iprops) => {
         plugins={(defaults) => [
           ...defaults,
           AutoScroller.configure({
-            acceleration: 100,
+            acceleration: 30,
           }),
         ]}
         onDragEnd={(event) => {
@@ -270,7 +270,7 @@ const Board = ({ initialData }: Iprops) => {
         }}
       >
         <ul
-          className="px-8 py-4 flex gap-8 flex-7 shrink-0 w-full scroll-smooth overflow-x-auto overflow-y-hidden duration-700 ease-in-out"
+          className="px-8 py-4 flex gap-8 flex-7 shrink-0 w-full overflow-x-auto overflow-y-hidden duration-700 ease-in-out"
           ref={refListColumnsBoard}
         >
           {board?.columns?.map((column) => {

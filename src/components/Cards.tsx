@@ -46,12 +46,12 @@ export const CardsContent: React.FC<CardsContentProps> = ({
 const Cards = () => {
   const { cardsKey: queryKey } = useClientKeys();
 
-  const { isPending, error, data, isError } = useQuery({
+  const { isLoading, error, data, isError } = useQuery({
     queryFn: getCardsForInBoxUser,
     queryKey,
   });
 
-  if (isPending && !data) {
+  if (isLoading && !data) {
     return <p className="flex-7">Carregando ...</p>;
   } else if (!data || data.cards.length <= 0)
     return (
@@ -65,7 +65,7 @@ const Cards = () => {
     );
 
   return (
-    <div className="w-full flex-6 overflow-y-auto scroll-smooth px-4 py- duration-700 ease-in-out">
+    <div className="w-full flex-6 overflow-y-auto px-4 py- duration-700 ease-in-out">
       <CardsContent cards={data.cards} cardsKey={queryKey} />
     </div>
   );
