@@ -11,6 +11,8 @@ import {
   InvalidCredentialsError,
 } from "@/types/AuthErrors";
 
+//TODO: Fluxo login e signin separados
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
   providers: [

@@ -4,21 +4,31 @@ import { useClientKeys } from "@/hooks/useClientKeys";
 import Card from "./Card";
 import { Card as CardType } from "@/types/dataTypes";
 import { useQuery } from "@tanstack/react-query";
+import { useDroppable } from "@dnd-kit/react";
 
 type CardsContentProps = {
   cards: CardType[];
   cardsKey?: (string | undefined)[];
+  columnId?: string;
 } & React.ComponentProps<"ul">;
 
 export const CardsContent: React.FC<CardsContentProps> = ({
   cards,
+  columnId,
   cardsKey,
   ...props
 }) => {
+  const { ref, droppable } = useDroppable({
+    id: `column-${columnId}`,
+    type: "column",
+    accept: "card",
+  });
+
   return (
     <ul
-      key={cards.length}
+      style={{ border: droppable.isDropTarget ? "2px dashed red" : "none" }}
       {...props}
+      ref={ref}
       className={`flex flex-col items-center gap-2 ${props.className ?? ""}`}
     >
       {cards.map((card) => (
@@ -33,7 +43,7 @@ export const CardsContent: React.FC<CardsContentProps> = ({
   );
 };
 
-export const Cards = () => {
+const Cards = () => {
   const { cardsKey: queryKey } = useClientKeys();
 
   const { isPending, error, data, isError } = useQuery({
@@ -60,3 +70,5 @@ export const Cards = () => {
     </div>
   );
 };
+
+export default Cards;

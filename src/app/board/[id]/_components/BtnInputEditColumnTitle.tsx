@@ -21,7 +21,7 @@ const BtnInputEditColumnTitle = ({
   queryKey,
 }: Iprops) => {
   const [editMode, setEditMode] = useState(false);
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(columnTitle);
   const ref = useOutClick<HTMLFormElement>(() => setEditMode(false));
 
   const { data, isPending, mutate } = useMutation({
@@ -47,28 +47,14 @@ const BtnInputEditColumnTitle = ({
     },
   });
 
-  const refSpanEditTitle = useRef<HTMLSpanElement>(null);
+  const refTextAreaTitle = useRef<HTMLTextAreaElement>(null);
 
   useLayoutEffect(() => {
-    if (!editMode || !refSpanEditTitle.current) return;
+    if (!editMode || !refTextAreaTitle.current) return;
 
-    refSpanEditTitle.current.innerHTML = columnTitle ?? data?.title;
-
-    const range = document.createRange();
-    const selection = document.getSelection();
-
-    if (!selection) {
-      refSpanEditTitle.current.focus();
-      return;
-    }
-
-    range.selectNodeContents(refSpanEditTitle.current);
-
-    range.collapse(false);
-
-    selection.removeAllRanges();
-    selection.addRange(range);
-    refSpanEditTitle.current.focus();
+    const end = title.length;
+    refTextAreaTitle.current.setSelectionRange(end, end);
+    refTextAreaTitle.current.focus();
     //eslint-disable-next-line
   }, [editMode]);
 
@@ -77,9 +63,15 @@ const BtnInputEditColumnTitle = ({
     setEditMode(true);
   };
 
-  const handleChangeTitle = (e: React.InputEvent<HTMLSpanElement>) => {
+  const handleChangeTitle = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
-    setTitle(e.currentTarget.textContent);
+    const text = e.target.value;
+    const width = parseInt(e.target.style.width.replace("px", ""));
+    if (text.length > 50) return;
+
+    e.target.style.width = "auto";
+    e.target.style.width = `${width < 188 ? width + (title.length * 9 - width) + 16 : e.target.scrollWidth + 8}px`;
+    setTitle(text);
   };
 
   const onEditTitleColumn = (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -95,28 +87,33 @@ const BtnInputEditColumnTitle = ({
   };
 
   return (
-    <div className="relative gap-1 p-2  bg-primary/20 w-full">
+    <div className="relative gap-1 p-2  bg-primary/20 w-full h-12">
       <Activity mode={!editMode ? "visible" : "hidden"}>
         <button
           onClick={handleShowInput}
-          className="flex justify-start hover:default-input cursor-pointer w-9/10 px-2 py-2"
+          className="text-start hover:default-input h-9 text-sm/loose cursor-pointer max-w-[calc(100%-32px)] px-2 py-2 truncate"
         >
           {columnTitle || data?.title}
         </button>
       </Activity>
       <Activity mode={editMode ? "visible" : "hidden"}>
-        <form onSubmit={onEditTitleColumn} ref={ref} className="relative">
-          <div className=" w-9/10 h-auto">
-            <span
+        <form
+          onSubmit={onEditTitleColumn}
+          ref={ref}
+          className="relative w-max max-w-[calc(100%-32px)] h-8"
+        >
+          <label className=" w-full h-9">
+            <textarea
+              style={{ width: `${columnTitle.length * 9 + 16}px` }}
               id="title_column"
-              contentEditable="true"
-              onInput={handleChangeTitle}
-              ref={refSpanEditTitle}
-              role="textbox"
-              className="flex items-center flex-wrap px-2 py-2 default-input w-full h-auto overflow-hidden text-wrap break-all"
+              onChange={handleChangeTitle}
+              ref={refTextAreaTitle}
+              className=" default-input text-xs mt-1 px-2 py-2 min-w-20 max-w-full max-h-full overflow-hidden text-nowrap resize-none"
+              value={title}
+              name="title_column"
+              required
             />
-            <input type="hidden" value={title} name="title_column" required />
-          </div>
+          </label>
           <button
             type="submit"
             className="z-2 group backdrop-blur-[2px] absolute -bottom-1 left-0 default-button translate-y-full bg-btn/20 hover:bg-btn/40 disabled:opacity-60"

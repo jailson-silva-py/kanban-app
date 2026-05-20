@@ -35,6 +35,14 @@ export const AddCartColumn = ({ children, textForArea, column }: Props) => {
       });
       return { previousCards };
     },
+    onSuccess: (data, variables, onMutateResult, context) => {
+      if (!onMutateResult.previousCards) return;
+      const cards = [data, ...onMutateResult.previousCards.cards];
+      context.client.setQueryData(queryKey, {
+        ...onMutateResult.previousCards,
+        cards,
+      });
+    },
     onError: (_err, _title, result, context) => {
       context.client.setQueryData(queryKey, result?.previousCards);
     },

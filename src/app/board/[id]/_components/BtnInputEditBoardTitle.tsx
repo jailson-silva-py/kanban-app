@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import {
   Activity,
   ChangeEvent,
+  memo,
   MouseEvent,
   SubmitEvent,
   useLayoutEffect,
@@ -83,11 +84,10 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
 
     e.target.style.width = "auto";
     e.target.style.width = `${width < 188 ? width + 9 : e.target.scrollWidth + 16}px`;
-    console.log(e.target.scrollWidth);
+
     setTitleBoard(text);
   };
 
-  console.log(titleBoard);
   return (
     <>
       <Activity mode={!editMode ? "visible" : "hidden"}>
@@ -107,7 +107,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
         >
           <label className="w-full h-full">
             <textarea
-              style={{ width: `${title.length * 12 + 16}px` }}
+              style={{ width: `${title.length * 9 + 16}px` }}
               ref={refTextAreaTitle}
               onChange={handleEditTitle}
               value={titleBoard}
@@ -115,9 +115,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
               name="title_board"
               id="title_board"
               required
-            >
-              {titleBoard}
-            </textarea>
+            />
           </label>
           <button
             type="submit"
@@ -136,4 +134,4 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
   );
 };
 
-export default BtnInputEditBoardTitle;
+export default memo(BtnInputEditBoardTitle);

@@ -11,12 +11,29 @@ import { prisma } from "prisma";
 import { auth } from "auth";
 import { protectedActions } from "./wrappers";
 
-const timeout: Promise<never> = new Promise(() => {
-  const controler = new AbortController();
+const { timeout } = {
+  get timeout() {
+    const controller = new AbortController();
 
-  const time = setTimeout(() => controler.abort(), 3000);
-  clearTimeout(time);
-});
+    const promise = new Promise<never>((_, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error("Timeout: A operação no banco demorou demais!"));
+      }, 5000); // 5 segundos de limite
+
+      // Se o controller for acionado parar timer imediatamente
+      controller.signal.addEventListener("abort", () => clearTimeout(timer));
+    });
+
+    // Acoplamos o método de limpeza na própria Promise para interceptar o fim da corrida
+    const originalThen = promise.then.bind(promise);
+    promise.then = function (onfulfilled, onrejected) {
+      controller.abort(); // Limpa o timer assim que qualquer lado resolver
+      return originalThen(onfulfilled, onrejected);
+    };
+
+    return promise;
+  },
+};
 
 export async function getUser() {
   const session = await auth();
@@ -300,6 +317,9 @@ export const ChangeColumnTitle = async ({
   id: string;
   title: string;
 }) => {
+  const maxLength = 50;
+  title = title.length > maxLength ? title.slice(0, maxLength + 1) : title;
+
   return protectedActions(() =>
     Promise.race([
       prisma.column.update({
@@ -403,4 +423,108 @@ export const globalSearchWithText = async ({ text }: { text: string }) => {
 
     return { boards, columns, cards };
   });
+};
+
+interface ReOrderObj {
+  columnTargetId: string;
+  nextCardId?: string | undefined;
+  prevCardId?: string | undefined;
+  cardId: string;
+  positionCard: number;
+}
+
+export const reOrderCardsFromColumns = async ({
+  columnTargetId,
+  prevCardId,
+  cardId,
+  nextCardId,
+  positionCard,
+}: ReOrderObj) => {
+  const result = await protectedActions(async (session) => {
+    const c = prisma.card.update({
+      where: { id: cardId, column: { board: { ownerId: session.user?.id } } },
+      data: { columnId: columnTargetId, position: positionCard },
+      omit: { description: true, createdAt: true, updatedAt: true },
+    });
+    let prevC: Promise<null | { position: number; id: string } | null> =
+      Promise.resolve(null);
+    let nextC: Promise<null | { position: number; id: string } | null> =
+      Promise.resolve(null);
+
+    if (prevCardId) {
+      prevC = prisma.card.findUnique({
+        where: {
+          id: prevCardId,
+          column: { board: { ownerId: session.user?.id } },
+        },
+        select: { position: true, id: true },
+      });
+    }
+
+    if (nextCardId) {
+      nextC = prisma.card.findUnique({
+        where: {
+          id: nextCardId,
+          column: { board: { ownerId: session.user?.id } },
+        },
+        select: { position: true, id: true },
+      });
+    }
+
+    const [objCard, objPrevCard, objNextCard] = await Promise.allSettled([
+      c,
+      prevC,
+      nextC,
+    ]);
+
+    const card = objCard.status === "fulfilled" ? objCard.value : null;
+    const prevCard =
+      objPrevCard.status == "fulfilled"
+        ? objPrevCard.value || { position: 0, id: null }
+        : { position: 0, id: null };
+    const nextCard =
+      objNextCard.status == "fulfilled"
+        ? objNextCard.value || { position: 0, id: null }
+        : { position: 0, id: null };
+
+    const isVeryLowDiff =
+      Math.abs(prevCard.position - nextCard?.position) < 0.0001;
+
+    const columnsTargetAndSourceEqual = card?.columnId === columnTargetId;
+    let reindexed = false;
+
+    if (isVeryLowDiff && columnsTargetAndSourceEqual) {
+      const cards = await prisma.card.findMany({
+        where: {
+          column: { id: columnTargetId, board: { ownerId: session?.user?.id } },
+        },
+        orderBy: { position: "asc" },
+        select: { id: true },
+      });
+
+      if (!cards) return { reindexed: false, card: null };
+
+      let caseLines = "";
+      cards.forEach((value, index) => {
+        const position = (index + 1) * 100;
+        caseLines += `WHEN '${value.id}' THEN ${position} \n`;
+      });
+
+      const ids = "'" + cards.map((card) => `${card.id}`).join("', '") + "'";
+
+      const queryFinal = `
+        UPDATE "Card"
+        SET "position" = CASE "id"
+        ${caseLines}
+        END
+        WHERE "id" IN (${ids}) AND "columnId" = '${columnTargetId}'`;
+
+      await prisma.$executeRawUnsafe(queryFinal);
+      reindexed = true;
+    }
+
+    return { reindexed, card };
+  });
+
+  return result;
 };

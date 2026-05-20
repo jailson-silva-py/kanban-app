@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { TbCheck } from "react-icons/tb";
 import DropdownMenuWithDots from "./DropdownMenuWithDots";
+import { useSortable } from "@dnd-kit/react/sortable";
 
 type CardProps = {
   card: CardType;
@@ -15,7 +16,14 @@ type CardProps = {
 const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
   const queryKey = useClientKeys().getColumnKey(card.columnId);
   const [completed, setCompleted] = useState(card.completed);
-
+  const { ref, isDragging, isDropTarget } = useSortable({
+    id: `card-${card.id}`,
+    index: card.position,
+    type: "card",
+    accept: "card",
+    group: `column-${card.columnId}`,
+    data: card,
+  });
   const { isPending, mutate } = useMutation({
     mutationFn: async ({
       isDeletion,
@@ -81,9 +89,12 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
         boxShadow: completed
           ? "var(--shadow-bottom-left-size) oklch(from var(--color-success) l c h / 0.3), var(--shadow-default-size) oklch(from var(--color-success) l c h / 0.3)"
           : "var(--shadow-default-size) oklch(from var(--color-shadow) l c h / 0.1)",
+        border: isDropTarget ? "solid var(--color-text) 1px" : undefined,
       }}
       className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-primary px-4 py-2 rounded-lg text-sm font-light font-geist  cursor-pointer hover:-top-0.5 ease-out"
       {...props}
+      ref={ref}
+      data-dragging={isDragging}
     >
       <form onSubmit={onChangeIsComplete}>
         <div
@@ -98,7 +109,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
             type="checkbox"
             name="card_completed"
             id="card_completed"
-            checked={card.completed}
+            checked={completed}
             onChange={handleChangeCompleted}
             className="absolute cursor-pointer z-1 w-full h-full opacity-0"
             disabled={isPending}
