@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @tailwind utilities;
+@layer dnd-kit, base, components, utilities;
 
 @theme {
     --color-primary: oklch(0.1323 0.0527 310.15);
@@ -118,6 +119,7 @@
     .button-ghost {
         @apply px-2 h-10 text-xs font-rethink hover:brightness-130 cursor-pointer;
     }
+
 }
 
 @layer utilities {
@@ -158,4 +160,16 @@ input[type="search"]::-webkit-search-results-decoration {
     -webkit-appearance: none;
     appearance: none;
     display: none;
+}
+
+.move-top {
+
+    transform: translateY(-16px);
+
+}
+
+.move-bottom {
+
+    transform: translateY(16px);
+
 }

@@ -53,9 +53,9 @@ function ColumnBoard({ id, boardId,  ...props }: Iprops) {
 
             className="p-4 flex-8 overflow-y-auto shrink-0 basis-96 duration-2000 ease-in-out"
             >
-            {[...data.cards.values()].map((card,index) => {
+            {[...data.cards.values()].map((card) => {
 
-              return (<Card style={ {animationDelay:`${(index+1)*50}ms`} } key={card.id} card={card}/>)
+              return (<Card key={card.id} card={card}/>)
 
             })}
               </CardsContent>

@@ -25,9 +25,9 @@ const CardsInBox = () => {
   return (
     <div className="w-full flex-6 overflow-y-auto px-4 py-2 duration-700 ease-in-out max-h-[75vh]">
       <CardsContent>
-        {[...inBox.cards.values()].map((card, index) => {
+        {[...inBox.cards.values()].map((card) => {
 
-          return (<Card style={{ animationDelay:`${(index+1)*25}ms`} } key={card.id}  card={card} cardsKey={inBoxCards}/>)
+          return (<Card key={card.id}  card={card} cardsKey={inBoxCards}/>)
 
         })}
       </CardsContent>

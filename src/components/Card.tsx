@@ -2,7 +2,7 @@
 import { ChangeCompletedCard, DeleteCard } from "@/actions/actions";
 import { Card as CardType } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
-import { useState, memo } from "react";
+import { useState, memo} from "react";
 import { TbCheck } from "react-icons/tb";
 import DropdownMenuWithDots from "./DropdownMenuWithDots";
 import { useSortable } from "@dnd-kit/react/sortable";
@@ -17,7 +17,7 @@ type CardProps = {
 const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
   const queryKey = ['column', card.columnId];
   const [completed, setCompleted] = useState(card.completed);
-  const { ref, isDragging, isDropTarget } = useSortable({
+  const { ref, isDragging, isDropping } = useSortable({
     id: `card-${card.id}`,
     index: card.position,
     type: "card",
@@ -85,17 +85,11 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
 
   return (
     <li
-      id={`card-${card.id}`}
-      style={{
-        boxShadow: completed
-          ? "var(--shadow-bottom-left-size) oklch(from var(--color-success) l c h / 0.3), var(--shadow-default-size) oklch(from var(--color-success) l c h / 0.3)"
-          : "var(--shadow-default-size) oklch(from var(--color-shadow) l c h / 0.1)",
-        border: isDropTarget ? "solid var(--color-text) 1px" : undefined,
-      }}
-      className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-primary px-4 py-2 rounded-lg text-sm font-light font-geist cursor-pointer hover:-top-0.5 ease-out opacity-100 animate-[toDown_.4s_ease-out_backwards]"
+      className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-primary px-4 py-2 rounded-lg text-sm font-light font-geist cursor-pointer hover:-top-0.5 ease-out"
       {...props}
       ref={ref}
       data-dragging={isDragging}
+      data-dropping={isDropping}
     >
       <form onSubmit={onChangeIsComplete}>
         <div
@@ -121,6 +115,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
       <p className="wrap-break-word text-ellipsis leading-7 line-clamp-4 hyphens-auto">
         {card.title}
       </p>
+      <small>{ card.position }</small>
       <DropdownMenuWithDots>
         <DropdownMenuWithDots.Item>
           <form onSubmit={onChangeIsComplete} className="h-max full">

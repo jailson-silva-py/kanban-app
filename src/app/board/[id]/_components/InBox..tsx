@@ -1,7 +1,7 @@
 import { AddCartInBox } from "./AddCartInBoxBtn";
 import { memo } from "react";
 import { TbMessagePlus } from "react-icons/tb";
-import CardsInBox from "./CardsInBox";
+import ColumnInBox from "./ColumnInBox";
 
 const InBox = () => {
   return (
@@ -16,7 +16,7 @@ const InBox = () => {
       <AddCartInBox textForArea="Insira um título ou link">
         Adicionar um Cartão
       </AddCartInBox>
-      <CardsInBox/>
+      <ColumnInBox/>
     </div>
   );
 };
