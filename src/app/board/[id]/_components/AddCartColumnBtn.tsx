@@ -2,20 +2,23 @@
 import { createCartForColumn } from "@/actions/actions";
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Column } from "@/types/dataTypes";
-import { useClientKeys } from "@/hooks/useClientKeys";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSpinner"
 import useOutClick from "@/hooks/useOutClick";
+import { column } from "@/constrants/queryKeys";
+import { ColumnClient } from "@/types/clientDataTypes";
+import { onMutateFunction } from "@/app/util/mutations";
+import { prependItem } from "@/app/util/manipulationMaps";
+import { Card } from "@/types/dataTypes";
 
 type Props = {
   children: React.ReactNode;
   textForArea: string;
-  column: Column;
+  columnId: string;
 };
 
-export const AddCartColumn = ({ children, textForArea, column }: Props) => {
-  const { getColumnKey } = useClientKeys();
-  const queryKey = getColumnKey(column.id);
+export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
+
+  const queryKey = column(columnId)
   const [edition, setEdition] = useState(false);
   const refForm = useOutClick<HTMLFormElement>(() => setEdition(false));
   const refTextArea = useRef<HTMLTextAreaElement>(null);
@@ -23,28 +26,28 @@ export const AddCartColumn = ({ children, textForArea, column }: Props) => {
   const { mutate, isPending } = useMutation({
     mutationKey: ["card", "create", "column"],
     mutationFn: ({ title, id }: { title: string; id: string }) =>
-      createCartForColumn({ column, title, id }),
-    onMutate: async (variable, context) => {
-      await context.client.cancelQueries({ queryKey });
-      const previousCards = context.client.getQueryData<Column>(queryKey);
-      context.client.setQueryData(queryKey, (old: Column) => {
-        return {
-          ...old,
-          cards: [{ id: variable.id, title: variable.title }, ...old.cards],
-        };
-      });
-      return { previousCards };
+      createCartForColumn({ columnId, title, id }),
+    onMutate: async (variables, context) => {
+      return await onMutateFunction<ColumnClient>(context, queryKey, (old) => {
+        const oldCards = old.cards;
+        const { id, title } = variables;
+        const newCards = prependItem<Card>(oldCards,
+          { id, title, columnId: old.id, completed: false, position: Infinity },
+          (value) => variables.id !== value?.id);
+
+        return { ...old, cards:newCards }
+
+      })
     },
     onSuccess: (data, variables, onMutateResult, context) => {
-      if (!onMutateResult.previousCards) return;
-      const cards = [data, ...onMutateResult.previousCards.cards];
-      context.client.setQueryData(queryKey, {
-        ...onMutateResult.previousCards,
-        cards,
-      });
+      if(!onMutateResult) return
+      if (!data || !onMutateResult.previousState?.cards || onMutateResult.previousState.cards.has(data?.id)) return;
+      const cards = new Map(onMutateResult.previousState.cards);
+      const newCards = prependItem(cards, data, (value) => value?.id !== data.id)
+      context.client.setQueryData<ColumnClient>(queryKey, {...onMutateResult.previousState, cards:newCards});
     },
     onError: (_err, _title, result, context) => {
-      context.client.setQueryData(queryKey, result?.previousCards);
+      context.client.setQueryData(queryKey, result?.previousState);
     },
   });
 

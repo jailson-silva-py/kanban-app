@@ -1,11 +1,15 @@
 "use client";
 
 import { createColumnFromBoard } from "@/actions/actions";
+import { onMutateFunction } from "@/app/util/mutations";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { useClientKeys } from "@/hooks/useClientKeys";
+import { board } from "@/constrants/queryKeys";
 import useOutClick from "@/hooks/useOutClick";
-import { BoardFull, ColumnSkeleton } from "@/types/dataTypes";
+import { BoardClient } from "@/types/clientDataTypes";
+import { ColumnSkeleton } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+
 import {
   Activity,
   MouseEvent,
@@ -16,56 +20,62 @@ import {
 } from "react";
 import { TbPlus } from "react-icons/tb";
 
-interface Iprops {
-  columns: ColumnSkeleton[];
-  boardId: string;
-}
 
-const CreateColumnItemBtn = ({ boardId, columns }: Iprops) => {
+const CreateColumnItemBtn = () => {
+
+  const params = useParams();
+
   const [createMode, setCreateMode] = useState(false);
-  const queryKey = useClientKeys().getBoardKey(boardId);
+  const queryKey = board(params.id as string);
   const ref = useOutClick<HTMLFormElement>(() => setCreateMode(false));
   const refInput = useRef<HTMLInputElement>(null);
-  //Quando colocar drag and drop, reformular o update pra não bugar
+
   const { mutate, isPending } = useMutation({
     mutationFn: createColumnFromBoard,
-    onMutate: (variables, context) => {
-      context.client.cancelQueries({ queryKey });
+    onMutate: async (variables, context) => {
+      // context.client.cancelQueries({ queryKey });
 
-      const previusBoard: BoardFull | undefined =
-        context.client.getQueryData(queryKey);
+      // const previusBoard: BoardFull | undefined =
+      //   context.client.getQueryData(queryKey);
 
-      if (!previusBoard) throw new Error("Erro ao obter o board");
+      // if (!previusBoard) throw new Error("Erro ao obter o board");
 
-      context.client.setQueryData(queryKey, {
-        ...previusBoard,
-        columns: [
-          ...previusBoard.columns,
-          {
-            title: variables.titleColumn,
-            order: Infinity,
-            id: variables.idColumn,
-          },
-        ],
-      });
+      // context.client.setQueryData(queryKey, {
+      //   ...previusBoard,
+      //   columns: [
+      //     ...previusBoard.columns,
+      //     {
+      //       title: variables.titleColumn,
+      //       order: Infinity,
+      //       id: variables.idColumn,
+      //     },
+      //   ],
+      // });
+      //return { previusBoard };
+      return await onMutateFunction<BoardClient<ColumnSkeleton>>(context, queryKey, (old) => {
+        const { idColumn: id, titleColumn:title } = variables;
+        if (!id) throw new Error("ID não atribuído");
+        const columns = new Map(old.columns);
+        columns.set(id, {id, title, order:Infinity})
+        return {...old, columns}
 
-      return { previusBoard };
+      })
+
+
     },
     onError: (error, variables, result, context) => {
-      if (!result) return;
-      context.client.setQueryData(queryKey, result.previusBoard);
+      if (!result?.previousState) return;
+      context.client.setQueryData(queryKey, result.previousState);
     },
 
     onSuccess: (data, variables, result, context) => {
-      const trueNewBoard: BoardFull | null = result?.previusBoard
-        ? {
-            ...result.previusBoard,
-            columns: [...result.previusBoard.columns, data],
-          }
-        : null;
+      const {idColumn:id} = variables
+      if (!result?.previousState || !id) return;
+      const columns = new Map(result.previousState.columns);
+      columns.set(id, data)
 
-      context.client.setQueryData(queryKey, trueNewBoard);
-    },
+       context.client.setQueryData(queryKey, {...result.previousState, columns});
+     },
   });
 
   const handleChangeCreateMode = (e: MouseEvent) => {
@@ -80,7 +90,7 @@ const CreateColumnItemBtn = ({ boardId, columns }: Iprops) => {
     const idColumn = crypto.randomUUID();
 
     mutate(
-      { boardId, idColumn, titleColumn, columns },
+      { boardId:params.id as string, idColumn, titleColumn },
       {
         onSuccess: () => {
           setCreateMode(false);

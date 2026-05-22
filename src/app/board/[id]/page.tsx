@@ -15,7 +15,7 @@ const BoardPage = async ({ params }: Iprops) => {
 
   return (
     <main className="p-4 h-[calc(100vh-60px)] w-screen flex gap-4 bg-primary text-text font-light tracking-widest font-rethink text-sm">
-      <InBox />
+      <InBox/>
       <Board initialData={board} />
     </main>
   );

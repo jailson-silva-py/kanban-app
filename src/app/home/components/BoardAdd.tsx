@@ -3,7 +3,6 @@
 import { createBoardFromUser } from "@/actions/actions";
 import Dialog from "@/components/Dialog";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { useClientKeys } from "@/hooks/useClientKeys";
 import { BoardSimple } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
 import { MouseEvent, SubmitEvent, TouchEvent, useState } from "react";
@@ -13,7 +12,7 @@ type PropsType = React.ComponentProps<"li">;
 
 const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
   const [openDialog, setOpenDialog] = useState(false);
-  const { boardsKey: queryKey } = useClientKeys();
+  const queryKey = ["boards"]
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["board", "create"],

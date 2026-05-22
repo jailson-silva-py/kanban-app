@@ -1,6 +1,5 @@
 "use client";
 import { getAllBoardFromUser } from "@/actions/actions";
-import { useClientKeys } from "@/hooks/useClientKeys";
 import { BoardSimple } from "@/types/dataTypes";
 import { useQuery } from "@tanstack/react-query";
 import { ComponentProps } from "react";
@@ -19,7 +18,7 @@ export const BoardList: React.FC<PropsType> = ({
   initialData,
   ...props
 }) => {
-  const { boardsKey: queryKey } = useClientKeys();
+  const queryKey = ["boards"]
 
   const { data } = useQuery({
     queryKey,

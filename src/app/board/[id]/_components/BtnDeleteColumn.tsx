@@ -1,40 +1,51 @@
 "use client";
-import { DeleteColumn, type getBoardById } from "@/actions/actions";
+import { DeleteColumn } from "@/actions/actions";
+import { onMutateFunction } from "@/app/util/mutations";
 import { toast } from "@/app/util/toast";
 import DropdownMenuWithDots from "@/components/DropdownMenuWithDots";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { useClientKeys } from "@/hooks/useClientKeys";
-import { PromiseReturnType } from "@prisma/client/extension";
+import { board } from "@/constrants/queryKeys";
+import { BoardClient, ColumnClient } from "@/types/clientDataTypes";
 import { useMutation } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 
 type BtnDeleteColumnProps = {
   columnId: string;
-  boardId: string;
 };
 
-const BtnDeleteColumn = ({ columnId, boardId }: BtnDeleteColumnProps) => {
-  const queryKey = useClientKeys().getBoardKey(boardId);
+const BtnDeleteColumn = ({ columnId }: BtnDeleteColumnProps) => {
+  const params = useParams();
+  const queryKey = board(params.id as string);
   const { isPending, mutate } = useMutation({
     mutationKey: ["column", "delete"],
     mutationFn: DeleteColumn,
-    onMutate: (variables, context) => {
-      context.client.cancelQueries({ queryKey });
-      const previusBoard =
-        context.client.getQueryData<PromiseReturnType<typeof getBoardById>>(
-          queryKey,
-        );
-      if (!previusBoard) return;
+    onMutate: async (variables, context) => {
+      // context.client.cancelQueries({ queryKey });
+      // const previusBoard =
+      //   context.client.getQueryData<PromiseReturnType<typeof getBoardById>>(
+      //     queryKey,
+      //   );
+      // if (!previusBoard) return;
 
-      const newColumns = previusBoard.columns.filter((c) => c.id !== columnId);
-      const newBoard = { ...previusBoard, columns: newColumns };
+      // const newColumns = previusBoard.columns.filter((c) => c.id !== columnId);
+      // const newBoard = { ...previusBoard, columns: newColumns };
 
-      context.client.setQueryData(queryKey, newBoard);
+      // context.client.setQueryData(queryKey, newBoard);
 
-      return { previusBoard };
+      // return { previusBoard };
+      return await onMutateFunction<BoardClient<ColumnClient>>(context, queryKey, (old) => {
+
+        const oldColumns = old.columns
+        oldColumns.delete(variables.id)
+        const columns = new Map(oldColumns);
+        return {...old, columns}
+
+      })
     },
 
     onError: (error, variables, result, context) => {
-      context.client.setQueryData(queryKey, result?.previusBoard);
+      if (!result?.previousState) return;
+      context.client.setQueryData(queryKey, result?.previousState);
     },
     onSuccess: () => {
       toast.success("Coluna deletada com sucesso!");

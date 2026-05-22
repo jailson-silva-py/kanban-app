@@ -30,7 +30,26 @@
     --animate-down-for-top-left: downForTopLeft 0.5s ease-in-out;
     --animate-to-jump: toJump 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite
         alternate;
+    --animate-to-custom-spin: customSpin 1s infinite ease-in-out;
+    --animate-draw: reDraw 1s ease-in-out infinite alternate-reverse;
+    --animate-draw-spin: var(--animate-draw), var(--animate-to-custom-spin);
+    --animate-down: ;
+    @keyframes customSpin {
+        from {
+            transform: rotate(360deg);
+        }
 
+    }
+
+    @keyframes reDraw  {
+
+        to {
+
+          stroke-dashoffset:0;
+
+        }
+
+    }
     @keyframes upWidth {
         from {
             width: 0;
@@ -56,6 +75,21 @@
         100% {
             transform: translateY(-2px) scale(1.1, 0.9);
         }
+    }
+
+    @keyframes toDown {
+        from {
+
+            opacity:0%;
+            transform:translateY(-16px);
+
+        }
+        to {
+
+            opacity:100%;
+
+        }
+
     }
 }
 

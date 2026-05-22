@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Url } from "next/dist/shared/lib/router/router";
 import { PromiseReturnType } from "@prisma/client/extension";
 import { useRouter } from "next/navigation";
+import { globalSearch } from "@/constrants/queryKeys";
 
 interface FormSearchProps {
   refInput: React.RefObject<HTMLInputElement | null>;
@@ -207,7 +208,7 @@ export default function GlobalSearch() {
   const refInput = useRef<HTMLInputElement>(null);
 
   const { isLoading, data } = useQuery({
-    queryKey: ["globalSearch", debouncedText],
+    queryKey: globalSearch(debouncedText),
     queryFn: () => globalSearchWithText({ text: debouncedText }),
     enabled: debouncedText.length > 0,
     gcTime: 1000 * 60,

@@ -2,17 +2,20 @@
 import { BoardFull, Card, Column } from "@/types/dataTypes";
 import { TbChalkboard } from "react-icons/tb";
 import BtnInputEditBoardTitle from "./BtnInputEditBoardTitle";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useClientKeys } from "@/hooks/useClientKeys";
-import { getBoardById, reOrderCardsFromColumns } from "@/actions/actions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { reOrderCardsFromColumns } from "@/actions/actions";
 import ColumnBoard from "./ColumnBoard";
 import CreateColumnItemBtn from "./CreateColumn";
 import { redirect, usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { SortableDraggable } from "@dnd-kit/dom/sortable";
 import { AutoScroller, type Droppable } from "@dnd-kit/dom";
 import { PromiseReturnType } from "@prisma/client/extension";
+import { useGetInitialBoard } from "@/hooks/useGetInitialBoard";
+import { column } from "@/constrants/queryKeys";
+import { ColumnClient } from "@/types/clientDataTypes";
+import { prependItem } from "@/app/util/manipulationMaps";
 
 interface Iprops {
   initialData: BoardFull;
@@ -32,49 +35,38 @@ interface MutationObjTypeFromOrder {
 }
 
 const Board = ({ initialData }: Iprops) => {
-  const queryKey = useClientKeys().getBoardKey(initialData.id);
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const refListColumnsBoard = useRef<HTMLUListElement>(null);
+  const refFormElement = useRef<HTMLFormElement>(null);
+  const [mutationObj, setMutationObj] = useState<null|MutationObjTypeFromOrder>(null);
 
-  const { data: board, isLoading } = useQuery({
-    initialData,
-    queryKey,
-    queryFn: () => getBoardById(initialData.id),
-  });
 
+  const { data: board, isLoading } = useGetInitialBoard(initialData);
   const { mutate } = useMutation({
-    mutationFn: async ({
-      columnTargetId,
-      cardId,
-      positionCard,
-      nextCardId,
-      prevCardId,
-    }: MutationObjTypeFromOrder) => {
-      const result = await reOrderCardsFromColumns({
-        cardId,
-        columnTargetId,
-        positionCard,
-        nextCardId,
-        prevCardId,
-      });
-
-      return result;
-    },
+    mutationFn: reOrderCardsFromColumns,
     onSuccess: (
       data: PromiseReturnType<typeof reOrderCardsFromColumns>,
       variables,
     ) => {
       if (data?.reindexed) {
         queryClient.invalidateQueries({
-          queryKey: ["column", variables.columnTargetId],
+          queryKey: column(variables.columnTargetId),
         });
       }
     },
   });
 
-  if (!board) redirect("/home");
+   if (!board) redirect("/home");
+
+  const onReOrderCards = (e:React.SubmitEvent<HTMLFormElement>) => {
+
+    e.preventDefault();
+    if (!mutationObj) return;
+    mutate(mutationObj);
+
+  }
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -133,139 +125,123 @@ const Board = ({ initialData }: Iprops) => {
           };
           // O único draggable é o card, ou seja, source.type==="card"
 
-          if (!source || !target || event.operation.canceled) {
-            console.error("Target ou source não encontrados");
-            return;
-          }
-
-          const columnTargetId =
-            target?.type == "column"
-              ? clearId(target.id as string)
-              : clearId(target.data.columnId);
-
-          const columnSourceId = clearId(source.group as string);
-
-          const isEqualColumns = columnSourceId === columnTargetId;
-          let position = 0;
-
-          if (source.data.id === target?.data?.id) return;
-
-          //Se houver SourceId && columnTargetId
-          if (columnSourceId && columnTargetId) {
-            const sourceColumn = queryClient.getQueryData<Column>([
-              "column",
-              columnSourceId,
-            ])!;
-            const targetColumn = !isEqualColumns
-              ? queryClient.getQueryData<Column>(["column", columnTargetId])!
-              : sourceColumn;
-
-            const targetIndex = targetColumn.cards.findIndex(
-              (value) => value.id === target.data.id,
-            );
-            const currCard = target?.data as Card;
-            const prevCard = targetColumn.cards?.[targetIndex - 1];
-            const nextCard = targetColumn.cards?.[targetIndex + 1];
-
-            if (target.type === "card" && 1 + 1 === 3) return;
-
-            const sourceCardsSet = new Set();
-
-            const targetCardsSet = new Set();
-
-            const ChangeCard = { ...source.data, columnId: columnTargetId };
-
-            if (target.type === "card") {
-              if (!target.shape) {
-                console.error("Shape do target não encontrado!");
-                return;
-              }
-
-              // Se a diferença do y do centro e do mouse estiver acima do y do elemento alvo então é pra mover pra cima senão pra baixo
-              const isToMoveCardSourceFromTop =
-                target.shape.center.y - event.operation.position.current.y >= 0;
-
-              if (isToMoveCardSourceFromTop) {
-                // Se atiingir o top de quem está depois dele
-                if (prevCard?.id === source.data.id) {
-                  return;
-                } else if (!prevCard) {
-                  position = currCard.position + 100;
-                } else {
-                  position = (prevCard.position + currCard.position) / 2;
-                }
-              } else {
-                if (source.data.id === nextCard?.id) {
-                  return;
-                } else if (!nextCard) {
-                  position = currCard.position - 100;
-                } else {
-                  position = (currCard.position + nextCard.position) / 2;
-                }
-              }
-
-              ChangeCard.position = position;
+            if (!source || !target || event.operation.canceled) {
+              console.error("Target ou source não encontrados");
+              return;
             }
 
-            const cardsTarget: Card[] = [
-              { ...ChangeCard },
-              ...targetColumn.cards,
-            ].filter((card) => {
-              if (targetCardsSet.has(card.id)) {
-                return false;
+            const columnTargetId =
+              target?.type == "column"
+                ? clearId(target.id as string)
+                : clearId(target.data.columnId);
+
+            const columnSourceId = clearId(source.group as string);
+
+            const isEqualColumns = columnSourceId === columnTargetId;
+            let position = 0;
+
+            if (source.data.id === target?.data?.id) return;
+
+            //Se houver SourceId && columnTargetId
+          if (columnSourceId && columnTargetId) {
+              console.log("Início")
+              const sourceColumn = queryClient.getQueryData<ColumnClient>([
+                "column",
+                columnSourceId,
+              ])!;
+              const targetColumn = !isEqualColumns
+                ? queryClient.getQueryData<ColumnClient>(column(columnTargetId))!
+                : sourceColumn;
+
+              const targetCard = targetColumn.cards.get(target.data.id);
+              const targetKeys = targetColumn.cards.keys();
+              let targetIndex = null;
+              const length = targetColumn.cards.size
+              for (let i = 0; i < length; i++) {
+                console.log("no for ", i)
+                const key = targetKeys.next().value
+
+                if (key === targetCard?.id) {
+                  targetIndex = i
+                  break
+                }
+
               }
-              targetCardsSet.add(card.id);
-              return true;
-            });
+              const ArrayCardsTarget = Array.from(targetColumn.cards.values())
 
-            //reordenar os cards pelo position de forma decrescente
-            cardsTarget.sort((a, b) => b.position - a.position);
+              const currCard = target?.data as Card;
+              const prevCard = targetIndex ? ArrayCardsTarget[targetIndex - 1]:null;
+              const nextCard = targetIndex ? ArrayCardsTarget[targetIndex + 1]:null;
 
-            // Adicionando o Card em Draggable no Set pra excluí-lo da própria coluna
-            sourceCardsSet.add(clearId(source.group as string));
+              const ChangeCard = { ...source.data, columnId: columnTargetId };
 
-            const cardsSource = !isEqualColumns
-              ? sourceColumn.cards.filter((card) => {
-                  if (
-                    sourceCardsSet.has(card.id) ||
-                    targetCardsSet.has(card.id)
-                  ) {
-                    return false;
+              if (target.type === "card") {
+                if (!target.shape) {
+                  console.error("Shape do target não encontrado!");
+                  return;
+                }
+
+                // Se a diferença do y do centro e do mouse estiver acima do y do elemento alvo então é pra mover pra cima senão pra baixo
+                const isToMoveCardSourceFromTop =
+                  target.shape.center.y - event.operation.position.current.y >= 0;
+
+                if (isToMoveCardSourceFromTop) {
+                  // Se atiingir o top de quem está depois dele
+                  if (prevCard?.id === source.data.id) {
+                    return;
+                  } else if (!prevCard) {
+                    position = currCard.position + 100;
+                  } else {
+                    position = (prevCard.position + currCard.position) / 2;
                   }
-                  sourceCardsSet.add(card.id);
-                  return true;
-                })
-              : null;
+                } else {
+                  if (source.data.id === nextCard?.id) {
+                    return;
+                  } else if (!nextCard) {
+                    position = currCard.position - 100;
+                  } else {
+                    position = (currCard.position + nextCard.position) / 2;
+                  }
+                }
 
-            queryClient.cancelQueries({
-              queryKey: ["column", targetColumn.id],
-            });
-
-            (async function cancelAndSetData() {
-              if (cardsSource) {
-                await queryClient.cancelQueries({
-                  queryKey: ["column", sourceColumn.id],
-                });
-
-                queryClient.setQueryData(["column", sourceColumn.id], () => ({
-                  ...sourceColumn,
-                  cards: cardsSource as Card[],
-                }));
+                ChangeCard.position = position;
               }
 
-              queryClient.setQueryData(["column", targetColumn.id], () => ({
-                ...targetColumn,
-                cards: cardsTarget,
-              }));
-            })();
+              const cardsTarget = prependItem<Card>(targetColumn.cards, ChangeCard, (value) => value?.id !== ChangeCard.id);
 
-            mutate({
-              cardId: ChangeCard.id,
-              columnTargetId,
-              nextCardId: nextCard?.id,
-              positionCard: position,
-              prevCardId: prevCard?.id,
-            });
+              //reordenar os cards pelo position de forma decrescente
+              Array.from(cardsTarget.values()).sort((a, b) => b.position - a.position);
+
+              const oldCardsSource = sourceColumn.cards;
+              oldCardsSource.delete(source.data.id);
+              const cardsSource = new Map(oldCardsSource);
+
+              queryClient.cancelQueries({
+                queryKey: column(targetColumn.id),
+              });
+
+              (async function cancelAndSetData() {
+                if (cardsSource) {
+                  await queryClient.cancelQueries({
+                    queryKey: column(sourceColumn.id),
+                  });
+
+                  queryClient.setQueryData(column(sourceColumn.id), () => ({
+                    ...sourceColumn,
+                    cards: cardsSource,
+                  }));
+                }
+
+                queryClient.setQueryData(column(targetColumn.id), () => ({
+                  ...targetColumn,
+                  cards: cardsTarget,
+                }));
+              })();
+
+            // setMutationObj({ cardId: source.data.id, columnTargetId, positionCard: position, nextCardId: nextCard?.id, prevCardId: prevCard?.id })
+            // refFormElement.current?.requestSubmit()
+            // console.log("submit com os dados: ", { cardId: source.data.id, columnTargetId, positionCard: position, nextCardId: nextCard?.id, prevCardId: prevCard?.id })
+
           }
         }}
       >
@@ -273,18 +249,23 @@ const Board = ({ initialData }: Iprops) => {
           className="px-8 py-4 flex gap-8 flex-7 shrink-0 w-full overflow-x-auto overflow-y-hidden duration-700 ease-in-out"
           ref={refListColumnsBoard}
         >
-          {board?.columns?.map((column) => {
+          <form onSubmit={onReOrderCards} ref={refFormElement}>
+            <button type="submit" hidden></button>
+          </form>
+          {[...board.columns.values()].map((column) => {
+
             return (
               <ColumnBoard
                 id={column.id}
+                boardId={ board.id }
                 key={column.id}
-                initialData={{ boardId: board.id, ...column, cards: [] }}
               />
-            );
+          )
+
           })}
 
           {board && (
-            <CreateColumnItemBtn boardId={board.id} columns={board.columns} />
+            <CreateColumnItemBtn/>
           )}
         </ul>
       </DragDropProvider>

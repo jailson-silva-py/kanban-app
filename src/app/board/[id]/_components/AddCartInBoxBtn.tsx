@@ -3,8 +3,11 @@ import { createCartForColumnInBox } from "@/actions/actions";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Card } from "@/types/dataTypes";
-import { useClientKeys } from "@/hooks/useClientKeys";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { onMutateFunction } from "@/app/util/mutations";
+import { prependItem } from "@/app/util/manipulationMaps";
+import { InBoxClient } from "@/types/clientDataTypes";
+
 
 type Props = {
   children: React.ReactNode;
@@ -12,36 +15,34 @@ type Props = {
 };
 
 export const AddCartInBox = ({ children, textForArea }: Props) => {
-  const { cardsKey } = useClientKeys();
+  const cardsKey = ["inBoxCards"]
   const [edition, setEdition] = useState(false);
-
   const { mutate, isPending } = useMutation({
     mutationKey: ["card", "create", "inbox"],
-    mutationFn: ({ title, id }: { title: string; id?: string }) =>
+    mutationFn: ({ title, id }: { title: string; id: string }) =>
       createCartForColumnInBox({ title, id }),
     onMutate: (variables, context) => {
-      context.client.cancelQueries({ queryKey: cardsKey });
-      const previousCards = context.client.getQueryData<{ cards: Card[] }>(
-        cardsKey,
-      );
-      context.client.setQueryData(cardsKey, (old: { cards: Card[] }) => {
-        return {
-          cards: [{ id: variables.id, title: variables.title }, ...old.cards],
-        };
-      });
-      return { previousCards };
+
+      return onMutateFunction<InBoxClient>(context, cardsKey, (old) => {
+
+        const card: Card = { ...variables, columnId:old.id, completed: false, position: Infinity }
+        const newCards = prependItem<Card>(old.cards, card, (value) => value?.id !== card.id)
+        return {...old, cards:newCards}
+
+      })
     },
 
     onSuccess: (data, variables, result, context) => {
-      const previous = result?.previousCards?.cards ?? [];
-      const filteredCards = previous.filter((card) => card.id !== variables.id);
-      const trueNewCards = [data, ...filteredCards];
+      if (!data || !result?.previousState?.id) return;
+      const previous = result?.previousState.cards ?? new Map();
+      const cards = prependItem<Card>(previous, data, (value) => value?.id !== data.id)
 
-      context.client.setQueryData(cardsKey, { cards: trueNewCards });
+      context.client.setQueryData<InBoxClient>(cardsKey, {id:result?.previousState.id, cards});
     },
 
     onError: (_err, _title, result, context) => {
-      context.client.setQueryData(cardsKey, result?.previousCards);
+      if (!result?.previousState) return;
+      context.client.setQueryData(cardsKey, result?.previousState);
     },
   });
 
@@ -58,7 +59,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
       {!edition ? (
         <button
           onClick={() => setEdition(true)}
-          className="w-full h-8 shadow-shadow shadow-default rounded-xl cursor-pointer hover:bg-text/30 duration-300"
+          className="w-full h-9 shadow-shadow shadow-default rounded-xl cursor-pointer hover:bg-text/30 duration-300"
         >
           {children}
         </button>

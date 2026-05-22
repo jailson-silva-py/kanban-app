@@ -4,9 +4,9 @@ import { TbDotsVertical } from "react-icons/tb";
 
 type DropdownMenuWithDotsProps = {
   children: React.ReactNode;
-};
+} & React.ComponentProps<'ul'>;
 
-const DropdownMenuWithDots = ({ children }: DropdownMenuWithDotsProps) => {
+const DropdownMenuWithDots = ({ children, ...props }: DropdownMenuWithDotsProps) => {
   const [openDrop, setOpenDrop] = useState(false);
   const refListOptions = useOutClick<HTMLUListElement>(() =>
     setOpenDrop(false),
@@ -20,7 +20,7 @@ const DropdownMenuWithDots = ({ children }: DropdownMenuWithDotsProps) => {
     <>
       <button
         onClick={handleOpenDropdown}
-        className="z-1 absolute backdrop-blur-sm cursor-pointer right-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-text/5"
+        className="absolute  cursor-pointer right-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-text/5"
         aria-label="Mais Opções"
         title="Mais Opções"
       >
@@ -29,7 +29,9 @@ const DropdownMenuWithDots = ({ children }: DropdownMenuWithDotsProps) => {
       <ul
         ref={refListOptions}
         style={{ display: openDrop ? "block" : "none" }}
-        className="hidden absolute z-3 w-25 h-max font-geist font-light bottom-0 backdrop-blur-sm translate-y-full right-0  shadow-shadow/80 shadow-sm rounded-lg overflow-hidden"
+        {...props}
+        className={`z-3 hidden absolute w-25 h-max font-geist font-light bottom-0 backdrop-blur-sm translate-y-full right-0  shadow-shadow/80 shadow-sm rounded-lg overflow-hidden ${props.className??""}`}
+
       >
         {children}
       </ul>

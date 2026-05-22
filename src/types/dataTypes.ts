@@ -1,4 +1,4 @@
-import { getCardsForInBoxUser } from "@/actions/actions";
+import { getColumnForInBoxUser } from "@/actions/actions";
 import type {
   BoardGetPayload,
   CardGetPayload,
@@ -19,6 +19,7 @@ export type Column = ColumnGetPayload<{
     id: true;
     boardId: true;
     title: true;
+    order: true;
     cards: {
       select: {
         id: true;
@@ -51,7 +52,7 @@ export type User = UserGetPayload<{
   select: { id: true; email: true; name: true; image: true };
 }>;
 
-export type CartTypeFromInBox = PromiseReturnType<typeof getCardsForInBoxUser>;
+export type CartTypeFromInBox = PromiseReturnType<typeof getColumnForInBoxUser>;
 
 export type BoardFull = BoardGetPayload<{
   select: {

@@ -1,5 +1,6 @@
 "use client";
 
+import { prefixKeysFromDynamic } from "@/constrants/queryKeys";
 import {
   QueryClientProvider,
   QueryClient,
@@ -23,7 +24,7 @@ const queryClient = new QueryClient({
       const isTarget = triggers.some((trigger) => keys.includes(trigger));
 
       if (isTarget) {
-        queryClient.invalidateQueries({ queryKey: ["globalSearch"] });
+        queryClient.invalidateQueries({ queryKey: [prefixKeysFromDynamic.search] });
       }
     },
   }),

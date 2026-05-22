@@ -1,12 +1,10 @@
-import { TbIcons, TbInnerShadowTopLeft } from "react-icons/tb";
+import { TbIcons, TbLoader3 } from "react-icons/tb";
 
 type Iprops = React.ComponentProps<typeof TbIcons>;
 
 const LoadingSpinner: React.FC<Iprops> = ({ ...props }) => {
   return (
-    <TbInnerShadowTopLeft
-      {...props}
-      className={`animate-spin ${props.className}`}
+    <TbLoader3 size={ 16 } {...props} className={`[stroke-dasharray:90] [stroke-dashoffset:90] animate-draw-spin ${props.className||""}`}
     />
   );
 };

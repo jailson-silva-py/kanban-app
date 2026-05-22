@@ -5,30 +5,30 @@ import { BoardFull, Column } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
 import { Activity, useLayoutEffect, useRef, useState } from "react";
 import { TbChecks } from "react-icons/tb";
-import BtnDeleteColumn from "./BtnDeleteColumn";
+import { board } from "@/constrants/queryKeys";
 
 interface Iprops {
+  children: React.ReactNode;
   columnTitle: string;
   columnId: string;
   boardId: string;
-  queryKey: string[];
 }
 
 const BtnInputEditColumnTitle = ({
+  children,
   columnTitle,
   columnId,
   boardId,
-  queryKey,
 }: Iprops) => {
+  const queryKey = board(boardId)
   const [editMode, setEditMode] = useState(false);
   const [title, setTitle] = useState(columnTitle);
   const ref = useOutClick<HTMLFormElement>(() => setEditMode(false));
-
   const { data, isPending, mutate } = useMutation({
     mutationKey: ["column", "change-title"],
     mutationFn: ChangeColumnTitle,
     onMutate: async (variables, context) => {
-      context.client.setQueriesData<Column>({ queryKey }, (previusColumn) => {
+      context.client.setQueryData<Column>(queryKey, (previusColumn) => {
         if (!previusColumn) return;
 
         return { ...previusColumn, title: variables.title };
@@ -36,8 +36,8 @@ const BtnInputEditColumnTitle = ({
     },
 
     onError: (error, varibles, onMutateResult, context) => {
-      context.client.setQueriesData<BoardFull>(
-        { queryKey },
+      context.client.setQueryData<BoardFull>(
+        queryKey,
         (previusColumn) => {
           if (!previusColumn) return;
 
@@ -130,7 +130,7 @@ const BtnInputEditColumnTitle = ({
           </button>
         </form>
       </Activity>
-      <BtnDeleteColumn columnId={columnId} boardId={boardId} />
+      {children}
     </div>
   );
 };

@@ -4,8 +4,6 @@ import {
   BoardSimple,
   Card,
   Column,
-  ColumnSimple,
-  ColumnSkeleton,
 } from "@/types/dataTypes";
 import { prisma } from "prisma";
 import { auth } from "auth";
@@ -60,33 +58,34 @@ export async function getInBoxBoard(ownerId: string) {
 
 export async function createCartForColumn({
   id,
-  column,
+  columnId,
   title,
 }: {
   id?: string;
-  column: ColumnSimple;
+  columnId: string;
   title: string;
 }): Promise<Card | null> {
-  const maxPositionCard =
-    column.cards.length > 0
-      ? column.cards.reduce(
-          (max, card) => (card.position > (max?.position || 0) ? card : max),
-          column.cards[0],
-        )
-      : { position: 0 };
+  return protectedActions(async (session) => {
 
-  const position = maxPositionCard.position + 100;
+    const maxPositionCard = await prisma.card.findFirst({
+      where: { columnId, column: { board: { ownerId: session?.user?.id } } },
+      orderBy:{position:"desc"},
+      select:{position:true}
+    })
 
-  return prisma.card.create({
-    data: { id, columnId: column.id, title, position },
-    select: {
-      id: true,
-      title: true,
-      position: true,
-      completed: true,
-      columnId: true,
-    },
-  });
+    const position = (maxPositionCard?.position || 0) + 100
+    return prisma.card.create({
+      data: { id, columnId: columnId, title, position },
+      select: {
+        id: true,
+        title: true,
+        position: true,
+        completed: true,
+        columnId: true,
+      },
+    });
+
+  })
 }
 
 export async function createCartForColumnInBox({
@@ -133,18 +132,18 @@ export async function createCartForColumnInBox({
 
     if (inBoxBoard.columns.length > 0) {
       const column = inBoxBoard.columns[0];
-      return await createCartForColumn({ column, title });
+      return await createCartForColumn({ columnId:column.id, title });
     }
 
     const column = await prisma.column.create({
       data: { title: "Inbox Column", order: 100, boardId: inBoxBoard.id },
-      select: { id: true, cards: { select: { id: true, position: true } } },
+      select: { id: true },
     });
-    return await createCartForColumn({ id, column, title });
+    return await createCartForColumn({ id, columnId:column.id, title });
   });
 }
 
-export async function getCardsForInBoxUser(): Promise<{ cards: Card[] | [] }> {
+export async function getColumnForInBoxUser() {
   const column = await protectedActions((session) =>
     Promise.race([
       prisma.board.findFirst({
@@ -153,6 +152,7 @@ export async function getCardsForInBoxUser(): Promise<{ cards: Card[] | [] }> {
           columns: {
             take: 1,
             select: {
+              id:true,
               cards: {
                 select: {
                   position: true,
@@ -171,7 +171,7 @@ export async function getCardsForInBoxUser(): Promise<{ cards: Card[] | [] }> {
     ]),
   );
 
-  return column?.columns[0] ?? { cards: [] };
+  return column?.columns[0]
 }
 
 export async function createBoardFromUser({
@@ -238,10 +238,10 @@ export async function changeBoardTitle({
   title: string;
 }) {
   title = title.length > 100 ? title.slice(0, 101) : title;
-  const { title: newTitle } = await protectedActions(() =>
+  const { title: newTitle } = await protectedActions((session) =>
     Promise.race([
       prisma.board.update({
-        where: { id },
+        where: { id, ownerId:session.user?.id },
         data: { title },
         select: { title: true },
       }),
@@ -261,6 +261,7 @@ export async function getColumnById(id: string): Promise<Column | null> {
           id: true,
           boardId: true,
           title: true,
+          order:true,
           cards: {
             select: {
               id: true,
@@ -282,23 +283,19 @@ export async function createColumnFromBoard({
   boardId,
   idColumn: id,
   titleColumn,
-  columns,
 }: {
   boardId: string;
   idColumn?: string;
   titleColumn: string;
-  columns: ColumnSkeleton[];
 }) {
-  return protectedActions(() => {
-    const objMaxOrder =
-      columns.length > 0
-        ? columns.reduce(
-            (prev, curr) => (curr.order > (prev.order || 0) ? curr : prev),
-            columns[0],
-          )
-        : { order: 0 };
+  return protectedActions(async (session) => {
+    const maxPositionColumn = await prisma.column.findFirst({
+      where: {
+        boardId, board: { ownerId: session?.user?.id }
+      }, orderBy: { order: "desc" }, select: { order: true }
+    })
 
-    const order = objMaxOrder.order + 100;
+    const order = (maxPositionColumn?.order || 0) + 100;
 
     return Promise.race([
       prisma.column.create({

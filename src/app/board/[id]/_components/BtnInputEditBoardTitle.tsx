@@ -1,6 +1,6 @@
 "use client";
 import { changeBoardTitle } from "@/actions/actions";
-import { useClientKeys } from "@/hooks/useClientKeys";
+import { board } from "@/constrants/queryKeys";
 import useOutClick from "@/hooks/useOutClick";
 import { BoardFull } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
@@ -24,12 +24,9 @@ interface Iprops {
 const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
   const [editMode, setEditMode] = useState(false);
   const [titleBoard, setTitleBoard] = useState(title);
-
   const refTextAreaTitle = useRef<HTMLTextAreaElement>(null);
   const ref = useOutClick<HTMLFormElement>(() => setEditMode(false));
-
-  const queryKey = useClientKeys().getBoardKey(id);
-
+  const queryKey = board(id)
   const { variables, data, mutate, isPending } = useMutation({
     mutationKey: ["board", "change-title"],
     mutationFn: changeBoardTitle,

@@ -1,20 +1,21 @@
 "use client";
 import { ChangeCompletedCard, DeleteCard } from "@/actions/actions";
-import { useClientKeys } from "@/hooks/useClientKeys";
-import { Card as CardType, Column } from "@/types/dataTypes";
+import { Card as CardType } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { TbCheck } from "react-icons/tb";
 import DropdownMenuWithDots from "./DropdownMenuWithDots";
 import { useSortable } from "@dnd-kit/react/sortable";
+import { onMutateFunction } from "@/app/util/mutations";
+import { ColumnClient } from "@/types/clientDataTypes";
 
 type CardProps = {
   card: CardType;
-  cardsKey?: (string | undefined)[];
+  cardsKey?:string[];
 } & React.ComponentProps<"li">;
 
 const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
-  const queryKey = useClientKeys().getColumnKey(card.columnId);
+  const queryKey = ['column', card.columnId];
   const [completed, setCompleted] = useState(card.completed);
   const { ref, isDragging, isDropTarget } = useSortable({
     id: `card-${card.id}`,
@@ -31,40 +32,39 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
       isDeletion: boolean;
     }): Promise<CardType | null> => {
       if (isDeletion) {
-        DeleteCard({ id: card.id });
+        await DeleteCard({ id: card.id });
         return null;
       }
-      return ChangeCompletedCard({ id: card.id });
+      return await ChangeCompletedCard({ id: card.id });
     },
-    onMutate: (variables, context) => {
-      context.client.cancelQueries({ queryKey: cardsKey ?? queryKey });
-      const previousColumn = context.client.getQueryData<Column>(
-        cardsKey ?? queryKey,
-      );
-      if (!previousColumn?.cards || previousColumn?.cards?.length <= 0)
-        return null;
+    onMutate: async (variables, context) => {
 
-      const newColumn = { ...previousColumn };
+      return await onMutateFunction<ColumnClient>(context, cardsKey ?? queryKey, (old) => {
 
-      if (variables.isDeletion) {
-        newColumn.cards = previousColumn?.cards?.filter(
-          (curr) => curr.id !== card.id,
-        );
-      } else {
-        const c = newColumn.cards?.findIndex((curr) => curr.id === card.id);
-        newColumn.cards[c] = {
-          ...newColumn.cards[c],
-          completed: !newColumn.cards[c]?.completed,
-        };
-      }
+        const old_cards = old.cards
 
-      context.client.setQueryData(cardsKey ?? queryKey, newColumn);
+        if (variables.isDeletion) {
 
-      return { previousColumn, newColumn };
+          old_cards.delete(card.id)
+
+          const cards = new Map(old_cards);
+
+          return { ...old, cards }
+
+        }
+
+        const oldCard = old_cards.get(card.id) as CardType
+        const newCard = { ...oldCard, completed: !oldCard?.completed }
+        old_cards.set(card.id, newCard)
+        const cards = new Map(old_cards)
+        return { ...old, cards }
+        });
+
     },
+
     onError: (error, variables, result, context) => {
       setCompleted(!completed);
-      context.client.setQueryData(cardsKey ?? queryKey, result?.previousColumn);
+      context.client.setQueryData(cardsKey ?? queryKey, result?.previousState);
     },
   });
 
@@ -85,13 +85,14 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
 
   return (
     <li
+      id={`card-${card.id}`}
       style={{
         boxShadow: completed
           ? "var(--shadow-bottom-left-size) oklch(from var(--color-success) l c h / 0.3), var(--shadow-default-size) oklch(from var(--color-success) l c h / 0.3)"
           : "var(--shadow-default-size) oklch(from var(--color-shadow) l c h / 0.1)",
         border: isDropTarget ? "solid var(--color-text) 1px" : undefined,
       }}
-      className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-primary px-4 py-2 rounded-lg text-sm font-light font-geist  cursor-pointer hover:-top-0.5 ease-out"
+      className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-primary px-4 py-2 rounded-lg text-sm font-light font-geist cursor-pointer hover:-top-0.5 ease-out opacity-100 animate-[toDown_.4s_ease-out_backwards]"
       {...props}
       ref={ref}
       data-dragging={isDragging}
@@ -136,9 +137,10 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
           <form onSubmit={onChangeDeleteCard} className="h-max full">
             <button
               type="submit"
-              className="p-1 w-full h-7 button-ghost hover:bg-error/20 rounded-lg"
+              className="flex justify-center items-center p-1 w-full h-7 button-ghost hover:bg-error/20 rounded-lg"
+              disabled={isPending}
             >
-              Deletar
+              <span>Deletar</span>
             </button>
           </form>
         </DropdownMenuWithDots.Item>
@@ -147,4 +149,4 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
   );
 };
 
-export default Card;
+export default memo(Card);
