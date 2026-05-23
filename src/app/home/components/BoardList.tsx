@@ -37,7 +37,7 @@ export const BoardList: React.FC<PropsType> = ({
 
       {displayBoards.map((value, idx) => (
         <BoardLink href={`/board/${value.id}`} key={idx}>
-          <div className="relative flex flex-col justify-end bg-secondary/20 h-full w-full rounded-lg shadow-bottom-right shadow-shadow overflow-hidden">
+          <div className="relative flex flex-col justify-end bg-secondary/20 h-full w-full rounded-sm shadow-bottom-right shadow-shadow overflow-hidden">
             <TbChalkboard
               size={32}
               className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 animate-bounce"

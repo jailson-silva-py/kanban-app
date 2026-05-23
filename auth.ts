@@ -9,7 +9,9 @@ import {
   DatabaseError,
   EmailAlreadyExistsError,
   InvalidCredentialsError,
+  InvalidMethodAccessError,
 } from "@/types/AuthErrors";
+import { InvalidFieldsError } from "@/types/GlobalErrors";
 
 //TODO: Fluxo login e signin separados
 
@@ -23,63 +25,73 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
         name: {},
       },
-
+      id:"credentials-signin",
       authorize: async (credentials) => {
-        try {
+
           const isValidPass = passwordType.safeParse(
             credentials.password,
           ).success;
           const isValidEmail = emailType.safeParse(credentials.email).success;
 
-          const tryUser = await prisma.user.findFirst({
+          const isValidName = usernameType.safeParse(
+            credentials.name,
+            ).success;
+
+          const tryUser = await prisma.user.findUnique({
             where: { email: credentials.email as string },
           });
 
-          if (!isValidEmail || !isValidPass)
-            throw new InvalidCredentialsError();
+          if (tryUser) throw new EmailAlreadyExistsError()
 
-          if (!tryUser) {
-            const isValidName = usernameType.safeParse(
-              credentials.name,
-            ).success;
-            if (!isValidName) throw new InvalidCredentialsError();
+          if (!isValidEmail || !isValidPass || !isValidName) throw new InvalidFieldsError();
 
-            const hashPw = await hash(credentials.password as string);
-            const user = await prisma.user.create({
-              data: {
-                email: credentials.email as string,
-                password: hashPw,
-                name: credentials.name as string,
-                image: "/default-avatar.webp",
-              },
-              omit: { password: true },
-            });
-            return user;
-          } else if (tryUser.password === null) {
-            throw new EmailAlreadyExistsError();
-          } else {
-            const isCorrectPass = await verify(
-              tryUser.password,
-              credentials.password as string,
-            );
+          const hashPw = await hash(credentials.password as string);
+          const user = await prisma.user.create({
+            data: {
+              email: credentials.email as string,
+              password: hashPw,
+              name: credentials.name as string,
+              image: "/default-avatar.webp",
+            },
+            omit: { password: true },
+          });
+          return user;
 
-            if (!isCorrectPass) throw new InvalidCredentialsError();
-
-            const { password: _, ...userAuth } = tryUser;
-
-            return userAuth;
-          }
-        } catch (Error) {
-          // Erros esperados: deixa subir pro NextAuth tratar
-          if (Error instanceof InvalidCredentialsError) throw Error;
-          if (Error instanceof EmailAlreadyExistsError) throw Error;
-
-          // Erro inesperado (banco caiu, bug, etc): loga e wrapa
-          console.error("[authorize] Unexpected error:", Error);
-          throw new DatabaseError(Error);
-        }
       },
     }),
+    CredentialsProvider({
+      id: "credentials-login",
+      credentials: { email: {}, password: {} },
+      authorize: async (credentials) => {
+
+        const isValidPass = passwordType.safeParse(
+          credentials.password,
+        ).success;
+        const isValidEmail = emailType.safeParse(credentials.email).success;
+
+        if (!isValidPass ||!isValidEmail || !credentials.email ||!credentials.email) throw new InvalidFieldsError()
+
+        const tryUser = await prisma.user.findUnique({
+          where: { email: credentials.email as string },
+          omit:{createdAt:true, updatedAt:true}
+        });
+
+        if (!tryUser) throw new InvalidCredentialsError()
+        else if (tryUser?.password !== null) {
+          console.log(credentials.password)
+          console.log(tryUser.password)
+          const equals = await verify(credentials.password as string, tryUser?.password);
+          if (equals) {
+
+            const user = { ...tryUser, password: null }
+            return user;
+
+          }
+
+        } else if (tryUser.password == null) throw new InvalidMethodAccessError()
+        return null;
+      }
+    })
   ],
   callbacks: {
     async jwt({ token, user }) {

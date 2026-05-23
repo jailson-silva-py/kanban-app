@@ -1,3 +1,4 @@
+import { UnAuthentichatedError } from "@/types/AuthErrors";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { auth } from "auth";
 import { Session } from "next-auth";
@@ -10,7 +11,7 @@ export async function protectedActions<T>(
     const session = await auth();
 
     if (!session?.user?.id)
-      throw new Error("Acesso Negado: Sessão inválida, faça login.");
+      throw new UnAuthentichatedError;
 
     return callback(session);
   } catch (e: any) {

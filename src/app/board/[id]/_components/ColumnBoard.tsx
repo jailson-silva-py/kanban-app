@@ -32,7 +32,7 @@ function ColumnBoard({ id, boardId,  ...props }: Iprops) {
     <li
       {...props}
       ref={ref}
-      className={`flex flex-col shadow-shadow shadow-default bg-primary/30 rounded-lg w-65 shrink-0 grow-0 max-h-[75vh]`}
+      className={`flex flex-col shadow-shadow shadow-default bg-primary/30 rounded-sm w-65 shrink-0 grow-0 max-h-[75vh]`}
     >
       <BtnInputEditColumnTitle
         columnTitle={data?.title as string}

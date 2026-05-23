@@ -31,7 +31,8 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
     mutationKey: ["board", "change-title"],
     mutationFn: changeBoardTitle,
     onMutate: async (variables, context) => {
-      context.client.setQueriesData<BoardFull>({ queryKey }, (previusBoard) => {
+      await context.client.cancelQueries({queryKey})
+      context.client.setQueryData<BoardFull>( queryKey , (previusBoard) => {
         if (!previusBoard) return;
 
         return { ...previusBoard, title: variables.title };
@@ -39,7 +40,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
     },
 
     onError: (error, varibles, onMutateResult, context) => {
-      context.client.setQueriesData<BoardFull>({ queryKey }, (previusBoard) => {
+      context.client.setQueryData<BoardFull>( queryKey , (previusBoard) => {
         if (!previusBoard) return;
 
         return { ...previusBoard, title };
@@ -89,7 +90,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
     <>
       <Activity mode={!editMode ? "visible" : "hidden"}>
         <button
-          className="hover:shadow-default hover:shadow-shadow rounded-lg max-w-[60vw] text-xs py-2 h-10 px-4 w-auto text-nowrap truncate"
+          className="hover:shadow-default hover:shadow-shadow rounded-sm max-w-[60vw] text-xs py-2 h-10 px-4 w-auto text-nowrap truncate"
           onClick={handleChangeEditMode}
         >
           {variables?.title && isPending ? variables.title : data || title}
@@ -116,7 +117,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
           </label>
           <button
             type="submit"
-            className="absolute -bottom-1 translate-y-full h-8 w-10 default-button bg-btn/50 backdrop-blur-sm disabled:opacity-60 hover:brightness-120"
+            className="absolute -bottom-1 translate-y-full h-8 w-10 default-btn bg-btn/50 backdrop-blur-sm disabled:opacity-60 hover:brightness-120"
             disabled={isPending}
           >
             {!isPending ? (

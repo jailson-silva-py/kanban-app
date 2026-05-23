@@ -15,6 +15,7 @@ import { PromiseReturnType } from "@prisma/client/extension";
 import { useGetInitialBoard } from "@/hooks/useGetInitialBoard";
 import { column } from "@/constrants/queryKeys";
 import { ColumnClient } from "@/types/clientDataTypes";
+import { Separator } from "@/components/Separator";
 
 interface Iprops {
   initialData: BoardFull;
@@ -29,8 +30,8 @@ interface MutationObjTypeFromOrder {
   columnTargetId: string;
   cardId: string;
   positionCard: number;
-  nextCardId: string;
-  prevCardId: string;
+  nextCardId: string|undefined;
+  prevCardId: string|undefined;
 }
 
 const Board = ({ initialData }: Iprops) => {
@@ -101,13 +102,15 @@ const Board = ({ initialData }: Iprops) => {
   }, [isLoading, pathname, router, board]);
 
   return (
-    <div className=" shadow-shadow shadow-default bg-secondary/30  overflow-hidden h-full flex-4 rounded-xl flex flex-col gap-4">
-      <header className="flex items-center flex-3 basis-15 shrink-0 grow-0 px-8 w-full bg-secondary/10">
+    <div className=" shadow-shadow shadow-default bg-primary  overflow-hidden h-full flex-4 rounded-sm flex flex-col">
+      <header className="flex items-center flex-3 basis-15 shrink-0 grow-0 px-8 w-full bg-secondary">
         <div className="flex items-center justify-center gap-2">
           <TbChalkboard size={24} />
           <BtnInputEditBoardTitle id={board.id} title={board.title} />
         </div>
       </header>
+      <Separator/>
+
       <DragDropProvider
         plugins={(defaults) => [
           ...defaults,

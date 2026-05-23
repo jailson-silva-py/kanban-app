@@ -85,7 +85,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
 
   return (
     <li
-      className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-primary px-4 py-2 rounded-lg text-sm font-light font-geist cursor-pointer hover:-top-0.5 ease-out"
+      className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-secondary shadow-shadow shadow-default px-4 py-2 rounded-sm text-xs font-light font-geist cursor-pointer hover:-top-0.5 ease-out"
       {...props}
       ref={ref}
       data-dragging={isDragging}
@@ -121,7 +121,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
           <form onSubmit={onChangeIsComplete} className="h-max full">
             <button
               type="submit"
-              className="p-1 w-full h-7 button-ghost hover:bg-text/20 rounded-lg"
+              className="p-1 w-full h-7 button-ghost hover:bg-text/20 rounded-sm"
             >
               {completed ? "Retomar" : "Concluir"}
             </button>
@@ -132,7 +132,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
           <form onSubmit={onChangeDeleteCard} className="h-max full">
             <button
               type="submit"
-              className="flex justify-center items-center p-1 w-full h-7 button-ghost hover:bg-error/20 rounded-lg"
+              className="flex justify-center items-center p-1 w-full h-7 button-ghost hover:bg-error/20 rounded-sm"
               disabled={isPending}
             >
               <span>Deletar</span>

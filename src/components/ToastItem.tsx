@@ -31,7 +31,7 @@ function ToastItemInitital({ toastOp, ...props }: ToastItemProps) {
         boxShadow: `-6px 2px 12px 1px oklch(from var(--color-${toastOp.type}) l c h / .5), 0 0 1px 1px oklch(from var(--color-${toastOp.type}) l c h / .4) `,
       }}
       className={
-        "fixed px-8 py-4 h-15 w-max min-w-50 max-w-[80vw] md:max-w-[50vw] lg:max-w-[40vw] overflow-hidden min-h-max flex items-center gap-2 bg-primary tracking-widest rounded-lg animate-down-for-top-left"
+        "fixed px-8 py-4 h-15 w-max min-w-50 max-w-[80vw] md:max-w-[50vw] lg:max-w-[40vw] overflow-hidden min-h-max flex items-center gap-2 bg-primary tracking-widest rounded-sm animate-down-for-top-left"
       }
     >
       <Icon
@@ -63,7 +63,7 @@ function ToastItemInitital({ toastOp, ...props }: ToastItemProps) {
         onClick={() => {
           toastCore.removeToast(toastOp.id!);
         }}
-        className="p-2  text-text hover:bg-text/3 cursor-pointer rounded-lg"
+        className="p-2  text-text hover:bg-text/3 cursor-pointer rounded-sm"
       >
         <TbX size={18} />
       </button>

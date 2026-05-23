@@ -5,7 +5,7 @@ import { BoardFull, Column } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
 import { Activity, useLayoutEffect, useRef, useState } from "react";
 import { TbChecks } from "react-icons/tb";
-import { board } from "@/constrants/queryKeys";
+import { board, column } from "@/constrants/queryKeys";
 
 interface Iprops {
   children: React.ReactNode;
@@ -18,9 +18,8 @@ const BtnInputEditColumnTitle = ({
   children,
   columnTitle,
   columnId,
-  boardId,
 }: Iprops) => {
-  const queryKey = board(boardId)
+  const queryKey = column(columnId)
   const [editMode, setEditMode] = useState(false);
   const [title, setTitle] = useState(columnTitle);
   const ref = useOutClick<HTMLFormElement>(() => setEditMode(false));
@@ -28,6 +27,7 @@ const BtnInputEditColumnTitle = ({
     mutationKey: ["column", "change-title"],
     mutationFn: ChangeColumnTitle,
     onMutate: async (variables, context) => {
+      await context.client.cancelQueries({queryKey})
       context.client.setQueryData<Column>(queryKey, (previusColumn) => {
         if (!previusColumn) return;
 
@@ -116,7 +116,7 @@ const BtnInputEditColumnTitle = ({
           </label>
           <button
             type="submit"
-            className="z-2 group backdrop-blur-[2px] absolute -bottom-1 left-0 default-button translate-y-full bg-btn/20 hover:bg-btn/40 disabled:opacity-60"
+            className="z-2 group backdrop-blur-[2px] absolute -bottom-1 left-0 default-btn translate-y-full bg-btn/20 hover:bg-btn/40 disabled:opacity-60"
             disabled={isPending}
           >
             {!isPending ? (

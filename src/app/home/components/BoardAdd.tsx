@@ -43,10 +43,10 @@ const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
 
   return (
     <>
-      <li className="flex flex-col rounded-lg w-full h-37.5" {...props}>
+      <li className="flex flex-col rounded-sm w-full h-37.5" {...props}>
         <button
           type="submit"
-          className="bg-primary z-1 h-8/10 w-full flex flex-col text-xs gap-2 items-center justify-center shadow-default shadow-shadow rounded-lg hover:brightness-150 cursor-pointer"
+          className="bg-primary z-1 h-8/10 w-full flex flex-col text-xs gap-2 items-center justify-center shadow-default shadow-shadow rounded-sm hover:brightness-150 cursor-pointer"
           onClick={handleOpenDialog}
         >
           <TbPlus size={32} />
@@ -70,7 +70,7 @@ const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
 
           <button
             type="submit"
-            className="flex items-center justify-center default-button bg-secondary/20 ml-auto h-10 min-w-25 disabled:opacity-60 hover:brightness-135"
+            className="flex items-center justify-center default-btn bg-secondary/20 ml-auto h-10 min-w-25 disabled:opacity-60 hover:brightness-135"
             disabled={isPending}
           >
             {isPending ? <LoadingSpinner size={24} /> : <span>Criar</span>}

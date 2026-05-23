@@ -74,7 +74,7 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
       {!edition ? (
         <button
           onClick={handleClick}
-          className="w-full h-8 shadow-shadow shadow-default rounded-xl cursor-pointer hover:bg-text/30 duration-300"
+          className="w-full h-8 shadow-shadow shadow-default rounded-sm cursor-pointer hover:bg-text/30 duration-300"
         >
           {children}
         </button>

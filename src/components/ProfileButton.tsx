@@ -4,7 +4,9 @@ import { User } from "@/types/dataTypes";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { Activity, useState, useTransition } from "react";
-import { TbUserCircle } from "react-icons/tb"
+import { TbLogout, TbSignRight, TbUserCircle } from "react-icons/tb"
+import { Separator } from "./Separator";
+import Link from "next/link";
 
 interface Iprops {
 
@@ -13,7 +15,7 @@ interface Iprops {
 }
 
 const ProfileButton = ({user}:Iprops) => {
-    
+
 
     const [openDropdown, setOpenDropdown] = useState(false);
     const [isPending, startTransition] = useTransition()
@@ -28,38 +30,40 @@ const ProfileButton = ({user}:Iprops) => {
 
     return (
 
-        <div className="w-full h-full flex itens-center justify-end font-light font-widest font-rethink text-sm">
-            
-            <div className="relative ">
-            <button onClick={handleBtnProfile} className="relative h-8 w-8 rounded-full hover:scale-110 cursor-pointer duration-200 ease-in-out transition-transform shadow-xs shadow-text">
-                {!user ? 
-                <TbUserCircle className="w-full h-full stroke-px"/>
-                :
-                <Image src={user.image || ""}  alt="profile-image" fill sizes="100%, 100%" className="rounded-full" loading="eager"/>
-                }
+        <div className="w-full h-full flex itens-center justify-end font-light tracking-wider font-geist text-sm">
+
+        <div className="relative flex justify-center items-center w-full">
+
+          {user ?
+            <button onClick={handleBtnProfile} className="relative h-8 w-8 rounded-full hover:scale-110 cursor-pointer duration-200 ease-in-out transition-transform shadow-default shadow-shadow">
+              <Image src={user?.image || ""}  alt="profile-image" fill sizes="100%, 100%" className="rounded-full" loading="eager"/>
             </button>
-            <Activity mode={openDropdown ? "visible": "hidden"}>
+            :
+            <Link href="/signin" className="w-15 default-btn text-xs btn-secondary btn-sm flex justify-center gap-2">
+              Entrar
+            </Link>
+          }
+          <Activity mode={openDropdown && user ? "visible" : "hidden"}>
 
-            <ul ref={ref} className="absolute flex flex-col gap-2 overflow-hidden bg-primary rounded-lg w-[20vw] -bottom-2 right-2 translate-y-full shadow-default shadow-shadow">
-                {user ? 
-                <li className="flex flex-col gap-1">
-                    
-                    <span className="px-2 pt-2">{user?.name}</span>
-                    <div className="h-px bg-white opacity-20"/>
-                </li>: <></>}
-                <li>
-                   
-                    <button onClick={() => handleLogout()}className="button-ghost w-full bg-primary">
-                        {isPending ? "Processando...":"Log out"}
-                    </button>
-                    
-                    
-                </li>
-            </ul>
+           <ul ref={ref} className="dropdown-md dropdown-primary rounded-sm w-[20vw] -bottom-2 right-1 translate-y-full">
 
-            </Activity>
+              <li className="flex flex-col gap-1">
+                  <span className="px-2 text-xs text-text-secondary">{user?.name}</span>
+                  <Separator/>
+              </li>
+              <li>
+              <Link href="/profile" className="flex items-center button-ghost text-xs btn-xs w-full text-start">Profile</Link>
+              </li>
+              <li>
+                  <button onClick={handleLogout}className="button-ghost btn-xs text-xs w-full text-start">
+                      {isPending ? "Processando...":"Log out"}
+                  </button>
+              </li>
+           </ul>
 
-            </div>
+          </Activity>
+
+          </div>
 
         </div>
 

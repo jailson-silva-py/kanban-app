@@ -59,7 +59,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
       {!edition ? (
         <button
           onClick={() => setEdition(true)}
-          className="w-full h-9 shadow-shadow shadow-default rounded-xl cursor-pointer hover:bg-text/30 duration-300"
+          className="w-full h-9 shadow-shadow shadow-default rounded-sm cursor-pointer hover:bg-text/30 duration-300"
         >
           {children}
         </button>
@@ -75,7 +75,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
           <div className="w-full flex justify-end gap-2">
             <button
               type="submit"
-              className="flex items-center justify-center btn-default w-20 bg-btn hover:brightness-120"
+              className="btn-primary btn-default focus-primary btn-xs w-20"
             >
               {!isPending ? (
                 <span>Adicionar</span>
@@ -86,7 +86,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
             <button
               type="button"
               onClick={() => setEdition(false)}
-              className="btn-default hover:bg-text/30"
+              className="btn-primary btn-default focus-primary"
             >
               Cancelar
             </button>

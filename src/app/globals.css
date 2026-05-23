@@ -1,21 +1,23 @@
 @import "tailwindcss";
+@import "./keyframes.css";
 @tailwind utilities;
 @layer dnd-kit, base, components, utilities;
 
 @theme {
-    --color-primary: oklch(0.1323 0.0527 310.15);
-    --color-secondary: oklch(0.4217 0.0701 231.59);
-    --color-test: oklch(0.95 0.01 310.15);
-    --color-accent: oklch(0.4634 0.0701 231.59);
-    --color-gray: oklch(0.3491 0.0786 306.88);
-    --color-btn: oklch(0.2018 0.15455 271.34);
-    --color-text: oklch(0.9664 0.0011 197.14);
+
+    --color-primary: oklch(0.1217 0 316);
+    --color-secondary: oklch(0.1513 0 0);
+    --color-accent: oklch(0.1625 0.0025 106.41);
+    --color-text: oklch(0.9585 0.0011 197.14);
+    --color-text-secondary: oklch(from var(--color-text) calc(l - 0.3) c h);
     --color-error: oklch(0.625 0.2491 22.76);
     --color-success: oklch(0.6231 0.1973 151.94);
     --color-info: oklch(0.6015 0.1406 253.59);
-    --color-shadow: oklch(0.9664 0.0011 197.14 / 30%);
+    --color-shadow: oklch(0.9664 0.0011 197.14 / 10%);
     --shadow-default-size: 0 0 0 1px;
     --shadow-default: var(--shadow-default-size) var(--tw-shadow-color);
+    --shadow-medium-size: 0 0 0px 2px;
+    --shadow-medium: var(--shadow-medium-size) var(--tw-shadow-color);
     --shadow-bottom-left-size: -6px 2px 7px 1px;
     --shadow-bottom-left:
         var(--shadow-bottom-left-size) var(--tw-shadow-color),
@@ -34,64 +36,7 @@
     --animate-to-custom-spin: customSpin 1s infinite ease-in-out;
     --animate-draw: reDraw 1s ease-in-out infinite alternate-reverse;
     --animate-draw-spin: var(--animate-draw), var(--animate-to-custom-spin);
-    --animate-down: ;
-    @keyframes customSpin {
-        from {
-            transform: rotate(360deg);
-        }
 
-    }
-
-    @keyframes reDraw  {
-
-        to {
-
-          stroke-dashoffset:0;
-
-        }
-
-    }
-    @keyframes upWidth {
-        from {
-            width: 0;
-        }
-        to {
-            width: 100%;
-        }
-    }
-
-    @keyframes downForTopLeft {
-        from {
-            transform: translate(-20px, -20px);
-        }
-    }
-
-    @keyframes toJump {
-        0% {
-            transform: translateY(0) scale(0.9, 1.05);
-        }
-        90% {
-            transform: translateY(-2px) scale(1, 1);
-        }
-        100% {
-            transform: translateY(-2px) scale(1.1, 0.9);
-        }
-    }
-
-    @keyframes toDown {
-        from {
-
-            opacity:0%;
-            transform:translateY(-16px);
-
-        }
-        to {
-
-            opacity:100%;
-
-        }
-
-    }
 }
 
 @layer base {
@@ -110,21 +55,29 @@
         transition: stroke-width 0.3s ease;
     }
 
-    .default-input {
-        @apply shadow-shadow shadow-default h-10 outline-none font-rethink px-4 py-1 text-xs rounded-lg focus:shadow-accent text-text;
-    }
-    .default-button {
-        @apply flex text-sm gap-2 justify-center items-center px-2 py-1 shadow-default font-semibold shadow-shadow rounded-lg cursor-pointer font-rethink text-text;
-    }
-    .button-ghost {
-        @apply px-2 h-10 text-xs font-rethink hover:brightness-130 cursor-pointer;
-    }
+    .focus-primary { @apply focus:shadow-medium focus:shadow-text/20;}
+    .focus-secondary {@appy focus:shadow-medium focus:shadow-primary/20;}
+    .btn-xs {@apply h-6 px-2 text-xs rounded-sm}
+    .btn-sm {@apply h-8 px-3 text-sm rounded-sm}
+    .btn-md {@apply h-10 px-4 text-sm rounded-sm}
+
+    .btn-primary {@apply bg-primary text-text hover:bg-text/30 shadow-default shadow-shadow}
+    .btn-secondary {@apply bg-text text-primary hover:bg-text/70 shadow-default shadow-shadow}
+    .button-ghost {@apply text-xs hover:bg-text/30 cursor-pointer}
+
+
+    .default-input {@apply shadow-shadow shadow-default h-10 outline-none font-geist px-4 font-normal text-xs rounded-sm  text-text}
+    .default-btn {@apply flex text-sm gap-2 justify-center items-center px-2 shadow-default font-medium shadow-shadow rounded-sm cursor-pointer }
+
+
+    .dropdown-md {@apply max-w-52.5 z-4 absolute flex flex-col gap-2 overflow-hidden font-medium}
+    .dropdown-primary {@apply px-2 py-2 bg-accent shadow-default shadow-shadow font-medium}
 
 }
 
 @layer utilities {
     .btn-default {
-        @apply h-8 rounded-lg px-2 py-1 shadow-shadow shadow-default duration-300 text-xs cursor-pointer font-thin;
+        @apply h-8 rounded-sm px-2 py-1 shadow-shadow shadow-default duration-300 text-xs cursor-pointer font-thin;
     }
 }
 

@@ -57,7 +57,7 @@ const FormSearch = ({ refInput, setDebouncedText }: FormSearchProps) => {
         value={searchText}
         max={100}
         onChange={handleChangeText}
-        className="font-geist font-extralight bg-primary/30 pl-8 pr-4 py-2 text-xs h-10 w-full outline-none shadow-default rounded-lg tracking-widest shadow-shadow focus:shadow-seccondary/80"
+        className="font-geist font-extralight bg-primary/30 pl-8 pr-4 py-2 text-xs h-10 w-full outline-none shadow-default rounded-sm tracking-widest shadow-shadow focus:shadow-seccondary/80"
       />
     </form>
   );
@@ -100,7 +100,7 @@ const ListResultSearchContent = ({
 }: {
   children: React.ReactNode;
 }) => (
-  <ul className="bg-primary/40 shadow-shadow/30 shadow-default min-h-30 rounded-lg overflow-x-auto max-h-120 ">
+  <ul className="bg-primary/40 shadow-shadow/30 shadow-default min-h-30 rounded-sm overflow-x-auto max-h-120 ">
     {children}
   </ul>
 );
@@ -232,7 +232,7 @@ export default function GlobalSearch() {
     <>
       {!isSearching ? (
         <button
-          className="relative cursor-text text-start font-geist font-extralight bg-secondary/20 pl-8 pr-4 py-2 text-xs h-8 w-100 outline-none shadow-default rounded-lg tracking-widest shadow-shadow focus:shadow-primary/80"
+          className="relative cursor-text text-start font-geist font-extralight bg-secondary/20 pl-8 px-4 py-2 text-xs w-full h-8 outline-none shadow-default rounded-sm tracking-widest shadow-shadow focus:shadow-primary/80"
           onClick={handleSearchClick}
         >
           <TbSearch

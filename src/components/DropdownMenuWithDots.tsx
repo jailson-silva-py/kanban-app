@@ -20,7 +20,7 @@ const DropdownMenuWithDots = ({ children, ...props }: DropdownMenuWithDotsProps)
     <>
       <button
         onClick={handleOpenDropdown}
-        className="absolute  cursor-pointer right-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-text/5"
+        className="absolute cursor-pointer right-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-text/5"
         aria-label="Mais Opções"
         title="Mais Opções"
       >
@@ -30,7 +30,7 @@ const DropdownMenuWithDots = ({ children, ...props }: DropdownMenuWithDotsProps)
         ref={refListOptions}
         style={{ display: openDrop ? "block" : "none" }}
         {...props}
-        className={`z-3 hidden absolute w-25 h-max font-geist font-light bottom-0 backdrop-blur-sm translate-y-full right-0  shadow-shadow/80 shadow-sm rounded-lg overflow-hidden ${props.className??""}`}
+        className={`z-3 hidden absolute w-25 h-max font-geist font-light right-2 bottom-1 backdrop-blur-sm translate-y-full shadow-shadow shadow-default rounded-sm overflow-hidden ${props.className??""}`}
 
       >
         {children}

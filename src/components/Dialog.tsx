@@ -17,9 +17,9 @@ const Dialog: React.FC<PropsType> = ({ children, state, setState }) => {
   return (
     <>
       {state && (
-        <dialog className="flex flex-col backdrop-blur-sm text-text z-10 fixed p-4 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary/20 backdrop:backdrop-blur-sm w-[80vw] max-w-200 h-50 shadow-default shadow-shadow rounded-lg">
+        <dialog className="flex flex-col backdrop-blur-sm text-text z-10 fixed p-4 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary/20 backdrop:backdrop-blur-sm w-[80vw] max-w-200 h-50 shadow-default shadow-shadow rounded-sm">
           <button
-            className="flex-1 ml-auto  cursor-pointer rounded-lg group"
+            className="flex-1 ml-auto  cursor-pointer rounded-sm group"
             onClick={handleCloseDialog}
           >
             <TbX

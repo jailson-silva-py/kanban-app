@@ -7,7 +7,7 @@ const BoardsPage = () => {
   return (
     <>
       <button
-        className="default-button px-4 py-2 rounded-lg"
+        className="default-btn px-4 py-2 rounded-sm"
         onClick={() => setCount((prev) => prev + 1)}
       >
         Click me

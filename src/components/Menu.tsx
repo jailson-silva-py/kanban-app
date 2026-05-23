@@ -2,27 +2,25 @@ import { TbCategory } from "react-icons/tb";
 import ProfileButton from "./ProfileButton";
 import { getUser } from "@/actions/actions";
 import GlobalSearch from "./GlobalSearch";
+import Link from "next/link";
 
 const Menu = async () => {
   const user = await getUser();
 
   return (
-    <nav className="h-15 bg-yellow-900  w-screen p-4 flex items-center justify-between rounded-b-xl bg-linear-to-b to-accent via-accent/95 from-secondary border-shadow">
-      <ul className="flex justify-center gap-2 w-full h-full">
-        <li className="flex-2 flex items-center gap-4">
-          <button className="group hover:-translate-y-0.5 cursor-pointer text-text">
-            <TbCategory size={24} className="group-hover:scale-102" />
-          </button>
-          <div className="text-2xl font-marck-script bg-linear-270 from-text to-primary bg-clip-text text-transparent text-shadow-xl text-shadow-black ">
+    <nav className="md:px-8 px-4 h-15 w-screen py-2 flex items-center rounded-b-sm bg-secondary">
+      <ul className="flex justify-between  gap-4 w-full h-full">
+        <li className="flex-2 hidden items-center gap-4 sm:flex grow-0">
+          <Link href="/" className="text-2xl font-marck-script bg-linear-270 from-text/60 to-text/80 bg-clip-text text-transparent text-shadow-xl text-shadow-primary ">
             Kanboom
-          </div>
+          </Link>
         </li>
 
-        <li className="flex-6 flex justify-center items-center">
+        <li className="flex-6 flex basis-52.5 max-w-200 justify-center items-center shrink md:flex-4">
           <GlobalSearch />
         </li>
 
-        <li className="flex-2">
+        <li className="flex-1 basis-10 flex items-center grow-0">
           <ProfileButton user={user} />
         </li>
       </ul>

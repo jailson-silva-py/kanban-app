@@ -1,0 +1,62 @@
+  @keyframes customSpin {
+      from {
+          transform: rotate(360deg);
+      }
+
+  }
+
+  @keyframes reDraw  {
+
+      to {
+
+        stroke-dashoffset:0;
+
+      }
+
+  }
+  @keyframes upWidth {
+      from {
+          width: 0;
+      }
+      to {
+          width: 100%;
+      }
+  }
+
+  @keyframes downForTopLeft {
+      from {
+          transform: translate(-20px, -20px);
+      }
+  }
+
+  @keyframes toJump {
+      0% {
+          transform: translateY(0) scale(0.9, 1.05);
+      }
+      90% {
+          transform: translateY(-2px) scale(1, 1);
+      }
+      100% {
+          transform: translateY(-2px) scale(1.1, 0.9);
+      }
+  }
+
+  @keyframes toDown {
+      from {
+
+          opacity:0%;
+          transform:translateY(-16px);
+
+      }
+      to {
+
+          opacity:100%;
+
+      }
+
+  }
+
+  @keyframes hiddenElement {
+
+      to {opacity:0; display:none}
+  }

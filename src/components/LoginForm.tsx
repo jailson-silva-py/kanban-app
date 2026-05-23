@@ -6,10 +6,14 @@ import {
   SubmitEvent,
   useReducer,
   useTransition,
+  useEffect,
 } from "react";
 import { verifyUserExistsByEmail } from "@/actions/actions";
 import { signIn } from "next-auth/react";
 import { emailType, passwordType, usernameType } from "@/types/FormsZodType";
+import LoadingSpinner from "./LoadingSpinner";
+import { InvalidCredentialsError, InvalidMethodAccessError } from "@/types/AuthErrors";
+import { toast } from "@/app/util/toast";
 
 interface StateFormType {
   step: number;
@@ -65,6 +69,7 @@ function reducer(prevState: StateFormType, action: ActionType): StateFormType {
       const objEmailVerify = emailType.safeParse(action.payload);
       const state_email: StateFormType = {
         ...prevState,
+        emailExists:false,
         email: action.payload,
         errors: [],
       };
@@ -91,9 +96,6 @@ function reducer(prevState: StateFormType, action: ActionType): StateFormType {
 
     case "change_email_exists":
       const stateExists = { ...prevState, emailExists: !prevState.emailExists };
-      stateExists.emailExists
-        ? (stateExists.decrement = 2)
-        : (stateExists.decrement = 1);
 
       return stateExists;
 
@@ -115,8 +117,12 @@ function reducer(prevState: StateFormType, action: ActionType): StateFormType {
       return prevState;
   }
 }
+interface AuthenticationFormProps {
 
-const LoginForm = () => {
+  isSignIn: boolean;
+
+}
+const LoginForm: React.FC<AuthenticationFormProps> = ({isSignIn=false}) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [pending, startTransition] = useTransition();
 
@@ -134,61 +140,91 @@ const LoginForm = () => {
       startTransition(async () => {
         const exists = await verifyUserExistsByEmail(state.email);
 
-        if (exists) dispatch({ type: "change_email_exists" });
+        if (exists) {
+          dispatch({ type: "change_email_exists" })
+        }
+        if (exists && isSignIn) return
+        dispatch({ type: "next_step" });
+
       });
+
     } else if (
-      state.step === fieldsFormLength - state.decrement &&
       state.email &&
       state.password
     ) {
-      const obj = {
-        name: state.name,
-        password: state.password,
-        email: state.email,
-      };
-      startTransition(async () => signIn("credentials", { ...obj }));
+      if (isSignIn) {
+
+        if (!state.name) {
+          dispatch({ type: "next_step" })
+          return
+        }
+        const objSignIn = {
+          name: state.name,
+          password: state.password,
+          email: state.email,
+        };
+        startTransition(async () => signIn("credentials-signin", { ...objSignIn }));
+        return
+
+      }
+
+      const objLogIn = { password: state.password, email: state.email }
+      startTransition(async () => {
+        signIn("credentials-login", { ...objLogIn }).catch((err) => {
+
+          if (err instanceof InvalidCredentialsError) toast.error("Email ou senha incorreta, tente novamente")
+          if (err instanceof InvalidMethodAccessError) toast.error("Tente usar outro método de login")
+          throw new Error(err)
+
+        })
+      });
       return;
     }
 
-    dispatch({ type: "next_step" });
   };
+
 
   const inputsStep = [
     <input
+      key={1}
       type="text"
       name="email"
       id="credentials-email"
       value={state.email}
       onChange={handlerEmail}
       placeholder="Insira seu Email"
-      className="default-input w-full"
+      className="default-input focus-primary w-full"
       required
     />,
     <input
+      key={2}
       type="password"
       name="password"
       id="credentials-password"
       value={state.password}
       onChange={handlePassword}
       placeholder="Insira sua Senha"
-      className="default-input w-full"
+      className="default-input focus-primary w-full"
       required
-    />,
+    />
+    ,
     <input
+      key={3}
       type="text"
       name="name"
       id="credentials-text"
       value={state.name}
       onChange={handlerUsername}
       placeholder="Informe seu nome de usuário"
-      className="default-input w-full"
+      className="default-input focus-primary w-full"
       required
     />,
+
   ];
 
   return (
     <form
-      className="flex flex-col gap-4 min-w-75 w-7/10"
+      className="flex flex-col gap-4 w-full"
       onSubmit={submitLogin}
     >
       <label className="flex flex-col gap-2">
@@ -197,6 +233,7 @@ const LoginForm = () => {
         {inputsStep[state.step]}
 
         <div className="flex flex-col gap-1 text-xs text-error">
+          {isSignIn && state.emailExists && <small className="animate-hidden">Email não disponível para cadastro.</small>}
           {state.errors.map((error, i) => (
             <small key={i}>* {error}</small>
           ))}
@@ -205,14 +242,14 @@ const LoginForm = () => {
 
       <button
         type="submit"
-        className="default-button w-full h-10 bg-btn hover:brightness-110 disabled:opacity-70"
+        className="default-btn w-full btn-md btn-primary"
         disabled={pending || state.errors.length > 0}
       >
-        {state.step < fieldsFormLength - state.decrement ? (
-          <span>{!pending ? "Continuar" : "Processando..."}</span>
-        ) : (
-          <span>{!pending ? "Log In" : "Processando..."}</span>
-        )}
+        {state.step < fieldsFormLength - (isSignIn ? 0:1) ?
+          !pending ? <span>Continuar</span> : <LoadingSpinner/>
+         :
+        !pending ? isSignIn ? <span>Sign In</span>: <span>Log In</span> : <LoadingSpinner/>
+        }
       </button>
     </form>
   );

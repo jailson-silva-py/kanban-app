@@ -16,16 +16,16 @@ const { timeout } = {
     const promise = new Promise<never>((_, reject) => {
       const timer = setTimeout(() => {
         reject(new Error("Timeout: A operação no banco demorou demais!"));
-      }, 5000); // 5 segundos de limite
+      }, 10000); // 5 segundos de limite
 
       // Se o controller for acionado parar timer imediatamente
       controller.signal.addEventListener("abort", () => clearTimeout(timer));
     });
 
-    // Acoplamos o método de limpeza na própria Promise para interceptar o fim da corrida
+    // Acoplando método de limpeza na própria Promise para interceptar o fim da corrida
     const originalThen = promise.then.bind(promise);
     promise.then = function (onfulfilled, onrejected) {
-      controller.abort(); // Limpa o timer assim que qualquer lado resolver
+      controller.abort(); // Limpa o timer
       return originalThen(onfulfilled, onrejected);
     };
 
@@ -199,6 +199,7 @@ export async function createBoardFromUser({
 }
 
 export async function getBoardById(id: string): Promise<BoardFull | null> {
+
   return protectedActions((session) =>
     Promise.race([
       prisma.board.findFirst({

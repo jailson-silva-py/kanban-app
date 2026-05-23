@@ -106,10 +106,10 @@ const CreateColumnItemBtn = () => {
   }, [createMode]);
 
   return (
-    <li className="rounded-lg min-w-65 h-12">
+    <li className="rounded-sm min-w-65 h-12">
       <Activity mode={createMode ? "hidden" : "visible"}>
         <button
-          className="w-full h-full flex items-center gap-2 cursor-pointer shadow-shadow shadow-default p-4 rounded-lg hover:bg-text/10"
+          className="w-full h-full flex items-center gap-2 cursor-pointer shadow-shadow shadow-default p-4 rounded-sm hover:bg-text/10"
           onClick={handleChangeCreateMode}
         >
           <TbPlus size={24} />
@@ -132,7 +132,7 @@ const CreateColumnItemBtn = () => {
           />
           <button
             type="submit"
-            className="default-button flex items-center justify-center w-15 h-8"
+            className="default-btn flex items-center justify-center w-15 h-8"
           >
             {!isPending ? <span>Criar</span> : <LoadingSpinner size={18} />}
           </button>

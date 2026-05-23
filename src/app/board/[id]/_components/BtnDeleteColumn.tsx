@@ -64,7 +64,7 @@ const BtnDeleteColumn = ({ columnId }: BtnDeleteColumnProps) => {
           <button
             disabled={isPending}
             type="submit"
-            className="text-xs cursor-pointer w-full h-full p-1 flex items-center justify-center hover:bg-error/20 rounded-lg"
+            className="text-xs cursor-pointer w-full h-full p-1 flex items-center justify-center hover:bg-error/20 rounded-sm"
           >
             {!isPending ? <span>Deletar</span> : <LoadingSpinner />}
           </button>
