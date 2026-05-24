@@ -6,13 +6,13 @@ const Home = async () => {
   const initialData = await getAllBoardFromUser();
 
   return (
-    <div className="relative p-8 w-full h-full flex flex-col gap-8 tracking-widest text-text">
+    <div className="relative px-4 py-8 md:p8 w-full h-full flex flex-col gap-8 tracking-wider text-text">
       <div className="flex flex-1 flex-col gap-4 w-full">
-        <span className="font-rethink font-semibold text-2xl">Recentes: </span>
+        <span className="font-rethink font-medium tracking-widest text-xl">Recentes: </span>
         <BoardList type="recent" initialData={initialData} />
       </div>
       <div className="flex flex-1 flex-col gap-4 w-full">
-        <span className="font-rethink font-semibold text-2xl">
+        <span className="font-rethink font-medium tracking-widest text-xl">
           Todos os boards:
         </span>
         <BoardList initialData={initialData}>

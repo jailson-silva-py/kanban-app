@@ -22,9 +22,9 @@
     --shadow-bottom-left:
         var(--shadow-bottom-left-size) var(--tw-shadow-color),
         var(--shadow-default-size) var(--tw-shadow-color);
-    --shadow-bottom-right-size: 1px 2px 2px 0px;
-    --shadow-bottom-right:
-        var(--shadow-bottom-right-size) var(--tw-shadow-color),
+    --shadow-bottom-size: 0px 4px 1px 0px;
+    --shadow-bottom:
+        var(--shadow-bottom-size) var(--tw-shadow-color),
         var(--shadow-default-size) var(--tw-shadow-color);
     --font-rethink: var(--font-rethink);
     --font-geist: var(--font-geist);
@@ -55,8 +55,8 @@
         transition: stroke-width 0.3s ease;
     }
 
-    .focus-primary { @apply focus:shadow-medium focus:shadow-text/20;}
-    .focus-secondary {@appy focus:shadow-medium focus:shadow-primary/20;}
+    .focus-primary { @apply focus:shadow-medium focus:shadow-text/20}
+    .focus-secondary {@appy focus:shadow-medium focus:shadow-primary/20}
     .btn-xs {@apply h-6 px-2 text-xs rounded-sm}
     .btn-sm {@apply h-8 px-3 text-sm rounded-sm}
     .btn-md {@apply h-10 px-4 text-sm rounded-sm}

@@ -57,7 +57,7 @@ const FormSearch = ({ refInput, setDebouncedText }: FormSearchProps) => {
         value={searchText}
         max={100}
         onChange={handleChangeText}
-        className="font-geist font-extralight bg-primary/30 pl-8 pr-4 py-2 text-xs h-10 w-full outline-none shadow-default rounded-sm tracking-widest shadow-shadow focus:shadow-seccondary/80"
+        className="font-geist font-extralight bg-primary pl-8 pr-4 py-2 text-xs h-10 w-full outline-none shadow-default rounded-sm tracking-widest shadow-shadow focus:shadow-seccondary/80"
       />
     </form>
   );
@@ -232,7 +232,7 @@ export default function GlobalSearch() {
     <>
       {!isSearching ? (
         <button
-          className="relative cursor-text text-start font-geist font-extralight bg-secondary/20 pl-8 px-4 py-2 text-xs w-full h-8 outline-none shadow-default rounded-sm tracking-widest shadow-shadow focus:shadow-primary/80"
+          className="relative cursor-text text-text-secondary focus:shadow-tex/30 focus:shadow-medium btn-sm text-start font-geist font-light bg-primary/30 pl-8 px-4 py-2 text-xs w-full outline-none shadow-default rounded-sm shadow-shadow tracking-wider"
           onClick={handleSearchClick}
         >
           <TbSearch
@@ -245,7 +245,7 @@ export default function GlobalSearch() {
         <div className="p-4 z-10 top-0 left-0 fixed  flex justify-center h-screen w-screen bg-primary/50 backdrop-blur-sm ">
           <div
             ref={refContextSearchContext}
-            className="w-9/10 max-w-150 min-w-75  h-max flex flex-col gap-2"
+            className="w-9/10 max-w-150 min-w-52.5  h-max flex flex-col gap-2"
           >
             <FormSearch
               refInput={refInput}

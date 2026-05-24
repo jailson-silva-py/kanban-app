@@ -266,7 +266,7 @@ const Board = ({ initialData }: Iprops) => {
           className="px-8 py-4 flex gap-8 flex-7 shrink-0 w-full overflow-x-auto overflow-y-hidden duration-700 ease-in-out"
           ref={refListColumnsBoard}
         >
-          <form onSubmit={onReOrderCards} ref={refFormElement}>
+          <form onSubmit={onReOrderCards} ref={refFormElement} className="hidden">
             <button type="submit" hidden></button>
           </form>
           {[...board.columns.values()].map((column) => {

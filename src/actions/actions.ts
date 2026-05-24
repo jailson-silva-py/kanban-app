@@ -16,7 +16,7 @@ const { timeout } = {
     const promise = new Promise<never>((_, reject) => {
       const timer = setTimeout(() => {
         reject(new Error("Timeout: A operação no banco demorou demais!"));
-      }, 10000); // 5 segundos de limite
+      }, 5000); // 5 segundos de limite
 
       // Se o controller for acionado parar timer imediatamente
       controller.signal.addEventListener("abort", () => clearTimeout(timer));

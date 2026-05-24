@@ -6,13 +6,11 @@ import {
   SubmitEvent,
   useReducer,
   useTransition,
-  useEffect,
 } from "react";
 import { verifyUserExistsByEmail } from "@/actions/actions";
 import { signIn } from "next-auth/react";
 import { emailType, passwordType, usernameType } from "@/types/FormsZodType";
 import LoadingSpinner from "./LoadingSpinner";
-import { InvalidCredentialsError, InvalidMethodAccessError } from "@/types/AuthErrors";
 import { toast } from "@/app/util/toast";
 
 interface StateFormType {
@@ -163,21 +161,39 @@ const LoginForm: React.FC<AuthenticationFormProps> = ({isSignIn=false}) => {
           password: state.password,
           email: state.email,
         };
-        startTransition(async () => signIn("credentials-signin", { ...objSignIn }));
+        startTransition(async () => {
+          const result = await signIn("credentials-signin", { ...objSignIn, redirect: false })
+          //Apenas por garantia
+          switch (result.code) {
+            case "invalid_fields":
+              toast.error("Os valores digitados não cumprem os requisitos, tente novamente.")
+              break
+            case "unavaliable_email":
+              toast.error("Email já existe, tente outro.")
+              break
+          }
+        });
         return
 
       }
 
       const objLogIn = { password: state.password, email: state.email }
       startTransition(async () => {
-        signIn("credentials-login", { ...objLogIn }).catch((err) => {
+        const result = await signIn("credentials-login", { ...objLogIn, redirect: false })
+        switch (result.code) {
 
-          if (err instanceof InvalidCredentialsError) toast.error("Email ou senha incorreta, tente novamente")
-          if (err instanceof InvalidMethodAccessError) toast.error("Tente usar outro método de login")
-          throw new Error(err)
+          case "invalid_fields":
+            toast.error("Os valores digitados não cumprem os requisitos, tente novamente.")
+            break
+          case "invalid_login":
+            toast.error("Email ou senha incorretos")
+            break
+          case "invalid_method_access":
+            toast.error("Método de acesso inválido, tente outro método.")
+            break
+        }
+    });
 
-        })
-      });
       return;
     }
 
@@ -245,10 +261,10 @@ const LoginForm: React.FC<AuthenticationFormProps> = ({isSignIn=false}) => {
         className="default-btn w-full btn-md btn-primary"
         disabled={pending || state.errors.length > 0}
       >
-        {state.step < fieldsFormLength - (isSignIn ? 0:1) ?
+        {state.step < fieldsFormLength - (isSignIn ? 1:2) ?
           !pending ? <span>Continuar</span> : <LoadingSpinner/>
          :
-        !pending ? isSignIn ? <span>Sign In</span>: <span>Log In</span> : <LoadingSpinner/>
+        !pending ? isSignIn ? <span>Criar</span>: <span>Entrar</span> : <LoadingSpinner/>
         }
       </button>
     </form>

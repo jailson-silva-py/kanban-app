@@ -6,7 +6,6 @@ import { prisma } from "prisma";
 import { hash, verify } from "argon2";
 import { emailType, passwordType, usernameType } from "@/types/FormsZodType";
 import {
-  DatabaseError,
   EmailAlreadyExistsError,
   InvalidCredentialsError,
   InvalidMethodAccessError,
@@ -78,15 +77,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!tryUser) throw new InvalidCredentialsError()
         else if (tryUser?.password !== null) {
-          console.log(credentials.password)
-          console.log(tryUser.password)
-          const equals = await verify(credentials.password as string, tryUser?.password);
-          if (equals) {
 
-            const user = { ...tryUser, password: null }
-            return user;
-
-          }
+          const equals = await verify(tryUser?.password, credentials.password as string);
+          if (!equals) throw new InvalidCredentialsError()
+          const user = { ...tryUser, password: null }
+          return user;
 
         } else if (tryUser.password == null) throw new InvalidMethodAccessError()
         return null;
@@ -111,6 +106,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   adapter: PrismaAdapter(prisma),
   pages: {
-    signIn: "/login",
+    signIn:"/login",
   },
+
 });

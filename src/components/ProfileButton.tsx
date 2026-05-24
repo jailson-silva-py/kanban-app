@@ -4,7 +4,6 @@ import { User } from "@/types/dataTypes";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { Activity, useState, useTransition } from "react";
-import { TbLogout, TbSignRight, TbUserCircle } from "react-icons/tb"
 import { Separator } from "./Separator";
 import Link from "next/link";
 
@@ -39,8 +38,8 @@ const ProfileButton = ({user}:Iprops) => {
               <Image src={user?.image || ""}  alt="profile-image" fill sizes="100%, 100%" className="rounded-full" loading="eager"/>
             </button>
             :
-            <Link href="/signin" className="w-15 default-btn text-xs btn-secondary btn-sm flex justify-center gap-2">
-              Entrar
+            <Link href="/signin" className="w-28 default-btn text-xs btn-secondary btn-sm font-semibold flex justify-center gap-2">
+              Fazer login
             </Link>
           }
           <Activity mode={openDropdown && user ? "visible" : "hidden"}>

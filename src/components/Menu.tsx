@@ -1,4 +1,3 @@
-import { TbCategory } from "react-icons/tb";
 import ProfileButton from "./ProfileButton";
 import { getUser } from "@/actions/actions";
 import GlobalSearch from "./GlobalSearch";
@@ -16,9 +15,9 @@ const Menu = async () => {
           </Link>
         </li>
 
-        <li className="flex-6 flex basis-52.5 max-w-200 justify-center items-center shrink md:flex-4">
+        {user && <li className="flex-6 flex basis-52.5 max-w-150 justify-center items-center shrink md:flex-4">
           <GlobalSearch />
-        </li>
+        </li>}
 
         <li className="flex-1 basis-10 flex items-center grow-0">
           <ProfileButton user={user} />

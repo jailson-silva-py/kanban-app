@@ -3,12 +3,12 @@ import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
 const privateRoutes = ["/home", "/profile"];
-const publicRoutes = ["/login"]
+const publicRoutes = ["/login", "/signin"]
 
 export default async function proxy(req:NextRequest) {
 
     const token = await getToken({req, secret:process.env.AUTH_SECRET})
-    
+
     const { pathname } = req.nextUrl;
 
     const isPrivateRoute = privateRoutes.some((route) =>{

@@ -46,7 +46,7 @@ const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
       <li className="flex flex-col rounded-sm w-full h-37.5" {...props}>
         <button
           type="submit"
-          className="bg-primary z-1 h-8/10 w-full flex flex-col text-xs gap-2 items-center justify-center shadow-default shadow-shadow rounded-sm hover:brightness-150 cursor-pointer"
+          className="bg-secondary/60 z-1 h-8/10 w-full flex flex-col text-xs gap-2 items-center justify-center shadow-bottom shadow-shadow rounded-sm hover:brightness-150 cursor-pointer"
           onClick={handleOpenDialog}
         >
           <TbPlus size={32} />

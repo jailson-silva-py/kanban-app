@@ -1,3 +1,5 @@
+import { CredentialsSignin } from "next-auth";
+
 export class AppError extends Error {
 
   constructor(message: string, public status?: number) {
@@ -22,13 +24,13 @@ export class UnexpectedError extends AppError {
 }
 
 
-export class InvalidFieldsError extends AppError {
+export class InvalidFieldsError extends CredentialsSignin {
 
   constructor(message="Os dados fornecidos não condizem com os requisitos.", cause?:unknown) {
 
-    super(message, 422)
+    super(message)
     this.name = "InvalidFieldsError"
-    this.cause = cause
+    this.code = "invalid_fields"
 
   }
 
