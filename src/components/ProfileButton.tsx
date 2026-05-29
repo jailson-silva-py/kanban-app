@@ -51,10 +51,10 @@ const ProfileButton = ({user}:Iprops) => {
                   <Separator/>
               </li>
               <li>
-              <Link href="/profile" className="flex items-center button-ghost text-xs btn-xs w-full text-start">Profile</Link>
+              <Link href="/profile" className="flex items-center btn-ghost text-xs btn-xs w-full text-start">Profile</Link>
               </li>
               <li>
-                  <button onClick={handleLogout}className="button-ghost btn-xs text-xs w-full text-start">
+                  <button onClick={handleLogout}className="btn-ghost btn-xs text-xs w-full text-start">
                       {isPending ? "Processando...":"Log out"}
                   </button>
               </li>

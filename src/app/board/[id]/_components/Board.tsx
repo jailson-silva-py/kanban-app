@@ -16,6 +16,7 @@ import { useGetInitialBoard } from "@/hooks/useGetInitialBoard";
 import { column } from "@/constrants/queryKeys";
 import { ColumnClient } from "@/types/clientDataTypes";
 import { Separator } from "@/components/Separator";
+import useFloatMenuStorage from "@/hooks/useFloatMenuStorage";
 
 interface Iprops {
   initialData: BoardFull;
@@ -42,6 +43,8 @@ const Board = ({ initialData }: Iprops) => {
   const refFormElement = useRef<HTMLFormElement>(null);
   const [mutationObj, setMutationObj] =
     useState<null | MutationObjTypeFromOrder>(null);
+
+  const storage = useFloatMenuStorage()
 
   const { data: board, isLoading } = useGetInitialBoard(initialData);
   const { mutate } = useMutation({
@@ -102,7 +105,7 @@ const Board = ({ initialData }: Iprops) => {
   }, [isLoading, pathname, router, board]);
 
   return (
-    <div className=" shadow-shadow shadow-default bg-primary  overflow-hidden h-full flex-4 rounded-sm flex flex-col">
+    <div style={{display:!storage.openBoard ? "none": undefined}} className="relative shadow-shadow shadow-default bg-primary overflow-hidden  w-full h-full rounded-sm flex flex-col">
       <header className="flex items-center flex-3 basis-15 shrink-0 grow-0 px-8 w-full bg-secondary">
         <div className="flex items-center justify-center gap-2">
           <TbChalkboard size={24} />
@@ -126,7 +129,6 @@ const Board = ({ initialData }: Iprops) => {
             source: SortableDraggable<Card> | null;
             target: Droppable;
           };
-          // O único draggable é o card, ou seja, source.type==="card"
 
           if (!source || !target || event.operation.canceled) {
             console.error("Target ou source não encontrados");
@@ -258,7 +260,7 @@ const Board = ({ initialData }: Iprops) => {
 
             setMutationObj({ cardId: source.data.id, columnTargetId, positionCard: position, nextCardId: nextCard?.id, prevCardId: prevCard?.id })
             refFormElement.current?.requestSubmit()
-            console.log("submit com os dados: ", { cardId: source.data.id, columnTargetId, positionCard: position, nextCardId: nextCard?.id, prevCardId: prevCard?.id })
+
           }
         }}
       >

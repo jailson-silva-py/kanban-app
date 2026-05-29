@@ -1,6 +1,3 @@
-export const dynamic = "force-static"
-
-import Link from "next/link";
 import { TbPlaystationTriangle } from 'react-icons/tb'
 import BtnGoToHome from "./_components/BtnLinkGoTo";
 
@@ -17,12 +14,12 @@ export default function Home() {
         <p>Desfrute da suprema organização moderna com confiabilidade e conforto</p>
         </div>
 
-        
+
         <BtnGoToHome  text="Iniciar" href={"/home"} className="group bg-btn cursor-pointer flex items-center justify-center gap-1 w-40 h-10 shadow-default shadow-shadow rounded-sm hover:-translate-y-1">
         <TbPlaystationTriangle size={24} className="group-hover:size-8 rotate-90 stroke-[1px] duration-500"/>
         </BtnGoToHome>
-      
-        
+
+
       </main>
     </div>
   );

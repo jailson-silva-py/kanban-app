@@ -3,7 +3,7 @@ import BoardList from "./components/BoardList";
 import BoardAdd from "./components/BoardAdd";
 
 const Home = async () => {
-  const initialData = await getAllBoardFromUser();
+  const initialData = await getAllBoardFromUser()
 
   return (
     <div className="relative px-4 py-8 md:p8 w-full h-full flex flex-col gap-8 tracking-wider text-text">

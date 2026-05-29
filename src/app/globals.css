@@ -63,7 +63,7 @@
 
     .btn-primary {@apply bg-primary text-text hover:bg-text/30 shadow-default shadow-shadow}
     .btn-secondary {@apply bg-text text-primary hover:bg-text/70 shadow-default shadow-shadow}
-    .button-ghost {@apply text-xs hover:bg-text/30 cursor-pointer}
+    .btn-ghost {@apply text-xs hover:bg-text/30 cursor-pointer}
 
 
     .default-input {@apply shadow-shadow shadow-default h-10 outline-none font-geist px-4 font-normal text-xs rounded-sm  text-text}
@@ -113,16 +113,4 @@ input[type="search"]::-webkit-search-results-decoration {
     -webkit-appearance: none;
     appearance: none;
     display: none;
-}
-
-.move-top {
-
-    transform: translateY(-16px);
-
-}
-
-.move-bottom {
-
-    transform: translateY(16px);
-
 }

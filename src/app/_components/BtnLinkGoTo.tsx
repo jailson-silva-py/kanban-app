@@ -9,7 +9,7 @@ const BtnGoToHome:React.FC<Iprops> =  ({children, text, ...props}) => {
     const { pending } = useLinkStatus()
 
     return (
-    <Link {...props} prefetch className={`font-light text-sm group-hover:text-[15px] duration-300 ${props.className}`}>
+    <Link {...props} prefetch className={`btn-md btn-primary font-light text-xs duration-300 ${props.className}`}>
     {children}
     {pending? "Aguarde...":text}
     </Link>

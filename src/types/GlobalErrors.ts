@@ -2,11 +2,21 @@ import { CredentialsSignin } from "next-auth";
 
 export class AppError extends Error {
 
-  constructor(message: string, public status?: number) {
+  constructor(message: string, public status?: number, code?:string) {
 
     super(message);
     this.name = this.constructor.name
+  }
 
+}
+
+export class TimeoutError extends AppError {
+
+  constructor(message="Os dados demoram demais para serem entregues", ) {
+
+    super(message)
+    this.name = "InvalidFieldsError"
+    this.name = "TimeoutError"
   }
 
 }

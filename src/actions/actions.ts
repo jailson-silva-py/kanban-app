@@ -8,6 +8,7 @@ import {
 import { prisma } from "prisma";
 import { auth } from "auth";
 import { protectedActions } from "./wrappers";
+import { TimeoutError } from "@/types/GlobalErrors";
 
 const { timeout } = {
   get timeout() {
@@ -15,8 +16,8 @@ const { timeout } = {
 
     const promise = new Promise<never>((_, reject) => {
       const timer = setTimeout(() => {
-        reject(new Error("Timeout: A operação no banco demorou demais!"));
-      }, 5000); // 5 segundos de limite
+        reject(new TimeoutError());
+      }, 5000);
 
       // Se o controller for acionado parar timer imediatamente
       controller.signal.addEventListener("abort", () => clearTimeout(timer));
@@ -28,20 +29,20 @@ const { timeout } = {
       controller.abort(); // Limpa o timer
       return originalThen(onfulfilled, onrejected);
     };
-
     return promise;
   },
 };
 
 export async function getUser() {
+
   const session = await auth();
+  if (!session?.user?.id) return null
+    return prisma.user.findFirst({
+      where: { id: session?.user.id },
+      select: { name: true, image: true, id: true, email: true },
+    });
 
-  if (!session?.user?.id) return;
 
-  return prisma.user.findFirst({
-    where: { id: session.user.id },
-    select: { name: true, image: true, id: true, email: true },
-  });
 }
 
 export async function verifyUserExistsByEmail(email: string) {

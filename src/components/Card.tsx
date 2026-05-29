@@ -120,7 +120,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
           <form onSubmit={onChangeIsComplete} className="h-max full">
             <button
               type="submit"
-              className="p-1 w-full h-7 button-ghost hover:bg-text/20 rounded-sm"
+              className="p-1 w-full h-7 btn-ghost hover:bg-text/20 rounded-sm"
             >
               {completed ? "Retomar" : "Concluir"}
             </button>
@@ -131,7 +131,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
           <form onSubmit={onChangeDeleteCard} className="h-max full">
             <button
               type="submit"
-              className="flex justify-center items-center p-1 w-full h-7 button-ghost hover:bg-error/20 rounded-sm"
+              className="flex justify-center items-center p-1 w-full h-7 btn-ghost hover:bg-error/20 rounded-sm"
               disabled={isPending}
             >
               <span>Deletar</span>
