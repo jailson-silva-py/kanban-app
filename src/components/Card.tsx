@@ -17,7 +17,7 @@ type CardProps = {
 const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
   const queryKey = ['column', card.columnId];
   const [completed, setCompleted] = useState(card.completed);
-  const { ref, isDragging, isDropping } = useSortable({
+  const { ref, isDragging, isDropping, isDropTarget } = useSortable({
     id: `card-${card.id}`,
     index: card.position,
     type: "card",
@@ -41,23 +41,23 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
 
       return await onMutateFunction<ColumnClient>(context, cardsKey ?? queryKey, (old) => {
 
-        const old_cards = old.cards
+        const {cardsMap, cards:oldCards} = old
 
         if (variables.isDeletion) {
 
-          old_cards.delete(card.id)
-
-          const cards = new Map(old_cards);
-
-          return { ...old, cards }
+          cardsMap.delete(card.id);
+          const cards = oldCards.filter((target) => target.id !== card.id);
+          return { ...old, cardsMap, cards }
 
         }
 
-        const oldCard = old_cards.get(card.id) as CardType
+        const oldCard = cardsMap.get(card.id) as CardType
         const newCard = { ...oldCard, completed: !oldCard?.completed }
-        old_cards.set(card.id, newCard)
-        const cards = new Map(old_cards)
-        return { ...old, cards }
+
+        const index = oldCards.findIndex((target) => target.id == card.id);
+        oldCards[index] = newCard;
+        cardsMap.set(card.id, newCard)
+        return { ...old, cardsMap, cards:oldCards }
         });
 
     },
@@ -85,6 +85,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
 
   return (
     <li
+      style={{border:isDropTarget ? "1px solid white":""}}
       className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-secondary shadow-shadow shadow-default px-4 py-2 rounded-sm text-xs font-light font-geist cursor-pointer hover:-top-0.5 ease-out"
       {...props}
       ref={ref}

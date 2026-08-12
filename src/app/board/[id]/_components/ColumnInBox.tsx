@@ -11,7 +11,7 @@ const CardsInBox = () => {
 
   if (isLoading && !inBox) {
     return <CardsLoading/>;
-  } else if (!inBox || inBox.cards.size <= 0)
+  } else if (!inBox || inBox.cards.length <= 0)
     return (
       <p className="text-lg tracking-widest flex-6">Não há nenhum cartão.</p>
     );
@@ -25,7 +25,7 @@ const CardsInBox = () => {
   return (
     <div className="w-full flex-6 overflow-y-auto px-4 py-2 duration-700 ease-in-out max-h-[75vh]">
       <CardsContent>
-        {[...inBox.cards.values()].map((card) => {
+        {inBox.cards.map((card) => {
 
           return (<Card key={card.id}  card={card} cardsKey={inBoxCards}/>)
 

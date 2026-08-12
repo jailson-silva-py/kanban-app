@@ -5,7 +5,6 @@ import { useMutation } from "@tanstack/react-query";
 import { Card } from "@/types/dataTypes";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { onMutateFunction } from "@/app/util/mutations";
-import { prependItem } from "@/app/util/manipulationMaps";
 import { InBoxClient } from "@/types/clientDataTypes";
 
 
@@ -26,18 +25,21 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
       return onMutateFunction<InBoxClient>(context, cardsKey, (old) => {
 
         const card: Card = { ...variables, columnId:old.id, completed: false, position: Infinity }
-        const newCards = prependItem<Card>(old.cards, card, (value) => value?.id !== card.id)
-        return {...old, cards:newCards}
+        const cards = [card, ...old.cards]
+        const cardsMap = old.cardsMap.set(variables.id, card)
+        return {...old, cards, cardsMap}
 
       })
     },
 
     onSuccess: (data, variables, result, context) => {
-      if (!data || !result?.previousState?.id) return;
-      const previous = result?.previousState.cards ?? new Map();
-      const cards = prependItem<Card>(previous, data, (value) => value?.id !== data.id)
-
-      context.client.setQueryData<InBoxClient>(cardsKey, {id:result?.previousState.id, cards});
+      const queryData = context.client.getQueryData<InBoxClient>(cardsKey);
+      if (!data || !queryData) return;
+      const cards = queryData.cards;
+      const targetIndex = cards.findIndex((target) => target.id == data.id);
+      cards[targetIndex] = data
+      const cardsMap = queryData.cardsMap;
+      context.client.setQueryData<InBoxClient>(cardsKey, {...queryData, cardsMap, cards});
     },
 
     onError: (_err, _title, result, context) => {

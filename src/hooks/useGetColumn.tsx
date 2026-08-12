@@ -14,20 +14,18 @@ export const useGetColumn = (columnId: string, boardId: string, queryOptions?:Om
 
   const result = useQuery({
     placeholderData: {
-      ...column, cards: new Map<string, Card>()
+      ...column, cardsMap: new Map<string, Card>()
     } as ColumnClient,
     queryKey:['column', columnId],
     queryFn: async () => {
-      const columnData = await getColumnById(columnId)
-
+      const columnData = await getColumnById(columnId);
       if (!columnData) {
         return null;
-
       }
 
       const result: ColumnClient = {
         ...columnData,
-        cards: arrayTransformToMap(columnData.cards),
+        cardsMap: arrayTransformToMap(columnData.cards),
       }
 
       return result

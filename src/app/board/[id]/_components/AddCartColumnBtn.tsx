@@ -7,7 +7,6 @@ import useOutClick from "@/hooks/useOutClick";
 import { column } from "@/constrants/queryKeys";
 import { ColumnClient } from "@/types/clientDataTypes";
 import { onMutateFunction } from "@/app/util/mutations";
-import { prependItem } from "@/app/util/manipulationMaps";
 import { Card } from "@/types/dataTypes";
 
 type Props = {
@@ -28,23 +27,23 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
     mutationFn: ({ title, id }: { title: string; id: string }) =>
       createCartForColumn({ columnId, title, id }),
     onMutate: async (variables, context) => {
-      return await onMutateFunction<ColumnClient>(context, queryKey, (old) => {
-        const oldCards = old.cards;
-        const { id, title } = variables;
-        const newCards = prependItem<Card>(oldCards,
-          { id, title, columnId: old.id, completed: false, position: Infinity },
-          (value) => variables.id !== value?.id);
-
-        return { ...old, cards:newCards }
+      //Set Data da Query é feita no onMutateFunci
+      return onMutateFunction<ColumnClient>(context, queryKey, (old) => {
+        const card: Card = { ...variables, columnId: old.id, completed: false, position: Infinity }
+        const cards = [card, ...old.cards]
+        const cardsMap = old.cardsMap.set(variables.id, card)
+        console.log(cards)
+        return { ...old, cards, cardsMap }
 
       })
     },
     onSuccess: (data, variables, onMutateResult, context) => {
-      if(!onMutateResult) return
-      if (!data || !onMutateResult.previousState?.cards || onMutateResult.previousState.cards.has(data?.id)) return;
-      const cards = new Map(onMutateResult.previousState.cards);
-      const newCards = prependItem(cards, data, (value) => value?.id !== data.id)
-      context.client.setQueryData<ColumnClient>(queryKey, {...onMutateResult.previousState, cards:newCards});
+      const queryData = context.client.getQueryData<ColumnClient>(queryKey)
+      if (!queryData || !data) return
+      const { cards, cardsMap } = queryData;
+      const indexTarget = cards.findIndex((target) => target.id === data.id);
+      cards[indexTarget] = data
+      context.client.setQueryData<ColumnClient>(queryKey, {...queryData, cards, cardsMap});
     },
     onError: (_err, _title, result, context) => {
       context.client.setQueryData(queryKey, result?.previousState);

@@ -2,10 +2,15 @@
 
 type FloatMenuStorage = {
   openInBox: boolean
-  openBoard: boolean
+  openBoard: boolean,
+  isShow: boolean,
+  timer?:ReturnType<typeof setTimeout>
 };
 
-const initialStorage: FloatMenuStorage = { openInBox: true, openBoard: true };
+const initialStorage: FloatMenuStorage = {
+  openInBox: true, openBoard: true,
+  isShow: true
+};
 let storage: FloatMenuStorage = { ...initialStorage };
 
 type Subscriber = (objStorage: FloatMenuStorage) => void;
@@ -39,5 +44,12 @@ export const floatMenuStorage = {
   invertOpenBoard () {
     storage = {...storage, openBoard:!storage.openBoard}
     notifySubscribers();
+  },
+  showMenu() {
+    storage = {...storage, isShow:true}
+  },
+  closeMenu() {
+    storage = {...storage, isShow:false}
+
   }
 }

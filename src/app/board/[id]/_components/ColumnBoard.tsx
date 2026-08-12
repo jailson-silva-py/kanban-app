@@ -26,7 +26,7 @@ function ColumnBoard({ id, boardId,  ...props }: Iprops) {
     accept: "card",
     collisionPriority: CollisionPriority.Low,
   });
-
+  console.log(data?.cards)
   return (
 
     <li
@@ -52,12 +52,9 @@ function ColumnBoard({ id, boardId,  ...props }: Iprops) {
             id={`column-${data.id}`}
 
             className="p-4 flex-8 overflow-y-auto shrink-0 basis-96 duration-2000 ease-in-out"
-            >
-            {[...data.cards.values()].map((card) => {
+          >
 
-              return (<Card key={card.id} card={card}/>)
-
-            })}
+              {data.cards.map((card) => { return (<Card key={card.id} card={card} />)})}
               </CardsContent>
               :
               <CardsLoading/>

@@ -13,9 +13,10 @@ export type ColumnClient = {
   id: string,
   title: string,
   order: number,
-  cards: CardsClient
+  cards: Card[],
+  cardsMap:CardsClient,
   boardId:string,
 
 }
 
-export type InBoxClient = {id:string, cards:CardsClient}
+export type InBoxClient = {id:string, cards:Card[], cardsMap:CardsClient}

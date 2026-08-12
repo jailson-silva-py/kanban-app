@@ -1,10 +1,12 @@
 import { getAllBoardFromUser } from "@/actions/actions";
 import BoardList from "./components/BoardList";
 import BoardAdd from "./components/BoardAdd";
+import { TimeoutError } from "@/types/GlobalErrors";
+import { toast } from "../util/toast";
+import { redirect } from "next/navigation";
 
 const Home = async () => {
   const initialData = await getAllBoardFromUser()
-
   return (
     <div className="relative px-4 py-8 md:p8 w-full h-full flex flex-col gap-8 tracking-wider text-text">
       <div className="flex flex-1 flex-col gap-4 w-full">

@@ -15,10 +15,9 @@ export function useGetCardsInBox(queryOptions?:UseQueryOptions<InBoxClient|null>
         return null;
       };
       const cardsMap = arrayTransformToMap(result.cards);
-      return {...result, cards:cardsMap}
+      return {...result, cardsMap}
 
     },
-
      ...queryOptions
 
   })

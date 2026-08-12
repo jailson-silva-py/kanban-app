@@ -3,8 +3,9 @@ import Board from "./_components/Board";
 import InBox from "./_components/InBox.";
 import { UnAuthentichatedError } from "@/types/AuthErrors";
 import { redirect } from "next/navigation";
-import { UnexpectedError } from "@/types/GlobalErrors";
+import { TimeoutError, UnexpectedError } from "@/types/GlobalErrors";
 import MenuFloat from "./_components/MenuFloat";
+import { toast } from "@/app/util/toast";
 
 interface Iprops {
   params: Promise<{ id: string | string[] | undefined }>;
@@ -15,7 +16,9 @@ const BoardPage = async ({ params }: Iprops) => {
   const board = await getBoardById(filters.id as string).catch((err) => {
 
     if (err instanceof UnAuthentichatedError) redirect("/login");
-    throw new UnexpectedError()
+    else if (err instanceof TimeoutError) {
+      toast.error("A requisição demorou demais! Recarregue a página.")
+      }
 
   });
   if (!board) redirect("/home")

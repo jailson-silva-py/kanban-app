@@ -132,7 +132,7 @@ const CreateColumnItemBtn = () => {
           />
           <button
             type="submit"
-            className="default-btn flex items-center justify-center w-15 h-8"
+            className="default-btn btn-primary flex items-center justify-center w-15 h-8"
           >
             {!isPending ? <span>Criar</span> : <LoadingSpinner size={18} />}
           </button>

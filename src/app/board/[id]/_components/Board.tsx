@@ -7,7 +7,7 @@ import { reOrderCardsFromColumns } from "@/actions/actions";
 import ColumnBoard from "./ColumnBoard";
 import CreateColumnItemBtn from "./CreateColumn";
 import { redirect, usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { SortableDraggable } from "@dnd-kit/dom/sortable";
 import { AutoScroller, Feedback, type Droppable } from "@dnd-kit/dom";
@@ -27,23 +27,11 @@ function clearId(s: string) {
   return newS;
 }
 
-interface MutationObjTypeFromOrder {
-  columnTargetId: string;
-  cardId: string;
-  positionCard: number;
-  nextCardId: string|undefined;
-  prevCardId: string|undefined;
-}
-
 const Board = ({ initialData }: Iprops) => {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const refListColumnsBoard = useRef<HTMLUListElement>(null);
-  const refFormElement = useRef<HTMLFormElement>(null);
-  const [mutationObj, setMutationObj] =
-    useState<null | MutationObjTypeFromOrder>(null);
-
   const storage = useFloatMenuStorage()
 
   const { data: board, isLoading } = useGetInitialBoard(initialData);
@@ -53,6 +41,7 @@ const Board = ({ initialData }: Iprops) => {
       data: PromiseReturnType<typeof reOrderCardsFromColumns>,
       variables,
     ) => {
+      queryClient.invalidateQueries({queryKey:column(variables.columnTargetId)})
       if (data?.reindexed) {
         queryClient.invalidateQueries({
           queryKey: column(variables.columnTargetId),
@@ -62,12 +51,6 @@ const Board = ({ initialData }: Iprops) => {
   });
 
   if (!board) redirect("/home");
-
-  const onReOrderCards = (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!mutationObj) return;
-    mutate(mutationObj);
-  };
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -144,7 +127,6 @@ const Board = ({ initialData }: Iprops) => {
 
           const isEqualColumns = columnSourceId === columnTargetId;
           let position = 0;
-
           if (source.data.id === target?.data?.id) return;
           console.log(target.type);
           //Se houver SourceId && columnTargetId
@@ -158,24 +140,11 @@ const Board = ({ initialData }: Iprops) => {
               ? queryClient.getQueryData<ColumnClient>(column(columnTargetId))!
               : sourceColumn;
 
-            const targetCard = targetColumn.cards.get(target.data.id);
-            const targetKeys = targetColumn.cards.keys();
-            let targetIndex = null;
-            const length = targetColumn.cards.size;
-            for (let i = 0; i < length; i++) {
-
-              const key = targetKeys.next().value;
-
-              if (key === targetCard?.id) {
-                targetIndex = i;
-                break;
-              }
-            }
-            const ArrayCardsTarget = Array.from(targetColumn.cards.values());
+            const targetIndex = targetColumn.cards.findIndex((x) => x.id === target.data.id)
 
             const currCard = target?.data as Card;
-            const prevCard = targetIndex ? ArrayCardsTarget[targetIndex - 1]:null;
-            const nextCard = targetIndex ? ArrayCardsTarget[targetIndex + 1]:null;
+            const prevCard = targetIndex ? targetColumn.cards[targetIndex - 1]:null;
+            const nextCard = targetIndex ? targetColumn.cards[targetIndex + 1]:null;
 
             const ChangeCard = { ...source.data, columnId: columnTargetId };
 
@@ -213,54 +182,51 @@ const Board = ({ initialData }: Iprops) => {
               console.log("positionFinal: ", position);
 
               ChangeCard.position = position;
+            } else if (target.type === "column") {
+              const lastIndex = targetColumn.cards.length - 1
+              ChangeCard.position = lastIndex > 0 ? targetColumn.cards[lastIndex].position - 100:100
             }
 
-            const cardsTarget = targetColumn.cards;
-
-            cardsTarget.set(ChangeCard.id, ChangeCard)
-
-            //reordenar os cards pelo position de forma decrescente
-            const orderedArray = Array.from(cardsTarget.values()).sort(
-              (a, b) => b.position - a.position,
-            );
-            const cardsTargetSorted = new Map();
-            for (let i = 0; i < orderedArray.length; i++) {
-              if (!cardsTargetSorted.has(orderedArray[i].id)) {
-
-                cardsTargetSorted.set(orderedArray[i].id, orderedArray[i])
-
-              }
+            const cardsTarget = targetColumn.cards
+            //O Card movido não está na coluna alvo
+            const notInColumnTarget = !cardsTarget.includes(source.data);
+            if (notInColumnTarget) {
+              cardsTarget.push(ChangeCard)
+              cardsTarget.sort((a, b) => b.position - a.position);
             }
-
-            const oldCardsSource = sourceColumn.cards;
-            oldCardsSource.delete(source.data.id);
-            const cardsSource = new Map(oldCardsSource);
+            const cardsMapTarget = targetColumn.cardsMap.set(ChangeCard.id, ChangeCard);
+            const oldCardsSourceMap = sourceColumn.cardsMap;
+            oldCardsSourceMap.delete(source.data.id);
+            const cardsSource = Array.from(oldCardsSourceMap.values()).filter((x) => x.id !== ChangeCard.id).sort();
 
             queryClient.cancelQueries({
               queryKey: column(targetColumn.id),
             });
 
+            console.log("Cards Target: ", cardsTarget);
+            console.log("Cards Source: ", cardsSource);
             (async function cancelAndSetData() {
               if (cardsSource) {
                 await queryClient.cancelQueries({
                   queryKey: column(sourceColumn.id),
                 });
 
-                queryClient.setQueryData(column(sourceColumn.id), () => ({
+                queryClient.setQueryData(column(columnSourceId), () => ({
                   ...sourceColumn,
                   cards: cardsSource,
+                  cardsMap:oldCardsSourceMap,
                 }));
               }
 
-              queryClient.setQueryData(column(targetColumn.id), () => ({
+              queryClient.setQueryData(column(columnTargetId), () => ({
                 ...targetColumn,
-                cards: cardsTargetSorted,
+                cards: cardsTarget,
+                cardsMap:cardsMapTarget
+
               }));
             })();
 
-            setMutationObj({ cardId: source.data.id, columnTargetId, positionCard: position, nextCardId: nextCard?.id, prevCardId: prevCard?.id })
-            refFormElement.current?.requestSubmit()
-
+            mutate({ cardId: source.data.id, columnTargetId, positionCard: position, nextCardId: nextCard?.id, prevCardId: prevCard?.id })
           }
         }}
       >
@@ -268,9 +234,7 @@ const Board = ({ initialData }: Iprops) => {
           className="px-8 py-4 flex gap-8 flex-7 shrink-0 w-full overflow-x-auto overflow-y-hidden duration-700 ease-in-out"
           ref={refListColumnsBoard}
         >
-          <form onSubmit={onReOrderCards} ref={refFormElement} className="hidden">
-            <button type="submit" hidden></button>
-          </form>
+
           {[...board.columns.values()].map((column) => {
             return (
               <ColumnBoard id={column.id} boardId={board.id} key={column.id} />
