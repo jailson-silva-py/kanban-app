@@ -4,12 +4,12 @@ type FloatMenuStorage = {
   openInBox: boolean
   openBoard: boolean,
   isShow: boolean,
-  timer?:ReturnType<typeof setTimeout>
+  timer?:ReturnType<typeof setTimeout> | null
 };
 
 const initialStorage: FloatMenuStorage = {
   openInBox: true, openBoard: true,
-  isShow: true
+  isShow: false
 };
 let storage: FloatMenuStorage = { ...initialStorage };
 
@@ -21,7 +21,7 @@ const notifySubscribers = () => {
   })
 }
 export const floatMenuStorageCore = {
-  subscribe (fn: Subscriber)  {
+  subscribe(fn: Subscriber) {
     subscribers.add(fn);
     return () => {
       subscribers.delete(fn);
@@ -33,23 +33,32 @@ export const floatMenuStorageCore = {
 }
 
 export const floatMenuStorage = {
+
   reset() {
     storage = { ...initialStorage }
     notifySubscribers();
   },
   invertOpenInbox() {
-    storage = {...storage, openInBox:!storage.openInBox}
+    if (!storage.openBoard && storage.openInBox) {
+      return
+    }
+    storage = { ...storage, openInBox: !storage.openInBox }
     notifySubscribers();
   },
-  invertOpenBoard () {
+  invertOpenBoard() {
+    if (!storage.openInBox && storage.openBoard) {
+      return
+    }
     storage = {...storage, openBoard:!storage.openBoard}
     notifySubscribers();
   },
   showMenu() {
-    storage = {...storage, isShow:true}
+    storage = { ...storage, isShow: true }
+    notifySubscribers();
   },
   closeMenu() {
-    storage = {...storage, isShow:false}
+    storage = { ...storage, isShow: false}
+    notifySubscribers();
 
   }
 }

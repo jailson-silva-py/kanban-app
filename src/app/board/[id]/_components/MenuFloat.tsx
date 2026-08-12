@@ -2,32 +2,22 @@
 import { floatMenuStorage } from "@/app/util/floatMenuStorage";
 import { BorderBottomSelected } from "@/components/BorderBottomSelected";
 import useFloatMenuStorage from "@/hooks/useFloatMenuStorage";
-import { useEffect, useState } from "react";
-import { TbChalkboard, TbMessagePlus } from "react-icons/tb"
+import useOutClick from "@/hooks/useOutClick";
+import { useEffect } from "react";
+import { TbArrowBigUpLine, TbChalkboard, TbMessagePlus } from "react-icons/tb"
 
 const MenuFloat = () => {
   const storage = useFloatMenuStorage()
-  const [pauseAutoClose, setPauseAutoClose] = useState(true)
-
+  const ref = useOutClick<HTMLUListElement>(floatMenuStorage.closeMenu);
   useEffect(() => {
-
-    const timeout = setTimeout(() => {
-
-      if (pauseAutoClose) return;
-
-      floatMenuStorage.closeMenu();
-
-    }, 5000)
-
-    return () => clearTimeout(timeout);
-
-  }, [pauseAutoClose])
-
+    floatMenuStorage.showMenu()
+  }, [])
+  console.log(storage.isShow)
   return (
     <div className="fixed bottom-2 left-1/2 -translate-x-1/2">
 
-      {!storage.isShow ?
-      <ul className="px-2 flex justify-center  items-center  btn-md gap-2 bg-primary/10 w-fit max-w-[90vw] shadow-default shadow-shadow backdrop-blur-xs">
+      {storage.isShow ?
+      <ul ref={ ref } className="px-2 flex justify-center  items-center  btn-md gap-2 bg-primary/10 w-fit max-w-[90vw] shadow-default shadow-shadow backdrop-blur-xs">
 
       <li>
         <button style={{color:storage.openInBox ? "var(--color-info)":undefined, background:storage.openInBox ?"oklch(from var(--color-info) l c h / 0.05)":undefined}} onClick={floatMenuStorage.invertOpenInbox} className="relative btn-sm btn-ghost flex items-center gap-1 text-xs">
@@ -45,7 +35,14 @@ const MenuFloat = () => {
       </li>
         </ul>
         :
-        <button onClick={() => {}}></button>}
+        <button  title="Exibir painel Board/InBox" onClick={() => {
+          floatMenuStorage.showMenu();
+          console.log("Clicks")
+          console.log(storage.isShow);
+        }}
+          className="bg-info/5  w-12 h-12 border-text  group fixed bottom-1/2 top-1/2 -translate-1/2 default-btn btn-sm rounded-full">
+          <TbArrowBigUpLine size={24} className="animate-to-jump group-hover:text-info"/>
+        </button>}
     </div>
   )
 

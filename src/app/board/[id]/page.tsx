@@ -3,7 +3,7 @@ import Board from "./_components/Board";
 import InBox from "./_components/InBox.";
 import { UnAuthentichatedError } from "@/types/AuthErrors";
 import { redirect } from "next/navigation";
-import { TimeoutError, UnexpectedError } from "@/types/GlobalErrors";
+import { TimeoutError } from "@/types/GlobalErrors";
 import MenuFloat from "./_components/MenuFloat";
 import { toast } from "@/app/util/toast";
 

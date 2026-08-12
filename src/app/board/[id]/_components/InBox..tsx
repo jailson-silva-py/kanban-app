@@ -10,7 +10,7 @@ const InBox = () => {
   const storage = useFloatMenuStorage()
 
   return (
-    <div style={{display:!storage.openInBox ? "none": undefined, margin:"0 auto", width:!storage.openBoard && storage.openInBox ? "50%":undefined}}  className="relative shadow-shadow shadow-default bg-secondary/30  overflow-hidden min-w-62.5 max-[270px]:min-w-full h-full md:w-[22.5vw] rounded-sm flex flex-col items-center">
+    <div style={{display:!storage.openInBox ? "none": undefined, margin:"0 auto", width:!storage.openBoard && storage.openInBox ? "90%":undefined}}  className="relative shadow-shadow shadow-default bg-secondary/30  overflow-hidden min-w-62.5 max-[270px]:min-w-full h-full md:w-[22.5vw] rounded-sm flex flex-col items-center">
       <header className="bg-secondary/50 w-full basis-15 border-b-px border-white flex items-center justify-center shrink-0 grow-0">
         <div className="flex items-center justify-center gap-2">
           <TbMessagePlus size={24} />
