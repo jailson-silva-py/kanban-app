@@ -87,7 +87,7 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
             className="w-full outline-0 p-2 shadow-shadow shadow-default text-xs rounded-sm resize-y max-h-25 min-h-8 mb-2"
             required
           />
-          <div className="w-full flex justify-end gap-2">
+          <div className="w-full flex justify-end gap-2" aria-label="add-cart">
             <button
               type="submit"
               className="flex items-center justify-center btn-default bg-btn hover:brightness-120 w-20"
