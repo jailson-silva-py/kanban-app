@@ -17,7 +17,7 @@ const { timeout } = {
     const promise = new Promise<never>((_, reject) => {
       const timer = setTimeout(() => {
         reject(new TimeoutError());
-      }, 5000);
+      }, 20000);
 
       // Se o controller for acionado parar timer imediatamente
       controller.signal.addEventListener("abort", () => clearTimeout(timer));

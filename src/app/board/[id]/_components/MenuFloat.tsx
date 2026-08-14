@@ -17,17 +17,19 @@ const MenuFloat = () => {
     <div className="fixed bottom-2 left-1/2 -translate-x-1/2">
 
       {storage.isShow ?
-      <ul ref={ ref } className="px-2 flex justify-center  items-center  btn-md gap-2 bg-primary/10 w-fit max-w-[90vw] shadow-default shadow-shadow backdrop-blur-xs">
+      <ul aria-label="menu-float" ref={ ref } className="px-2 flex justify-center  items-center  btn-md gap-2 bg-primary/10 w-fit max-w-[90vw] shadow-default shadow-shadow backdrop-blur-xs">
 
       <li>
-        <button style={{color:storage.openInBox ? "var(--color-info)":undefined, background:storage.openInBox ?"oklch(from var(--color-info) l c h / 0.05)":undefined}} onClick={floatMenuStorage.invertOpenInbox} className="relative btn-sm btn-ghost flex items-center gap-1 text-xs">
+            <button aria-label="inbox"
+              style={{ color: storage.openInBox ? "var(--color-info)" : undefined, background: storage.openInBox ? "oklch(from var(--color-info) l c h / 0.05)" : undefined }} onClick={floatMenuStorage.invertOpenInbox} className="relative btn-sm btn-ghost flex items-center gap-1 text-xs">
           <TbMessagePlus size={24} className="text-inherit"/>
           <span>InBox</span>
           {storage.openInBox && <BorderBottomSelected/>}
         </button>
       </li>
       <li>
-        <button style={{color:storage.openBoard ? "var(--color-info)":undefined, background:storage.openBoard ?"oklch(from var(--color-info) l c h / 0.05)":undefined}} onClick={floatMenuStorage.invertOpenBoard} className="relative btn-sm btn-ghost flex items-center gap-1 text-xs">
+          <button aria-label="board"
+          style={{ color: storage.openBoard ? "var(--color-info)" : undefined, background: storage.openBoard ? "oklch(from var(--color-info) l c h / 0.05)" : undefined }} onClick={floatMenuStorage.invertOpenBoard} className="relative btn-sm btn-ghost flex items-center gap-1 text-xs">
           <TbChalkboard size={24} className="text-inherit"/>
           <span>Board</span>
           {storage.openBoard && <BorderBottomSelected/>}
@@ -35,7 +37,7 @@ const MenuFloat = () => {
       </li>
         </ul>
         :
-        <button  title="Exibir painel Board/InBox" onClick={() => {
+        <button title="Exibir painel Board/InBox" aria-label="show-menu" onClick={() => {
           floatMenuStorage.showMenu();
           console.log("Clicks")
           console.log(storage.isShow);

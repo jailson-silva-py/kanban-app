@@ -72,23 +72,26 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
     <div className="w-full flex-2 p-4 grow-0">
       {!edition ? (
         <button
+          aria-label="add-cart"
           onClick={handleClick}
           className="w-full h-8 shadow-shadow shadow-default rounded-sm cursor-pointer hover:bg-text/30 duration-300"
         >
           {children}
         </button>
       ) : (
-        <form className="w-full" onSubmit={handleSubmit} ref={refForm}>
+        <form className="w-full" onSubmit={handleSubmit} ref={refForm} aria-label="add-cart-form">
           <textarea
             ref={refTextArea}
             name="title_cart"
+            aria-label="title-cart"
             id="title_cart"
             placeholder={textForArea}
             className="w-full outline-0 p-2 shadow-shadow shadow-default text-xs rounded-sm resize-y max-h-25 min-h-8 mb-2"
             required
           />
           <div className="w-full flex justify-end gap-2" aria-label="add-cart">
-            <button
+              <button
+              aria-label="create-cart"
               type="submit"
               className="flex items-center justify-center btn-default bg-btn hover:brightness-120 w-20"
             >
@@ -99,7 +102,8 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
               )}
             </button>
             <button
-              type="button"
+              type="submit"
+              aria-label="create-cancel"
               onClick={() => setEdition(false)}
               className="btn-default hover:bg-text/30"
             >
