@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "NODE_OPTIONS='max-old-space-size=2048' next dev --turbo",
     "build": "npx prisma generate && npx prisma migrate deploy && next build --turbo",
+    "build-test":"next build --turbo",
     "start": "next start",
     "test": "vitest --ui",
     "lint": "eslint"
