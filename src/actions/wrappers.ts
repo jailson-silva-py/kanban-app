@@ -14,22 +14,25 @@ export async function protectedActions<T>(
       throw new UnAuthentichatedError;
 
     return callback(session);
-  } catch (e: any) {
-    if (e.name === "AbortError") {
-      e.message =
-        "O servidor demorou muito para responder: TimeoutError. Falha ao buscar Board.";
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      if (e.name === "AbortError") {
+        e.message =
+          "O servidor demorou muito para responder: TimeoutError. Falha ao buscar Board.";
+      }
+
+      if (e instanceof PrismaClientKnownRequestError) {
+        e.message =
+          "Erro de banco de dados ao buscar Board: " +
+          e.name +
+          " -> " +
+          e.message;
+      }
+
+      if (customMessage) {
+        e.message = customMessage;
+      }
     }
-
-    if (e instanceof PrismaClientKnownRequestError) {
-      e.message =
-        "Erro de banco de dados ao buscar Board: " +
-        e.name +
-        " -> " +
-        e.message;
-    }
-
-    customMessage ? (e.message = customMessage) : null;
-
     throw e;
   }
 }

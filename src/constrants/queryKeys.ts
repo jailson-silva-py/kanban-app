@@ -1,4 +1,4 @@
-export const prefixKeysFromDynamic = {column:"column", board:"board", search:"globalSearch"}
+export const prefixKeysFromDynamic = { column: "column", board: "board", search: "globalSearch" };
 
 export function column(id: string) {
   return [prefixKeysFromDynamic.column, id]
@@ -14,6 +14,8 @@ export function globalSearch(search: string) {
 
 export const boards = ["boards"];
 
-export const inBoxCards = ["inBoxCards"]
+export const inBoxCards = ["inBoxCards"];
 
-export const queryKeys = { column, board, globalSearch, boards, inBoxCards }
+export const profile = ["profile"];
+
+export const queryKeys = { column, board, globalSearch, boards, inBoxCards };

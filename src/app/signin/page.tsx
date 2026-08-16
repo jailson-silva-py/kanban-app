@@ -5,9 +5,9 @@ import Link from "next/link";
 
 const SignIn = async () => {
 
-  const onSignOrLongIn = async () => {
+  const SignIn = async () => {
       "use server";
-      await signIn("google");
+    await signIn("google", {redirectTo:"/home"});
 
   }
     return (
@@ -16,7 +16,7 @@ const SignIn = async () => {
     <div className="p-8 flex items-center justify-center max-w-93.75 max-h-93.75 w-[90vw] shadow-default shadow-shadow rounded-sm">
         <div className="min-w-25 w-9/10 h-90 flex flex-col items-center justify-center gap-4">
 
-        <form action={onSignOrLongIn} className="h-10 w-full">
+        <form action={SignIn} className="h-10 w-full">
         <button className="default-btn btn-secondary btn-md w-full">
             Faça Login com o Google
         </button>

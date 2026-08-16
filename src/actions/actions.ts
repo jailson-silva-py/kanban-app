@@ -13,7 +13,6 @@ import { TimeoutError } from "@/types/GlobalErrors";
 const { timeout } = {
   get timeout() {
     const controller = new AbortController();
-
     const promise = new Promise<never>((_, reject) => {
       const timer = setTimeout(() => {
         reject(new TimeoutError());

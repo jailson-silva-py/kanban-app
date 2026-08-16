@@ -17,8 +17,8 @@ import type * as Prisma from "./prismaNamespace"
 
 const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
-  "clientVersion": "7.7.0",
-  "engineVersion": "75cbdc1eb7150937890ad5465d861175c6624711",
+  "clientVersion": "7.9.1",
+  "engineVersion": "e922089b7d7502aff4249d5da3420f6fa55fc6ad",
   "activeProvider": "postgresql",
   "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id            String    @id @default(cuid())\n  name          String?\n  email         String    @unique\n  password      String?\n  emailVerified DateTime?\n  image         String?\n  accounts      Account[]\n  sessions      Session[]\n\n  Authenticator Authenticator[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  boards Board[]\n}\n\nmodel Account {\n  userId            String\n  type              String\n  provider          String\n  providerAccountId String\n  refresh_token     String?\n  access_token      String?\n  expires_at        Int?\n  token_type        String?\n  scope             String?\n  id_token          String?\n  session_state     String?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@id([provider, providerAccountId])\n}\n\nmodel Session {\n  sessionToken String   @unique\n  userId       String\n  expires      DateTime\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String\n  expires    DateTime\n\n  @@id([identifier, token])\n}\n\nmodel Authenticator {\n  credentialID         String  @unique\n  userId               String\n  providerAccountId    String\n  credentialPublicKey  String\n  counter              Int\n  credentialDeviceType String\n  credentialBackedUp   Boolean\n  transports           String?\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@id([userId, credentialID])\n}\n\nmodel Board {\n  id      String  @id @default(uuid())\n  title   String\n  isInbox Boolean @default(false)\n\n  // Relacionamento Direto\n  ownerId   String\n  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)\n  //S\n  columns   Column[]\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([ownerId]) // Index para busca rápida de boards do usuário\n}\n\nmodel Column {\n  id    String @id @default(uuid())\n  title String\n\n  order Float\n\n  boardId String\n  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)\n  cards   Card[]\n\n  @@index([boardId])\n}\n\nmodel Card {\n  id          String  @id @default(uuid())\n  title       String\n  description String? @db.Text\n  completed   Boolean @default(false)\n  position    Float\n\n  columnId String\n  column   Column @relation(fields: [columnId], references: [id], onDelete: Cascade)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([columnId]) // Otimiza a renderização da coluna\n}\n",
   "runtimeDataModel": {
@@ -82,7 +82,7 @@ export interface PrismaClientConstructor {
     LogOpts extends LogOptions<Options> = LogOptions<Options>,
     OmitOpts extends Prisma.PrismaClientOptions['omit'] = Options extends { omit: infer U } ? U : Prisma.PrismaClientOptions['omit'],
     ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
-  >(options: Prisma.Subset<Options, Prisma.PrismaClientOptions> ): PrismaClient<LogOpts, OmitOpts, ExtArgs>
+  >(options: Prisma.PrismaClientConstructorArgs<Options>): PrismaClient<LogOpts, OmitOpts, ExtArgs>
 }
 
 /**
@@ -103,7 +103,7 @@ export interface PrismaClientConstructor {
 
 export interface PrismaClient<
   in LogOpts extends Prisma.LogLevel = never,
-  in out OmitOpts extends Prisma.PrismaClientOptions['omit'] = undefined,
+  in out OmitOpts extends Prisma.PrismaClientOptions['omit'] = Prisma.PrismaClientOptions['omit'],
   in out ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
 > {
   [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
@@ -180,7 +180,7 @@ export interface PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => runtime.Types.Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<R>
 

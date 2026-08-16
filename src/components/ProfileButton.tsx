@@ -6,16 +6,18 @@ import { signOut } from "next-auth/react";
 import { Activity, useState, useTransition } from "react";
 import { Separator } from "./Separator";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { profile } from "@/constrants/queryKeys";
+import { getUser } from "@/actions/actions";
 
 interface Iprops {
 
     user:User|undefined|null;
 
 }
-
 const ProfileButton = ({user}:Iprops) => {
 
-
+    const {data, refetch} = useQuery({initialData:user, queryKey:profile, queryFn:getUser})
     const [openDropdown, setOpenDropdown] = useState(false);
     const [isPending, startTransition] = useTransition()
     const ref = useOutClick<HTMLUListElement>(() => setOpenDropdown(false));
@@ -23,7 +25,10 @@ const ProfileButton = ({user}:Iprops) => {
 
     const handleLogout =  async () => {
 
-        startTransition(async () => signOut())
+      startTransition(async () => {
+        signOut()
+        refetch()
+      })
 
     }
 
@@ -33,21 +38,21 @@ const ProfileButton = ({user}:Iprops) => {
 
         <div className="relative flex justify-center items-center w-full">
 
-          {user ?
+          {data ?
             <button onClick={handleBtnProfile} className="relative h-8 w-8 rounded-full hover:scale-110 cursor-pointer duration-200 ease-in-out transition-transform shadow-default shadow-shadow">
-              <Image src={user?.image || ""}  alt="profile-image" fill sizes="100%, 100%" className="rounded-full" loading="eager"/>
+              <Image src={data?.image || ""}  alt="profile-image" fill sizes="100%, 100%" className="rounded-full" loading="eager"/>
             </button>
             :
             <Link href="/signin" className="w-28 default-btn text-xs btn-secondary btn-sm font-semibold flex justify-center gap-2">
               Fazer login
             </Link>
           }
-          <Activity mode={openDropdown && user ? "visible" : "hidden"}>
+          <Activity mode={openDropdown && data ? "visible" : "hidden"}>
 
            <ul ref={ref} className="dropdown-md dropdown-primary rounded-sm w-[20vw] -bottom-2 right-1 translate-y-full">
 
               <li className="flex flex-col gap-1">
-                  <span className="px-2 text-xs text-text-secondary">{user?.name}</span>
+                  <span className="px-2 text-xs text-text-secondary">{data?.name}</span>
                   <Separator/>
               </li>
               <li>

@@ -12,6 +12,9 @@ import { signIn } from "next-auth/react";
 import { emailType, passwordType, usernameType } from "@/types/FormsZodType";
 import LoadingSpinner from "./LoadingSpinner";
 import { toast } from "@/app/util/toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { profile } from "@/constrants/queryKeys";
+import { redirect } from "next/navigation";
 
 interface StateFormType {
   step: number;
@@ -123,6 +126,7 @@ interface AuthenticationFormProps {
 const LoginForm: React.FC<AuthenticationFormProps> = ({isSignIn=false}) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [pending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
 
   const handlerEmail = (e: ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: "change_email", payload: e.target.value });
@@ -172,9 +176,12 @@ const LoginForm: React.FC<AuthenticationFormProps> = ({isSignIn=false}) => {
               toast.error("Email já existe, tente outro.")
               break
           }
+          if (result.ok) {
+            queryClient.invalidateQueries({ queryKey: profile })
+            redirect("/home")
+          };
         });
         return
-
       }
 
       const objLogIn = { password: state.password, email: state.email }
@@ -192,6 +199,10 @@ const LoginForm: React.FC<AuthenticationFormProps> = ({isSignIn=false}) => {
             toast.error("Método de acesso inválido, tente outro método.")
             break
         }
+        if (result.ok) {
+          queryClient.invalidateQueries({ queryKey: profile })
+          redirect("/home")
+        };
     });
 
       return;
