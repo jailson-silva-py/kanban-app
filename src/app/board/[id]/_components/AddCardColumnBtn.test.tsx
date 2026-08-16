@@ -1,38 +1,10 @@
 "use client";
 import { createCartForColumn } from "@/actions/actions";
-import { AddCartColumn } from "./AddCartColumnBtn";
-import { ColumnClient } from "@/types/clientDataTypes";
+import { AddCartColumn } from "./AddCardColumnBtn";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, describe, test, vi } from "vitest";
-
-vi.mock("next-auth/react", () => ({
-  useSession: () => ({
-    data: { user: { name: "Test User" } },
-    status: "authenticated",
-  }),
-  SessionProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
-
-vi.mock("@/actions/actions", () => ({
-  createCartForColumn: vi.fn(),
-}));
-
-vi.mock("@/app/util/mutations", () => ({
-  onMutateFunction: vi.fn((context, queryKey, callbackSetData): { previousState: ColumnClient } => {
-    return {
-      previousState: {
-        id: "col-1",
-        cards: [],
-        cardsMap: new Map(),
-        title: "coluna",
-        order: 100,
-        boardId: "board-1",
-      },
-    };
-  }),
-}));
+import { expect, describe, test } from "vitest";
 
 const createQueryClient = (): QueryClient => {
   return new QueryClient({

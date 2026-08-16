@@ -23,7 +23,7 @@ const CardsInBox = () => {
     );
 
   return (
-    <div className="w-full flex-6 overflow-y-auto px-4 py-2 duration-700 ease-in-out max-h-[75vh]">
+    <div className="w-full flex-6 overflow-y-auto px-4 py-2 duration-700 ease-in-out max-h-[75vh]" aria-label="column-inbox">
       <CardsContent>
         {inBox.cards.map((card) => {
 

@@ -1,5 +1,4 @@
 "use client";
-
 import { createColumnFromBoard } from "@/actions/actions";
 import { onMutateFunction } from "@/app/util/mutations";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -20,9 +19,7 @@ import {
 } from "react";
 import { TbPlus } from "react-icons/tb";
 
-
 const CreateColumnItemBtn = () => {
-
   const params = useParams();
 
   const [createMode, setCreateMode] = useState(false);
@@ -33,35 +30,17 @@ const CreateColumnItemBtn = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: createColumnFromBoard,
     onMutate: async (variables, context) => {
-      // context.client.cancelQueries({ queryKey });
-
-      // const previusBoard: BoardFull | undefined =
-      //   context.client.getQueryData(queryKey);
-
-      // if (!previusBoard) throw new Error("Erro ao obter o board");
-
-      // context.client.setQueryData(queryKey, {
-      //   ...previusBoard,
-      //   columns: [
-      //     ...previusBoard.columns,
-      //     {
-      //       title: variables.titleColumn,
-      //       order: Infinity,
-      //       id: variables.idColumn,
-      //     },
-      //   ],
-      // });
-      //return { previusBoard };
-      return await onMutateFunction<BoardClient<ColumnSkeleton>>(context, queryKey, (old) => {
-        const { idColumn: id, titleColumn:title } = variables;
-        if (!id) throw new Error("ID não atribuído");
-        const columns = new Map(old.columns);
-        columns.set(id, {id, title, order:Infinity})
-        return {...old, columns}
-
-      })
-
-
+      return await onMutateFunction<BoardClient<ColumnSkeleton>>(
+        context,
+        queryKey,
+        (old) => {
+          const { idColumn: id, titleColumn: title } = variables;
+          if (!id) throw new Error("ID não atribuído");
+          const columns = new Map(old.columns);
+          columns.set(id, { id, title, order: Infinity });
+          return { ...old, columns };
+        },
+      );
     },
     onError: (error, variables, result, context) => {
       if (!result?.previousState) return;
@@ -69,13 +48,15 @@ const CreateColumnItemBtn = () => {
     },
 
     onSuccess: (data, variables, result, context) => {
-      const {idColumn:id} = variables
+      const { idColumn: id } = variables;
       if (!result?.previousState || !id) return;
       const columns = new Map(result.previousState.columns);
-      columns.set(id, data)
-
-       context.client.setQueryData(queryKey, {...result.previousState, columns});
-     },
+      columns.set(id, data);
+      context.client.setQueryData(queryKey, {
+        ...result.previousState,
+        columns,
+      });
+    },
   });
 
   const handleChangeCreateMode = (e: MouseEvent) => {
@@ -90,7 +71,7 @@ const CreateColumnItemBtn = () => {
     const idColumn = crypto.randomUUID();
 
     mutate(
-      { boardId:params.id as string, idColumn, titleColumn },
+      { boardId: params.id as string, idColumn, titleColumn },
       {
         onSuccess: () => {
           setCreateMode(false);
@@ -109,6 +90,7 @@ const CreateColumnItemBtn = () => {
     <li className="rounded-sm min-w-65 h-12">
       <Activity mode={createMode ? "hidden" : "visible"}>
         <button
+          aria-label="create-new-column"
           className="w-full h-full flex items-center gap-2 cursor-pointer shadow-shadow shadow-default p-4 rounded-sm hover:bg-text/10"
           onClick={handleChangeCreateMode}
         >
@@ -124,6 +106,7 @@ const CreateColumnItemBtn = () => {
           className="flex flex-col gap-1"
         >
           <input
+            aria-label="title-column"
             type="text"
             name="title_column"
             className="default-input"
@@ -131,6 +114,7 @@ const CreateColumnItemBtn = () => {
             required
           />
           <button
+            aria-label="create-column"
             type="submit"
             className="default-btn btn-primary flex items-center justify-center w-15 h-8"
           >

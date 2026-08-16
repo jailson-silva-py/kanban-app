@@ -57,9 +57,9 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
   };
 
   return (
-    <div className="w-full flex-3 p-4 grow-0 shrink-0">
+    <div className="w-full flex-3 p-4 grow-0 shrink-0" aria-label="content-add-card-inbox">
       {!edition ? (
-        <button
+        <button aria-label="add-card-inbox"
           onClick={() => setEdition(true)}
           className="w-full h-9 shadow-shadow shadow-default rounded-sm cursor-pointer hover:bg-text/30 duration-300"
         >
@@ -69,6 +69,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
         <form className="w-full" onSubmit={handleSubmit}>
           <textarea
             name="title_cart"
+            aria-label="title-card-inbox"
             id="title_cart"
             placeholder={textForArea}
             className="w-full outline-0 p-2 shadow-shadow shadow-default text-xs rounded-sm resize-y max-h-25 min-h-8 mb-2"
@@ -76,6 +77,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
           />
           <div className="w-full flex justify-end gap-2">
             <button
+              aria-label="create-card-inbox"
               type="submit"
               className="btn-primary btn-default focus-primary btn-xs w-20"
             >
@@ -87,6 +89,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
             </button>
             <button
               type="button"
+              aria-label="cancel-create-card"
               onClick={() => setEdition(false)}
               className="btn-primary btn-default focus-primary"
             >

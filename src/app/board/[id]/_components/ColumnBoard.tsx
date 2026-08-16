@@ -5,7 +5,7 @@ import { useDroppable } from "@dnd-kit/react";
 import { CollisionPriority } from "@dnd-kit/abstract";
 import CardsLoading from "@/components/CardsLoading";
 import { useGetColumn } from "@/hooks/useGetColumn";
-import { AddCartColumn } from "./AddCartColumnBtn";
+import { AddCartColumn } from "./AddCardColumnBtn";
 import { CardsContent } from "@/components/CardsContent";
 import Card from "@/components/Card";
 import BtnDeleteColumn from "./BtnDeleteColumn";

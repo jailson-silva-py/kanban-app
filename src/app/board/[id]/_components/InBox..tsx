@@ -1,5 +1,5 @@
 "use client"
-import { AddCartInBox } from "./AddCartInBoxBtn";
+import { AddCartInBox } from "./AddCardInBoxBtn";
 import { memo } from "react";
 import { TbMessagePlus } from "react-icons/tb";
 import ColumnInBox from "./ColumnInBox";
