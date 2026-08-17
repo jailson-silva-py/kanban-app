@@ -11,16 +11,15 @@ const CardsInBox = () => {
 
   if (isLoading && !inBox) {
     return <CardsLoading/>;
-  } else if (!inBox || inBox.cards.length <= 0)
+  } else if (isError)
     return (
-      <p className="text-lg tracking-widest flex-6">Não há nenhum cartão.</p>
-    );
-  else if (isError)
-    return (
-      <p className="text-error text-lg tracking-widest flex-6">
-        Error: {String(error.message)}
+      <p className="text-error text-xs/relaxed tracking-widest flex-6 hyphens-auto text-justify" aria-label="error-cards">
+        Error: {String(error.message)}, Por favor recarregue a página.
       </p>
-    );
+    ); else if (!inBox || inBox.cards.length <= 0)
+      return (
+        <p className="text-lg tracking-widest flex-6" aria-label="no-cards">Não há nenhum cartão.</p>
+      );
 
   return (
     <div className="w-full flex-6 overflow-y-auto px-4 py-2 duration-700 ease-in-out max-h-[75vh]" aria-label="column-inbox">

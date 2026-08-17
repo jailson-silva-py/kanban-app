@@ -5,7 +5,7 @@ import { BoardFull, Column } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
 import { Activity, useLayoutEffect, useRef, useState } from "react";
 import { TbChecks } from "react-icons/tb";
-import { board, column } from "@/constrants/queryKeys";
+import { column } from "@/constrants/queryKeys";
 
 interface Iprops {
   children: React.ReactNode;
@@ -90,6 +90,7 @@ const BtnInputEditColumnTitle = ({
     <div className="relative gap-1 p-2  bg-primary/20 w-full h-12">
       <Activity mode={!editMode ? "visible" : "hidden"}>
         <button
+          aria-label="edit-title-column"
           onClick={handleShowInput}
           className="text-start hover:default-input h-9 text-sm/loose cursor-pointer max-w-[calc(100%-32px)] px-2 py-2 truncate"
         >
@@ -104,6 +105,7 @@ const BtnInputEditColumnTitle = ({
         >
           <label className=" w-full h-9">
             <textarea
+              aria-label="title-column"
               style={{ width: `${columnTitle.length * 9 + 16}px` }}
               id="title_column"
               onChange={handleChangeTitle}
@@ -115,6 +117,7 @@ const BtnInputEditColumnTitle = ({
             />
           </label>
           <button
+            aria-label="change-title-column"
             type="submit"
             className="z-2 group backdrop-blur-[2px] absolute -bottom-1 left-0 default-btn translate-y-full bg-btn/20 hover:bg-btn/40 disabled:opacity-60"
             disabled={isPending}

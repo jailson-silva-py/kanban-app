@@ -1,36 +1,20 @@
 "use client";
 import { createCartForColumn } from "@/actions/actions";
 import { AddCartColumn } from "./AddCardColumnBtn";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, describe, test } from "vitest";
+import { renderWithProviders } from "@/app/util/testImplementations";
+import { screen } from "@testing-library/dom";
 
-const createQueryClient = (): QueryClient => {
-  return new QueryClient({
-    defaultOptions: {
-      mutations: { retry: false },
-      queries: { retry: false },
-    },
-  });
-};
 
-const renderWithProviders = (ui: React.JSX.Element) => {
-  render(
-    <QueryClientProvider client={createQueryClient()}>
-      {ui}
-    </QueryClientProvider>
-  );
-};
-
-describe("AddCartColumnBtn testing", () => {
+describe("AddCartColumnBtn Component testing", () => {
   test("Botão de adicionar cartão presente", () => {
     renderWithProviders(
       <AddCartColumn columnId="col-1" textForArea="Crie uma tarefa aqui">
         Adicionar
       </AddCartColumn>
     );
-    const btnAddCart = screen.getByRole("button", { name: "add-cart" });
+    const btnAddCart = screen.getByRole("button", { name: "add-card" });
     expect(btnAddCart).toBeInTheDocument();
   });
 
@@ -42,11 +26,11 @@ describe("AddCartColumnBtn testing", () => {
       </AddCartColumn>
     );
 
-    const btnAddCart = screen.getByRole("button", { name: "add-cart" });
+    const btnAddCart = screen.getByRole("button", { name: "add-card" });
     await user.click(btnAddCart);
 
-    const textArea = screen.getByRole("textbox", { name: "title-cart" });
-    const btnCreateCart = screen.getByRole("button", { name: "create-cart" });
+    const textArea = screen.getByRole("textbox", { name: "title-card" });
+    const btnCreateCart = screen.getByRole("button", { name: "create-card" });
     const btnCancelCreate = screen.getByRole("button", { name: "create-cancel" })
 
     expect(textArea).toBeInTheDocument();
@@ -63,11 +47,11 @@ describe("AddCartColumnBtn testing", () => {
       </AddCartColumn>
     );
 
-    const btnAddCart = screen.getByRole("button", { name: "add-cart" });
+    const btnAddCart = screen.getByRole("button", { name: "add-card" });
     await user.click(btnAddCart);
 
-    const textArea = screen.getByRole("textbox", { name: "title-cart" });
-    const btnCreateCart = screen.getByRole("button", { name: "create-cart" });
+    const textArea = screen.getByRole("textbox", { name: "title-card" });
+    const btnCreateCart = screen.getByRole("button", { name: "create-card" });
     const textoTitleCart = "Meu cart legal!";
     await user.type(textArea, textoTitleCart)
     await user.click(btnCreateCart);

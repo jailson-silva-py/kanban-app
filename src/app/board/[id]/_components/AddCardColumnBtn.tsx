@@ -72,26 +72,26 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
     <div className="w-full flex-2 p-4 grow-0">
       {!edition ? (
         <button
-          aria-label="add-cart"
+          aria-label="add-card"
           onClick={handleClick}
           className="w-full h-8 shadow-shadow shadow-default rounded-sm cursor-pointer hover:bg-text/30 duration-300"
         >
           {children}
         </button>
       ) : (
-        <form className="w-full" onSubmit={handleSubmit} ref={refForm} aria-label="add-cart-form">
+        <form className="w-full" onSubmit={handleSubmit} ref={refForm} aria-label="add-card-form">
           <textarea
             ref={refTextArea}
             name="title_cart"
-            aria-label="title-cart"
+            aria-label="title-card"
             id="title_cart"
             placeholder={textForArea}
             className="w-full outline-0 p-2 shadow-shadow shadow-default text-xs rounded-sm resize-y max-h-25 min-h-8 mb-2"
             required
           />
-          <div className="w-full flex justify-end gap-2" aria-label="add-cart">
+          <div className="w-full flex justify-end gap-2" aria-label="add-card">
               <button
-              aria-label="create-cart"
+              aria-label="create-card"
               type="submit"
               className="flex items-center justify-center btn-default bg-btn hover:brightness-120 w-20"
             >

@@ -8,7 +8,7 @@ import { useGetColumn } from "@/hooks/useGetColumn";
 import { AddCartColumn } from "./AddCardColumnBtn";
 import { CardsContent } from "@/components/CardsContent";
 import Card from "@/components/Card";
-import BtnDeleteColumn from "./BtnDeleteColumn";
+import BtnDeleteColumn from "./MenuOperationsCol";
 
 
 type Iprops = {
@@ -35,7 +35,7 @@ function ColumnBoard({ id, boardId,  ...props }: Iprops) {
       className={`flex flex-col shadow-shadow shadow-default bg-primary/30 rounded-sm w-65 shrink-0 grow-0 max-h-[75vh]`}
     >
       <BtnInputEditColumnTitle
-        columnTitle={data?.title as string}
+        columnTitle={data?.title || ""}
         columnId={id}
         boardId={data?.boardId as string}
           >

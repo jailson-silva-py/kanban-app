@@ -4,12 +4,6 @@ import { screen, waitFor } from "@testing-library/dom"
 import userEvent from "@testing-library/user-event"
 import { createColumnFromBoard } from "@/actions/actions"
 
-vi.mock("next/navigation", () => {
-  return {
-    useParams: () => ({ id: "board-123" })
-  }
-})
-
 describe("CreateColumn Component testing", () => {
   beforeAll(() => {
     vi.clearAllMocks();
@@ -33,7 +27,6 @@ describe("CreateColumn Component testing", () => {
 
   })
 
-
   test("Os dados são enviados com os valores corretos", async () => {
 
     const user = userEvent.setup();
@@ -49,8 +42,9 @@ describe("CreateColumn Component testing", () => {
     const serverAction = vi.mocked(createColumnFromBoard);
     await user.type(titleColumn, "Uma coluna legal")
     await user.click(submitForm);
-    waitFor(async () => {
-      expect(serverAction).toHaveBeenCalledWith({boardId:"board-123", idColumn:expect.any(String), titleColumn:"Uma coluna legal"})
+    await waitFor(async () => {
+      expect(serverAction).toHaveBeenCalledWith({ boardId: "board-123", idColumn: expect.any(String), titleColumn: "Uma coluna legal" },
+      expect.objectContaining({mutationKey:["column", "create"]}))
     })
   })
 

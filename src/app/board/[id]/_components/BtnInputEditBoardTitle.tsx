@@ -90,6 +90,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
     <>
       <Activity mode={!editMode ? "visible" : "hidden"}>
         <button
+          aria-label="edit-title-board"
           className="hover:shadow-default hover:shadow-shadow rounded-sm max-w-[60vw] text-xs py-2 h-10 px-4 w-auto text-nowrap truncate"
           onClick={handleChangeEditMode}
         >
@@ -105,6 +106,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
         >
           <label className="w-full h-full">
             <textarea
+              aria-label="title-board"
               style={{ width: `${title.length * 9 + 16}px` }}
               ref={refTextAreaTitle}
               onChange={handleEditTitle}
@@ -116,6 +118,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
             />
           </label>
           <button
+            aria-label="change-title-board"
             type="submit"
             className="absolute -bottom-1 translate-y-full h-8 w-10 default-btn bg-btn/50 backdrop-blur-sm disabled:opacity-60 hover:brightness-120"
             disabled={isPending}

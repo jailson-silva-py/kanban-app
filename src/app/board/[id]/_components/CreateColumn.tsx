@@ -28,6 +28,7 @@ const CreateColumnItemBtn = () => {
   const refInput = useRef<HTMLInputElement>(null);
 
   const { mutate, isPending } = useMutation({
+    mutationKey:["column", "create"],
     mutationFn: createColumnFromBoard,
     onMutate: async (variables, context) => {
       return await onMutateFunction<BoardClient<ColumnSkeleton>>(

@@ -13,26 +13,13 @@ type BtnDeleteColumnProps = {
   columnId: string;
 };
 
-const BtnDeleteColumn = ({ columnId }: BtnDeleteColumnProps) => {
+const MenuOperationsCol = ({ columnId }: BtnDeleteColumnProps) => {
   const params = useParams();
   const queryKey = board(params.id as string);
   const { isPending, mutate } = useMutation({
     mutationKey: ["column", "delete"],
     mutationFn: DeleteColumn,
     onMutate: async (variables, context) => {
-      // context.client.cancelQueries({ queryKey });
-      // const previusBoard =
-      //   context.client.getQueryData<PromiseReturnType<typeof getBoardById>>(
-      //     queryKey,
-      //   );
-      // if (!previusBoard) return;
-
-      // const newColumns = previusBoard.columns.filter((c) => c.id !== columnId);
-      // const newBoard = { ...previusBoard, columns: newColumns };
-
-      // context.client.setQueryData(queryKey, newBoard);
-
-      // return { previusBoard };
       return await onMutateFunction<BoardClient<ColumnClient>>(context, queryKey, (old) => {
 
         const oldColumns = old.columns
@@ -62,6 +49,7 @@ const BtnDeleteColumn = ({ columnId }: BtnDeleteColumnProps) => {
       <DropdownMenuWithDots.Item>
         <form onSubmit={onDeleteColumn}>
           <button
+            aria-label="delete-column"
             disabled={isPending}
             type="submit"
             className="text-xs cursor-pointer w-full h-full p-1 flex items-center justify-center hover:bg-error/20 rounded-sm"
@@ -74,4 +62,4 @@ const BtnDeleteColumn = ({ columnId }: BtnDeleteColumnProps) => {
   );
 };
 
-export default BtnDeleteColumn;
+export default MenuOperationsCol;

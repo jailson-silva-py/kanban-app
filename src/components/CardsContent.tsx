@@ -22,7 +22,7 @@ export const CardsContent: React.FC<CardsContentProps> = ({
 
   return (
     <ul
-      style={{ border: droppable.isDropTarget ? "2px dashed red" : "none" }}
+      style={{ border: droppable.isDropTarget ? "2px dashed red" : "none" }} aria-label="cards-content"
       {...props}
       ref={ref}
       className={`flex flex-col items-center gap-2 ${props.className ?? ""}`}

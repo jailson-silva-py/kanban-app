@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_OPTIONS='max-old-space-size=2048' next dev --turbo",
     "build": "npx prisma generate && npx prisma migrate deploy && next build --turbo",
-    "build-test":"next build --turbo",
+    "build-test": "next build --turbo",
     "start": "next start",
     "test": "vitest --ui",
     "lint": "eslint"
@@ -39,6 +39,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.5",
+    "@vitest/coverage-v8": "^4.1.10",
     "@vitest/ui": "^4.1.10",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",

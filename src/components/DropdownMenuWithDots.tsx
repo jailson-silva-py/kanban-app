@@ -21,7 +21,7 @@ const DropdownMenuWithDots = ({ children, ...props }: DropdownMenuWithDotsProps)
       <button
         onClick={handleOpenDropdown}
         className="absolute cursor-pointer right-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-text/5"
-        aria-label="Mais Opções"
+        aria-label="more-options"
         title="Mais Opções"
       >
         <TbDotsVertical size={18} />

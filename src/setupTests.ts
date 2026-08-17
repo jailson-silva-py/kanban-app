@@ -1,5 +1,14 @@
 import "@testing-library/jest-dom";
 import "@testing-library/user-event";
+import type * as actions from "@/actions/actions"
+import { PromiseReturnType } from "@prisma/client/extension";
+
+type typeActionsMock = {[K in keyof typeof actions]?:typeof actions[K] extends (...args:any[]) => any ? ReturnType<typeof vi.fn>:never}
+
+afterAll(() => {
+  vi.resetAllMocks();
+  vi.restoreAllMocks();
+});
 
 globalThis.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -14,18 +23,31 @@ vi.mock("next-auth/react", () => ({
   }),
   SessionProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
-vi.mock("@/actions/actions", () => {
+vi.mock("@/actions/actions", ():typeActionsMock => {
   return {
+
     createCartForColumn: vi.fn(),
     getColumnForInBoxUser: vi.fn().mockResolvedValue({ id: "id-1", cards: [{ id: "1", columnId: "col-1", completed: false, position: 100, title: "cartão" }] }),
-    createColumnFromBoard:vi.fn(),
-  }
+    createColumnFromBoard: vi.fn(),
+    createCartForColumnInBox: vi.fn(),
+    DeleteColumn: vi.fn(),
+    changeBoardTitle: vi.fn(),
+    ChangeColumnTitle: vi.fn(),
+    getColumnById: vi.fn().mockResolvedValue({
+      title: "Coluna Bacana!", id: "col-1", order: 100, boardId:"board-123",
+      cards: [{ id: "card-1", title: "legal", completed:false, columnId:"col-1", position:100 }]
+    } satisfies PromiseReturnType<typeof actions.getColumnById>
+    ),
+    getBoardById: vi.fn(),
+    }
 })
 
 vi.mock("@/app/util/mutations", () => ({
   onMutateFunction: vi.fn(),
 }))
 
-afterAll(() => {
-  vi.resetAllMocks();
-});
+vi.mock("next/navigation", () => {
+  return {
+    useParams: () => ({ id: "board-123" })
+  }
+})

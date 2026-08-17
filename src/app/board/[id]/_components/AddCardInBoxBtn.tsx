@@ -89,7 +89,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
             </button>
             <button
               type="button"
-              aria-label="cancel-create-card"
+              aria-label="cancel-create-card-inbox"
               onClick={() => setEdition(false)}
               className="btn-primary btn-default focus-primary"
             >
