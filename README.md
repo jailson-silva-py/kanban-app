@@ -4,8 +4,8 @@ Um quadro Kanban **full-stack, moderno e em tempo real**, construído do zero co
 
 ## ✨ Por que esse projeto se destaca
 - **Cobertura de testes de mais de 70%** — Atualmente com testes de integração no núcleo da aplicação e futuramente tenho a meta de alcançar 90%, veja a cobertura atual:
-.. image:: https://codecov.io/github/jailson-silva-py/kanban-app/graph/badge.svg?token=WUJH14TFE5 
- :target: https://codecov.io/github/jailson-silva-py/kanban-app
+[.. image:: https://codecov.io/github/jailson-silva-py/kanban-app/graph/badge.svg?token=WUJH14TFE5 
+ :target: https://codecov.io/github/jailson-silva-py/kanban-app](https://codecov.io/github/jailson-silva-py/kanban-app/graphs/sunburst.svg?token=WUJH14TFE5)
 - **Arquitetura 100% Server Actions** — sem API REST intermediária redundante: o front conversa direto com o backend através de Server Actions do Next.js, com wrappers centralizados de tratamento de erro e autenticação.
 - **Drag-and-drop de verdade, não gambiarra** — reordenação de cards e colunas usando **posições em ponto flutuante** (`Float`), o que permite reordenar itens sem precisar reindexar toda a lista a cada movimento (só reindexa quando necessário).
 - **Autenticação multi-estratégia** — login com **Google OAuth** e também **credenciais próprias** (e-mail/senha), com hashing seguro via **Argon2** (algoritmo vencedor da Password Hashing Competition, mais robusto que bcrypt).
