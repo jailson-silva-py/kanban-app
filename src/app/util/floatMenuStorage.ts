@@ -1,5 +1,3 @@
-//TODO: storage exclusivo do menu float com o padrão subscriber
-
 type FloatMenuStorage = {
   openInBox: boolean
   openBoard: boolean,
@@ -14,7 +12,7 @@ const initialStorage: FloatMenuStorage = {
 let storage: FloatMenuStorage = { ...initialStorage };
 
 type Subscriber = (objStorage: FloatMenuStorage) => void;
-const subscribers = new Set<Subscriber>();
+export const subscribers = new Set<Subscriber>();
 const notifySubscribers = () => {
   subscribers.forEach((fn) => {
     fn({ ...storage });
