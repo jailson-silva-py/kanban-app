@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import "@testing-library/user-event";
 import type * as actions from "@/actions/actions"
 import { PromiseReturnType } from "@prisma/client/extension";
-
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
 type typeActionsMock = {[K in keyof typeof actions]?:typeof actions[K] extends (...args:any[]) => any ? ReturnType<typeof vi.fn>:never}
 
 afterAll(() => {
@@ -39,12 +39,11 @@ vi.mock("@/actions/actions", ():typeActionsMock => {
     } satisfies PromiseReturnType<typeof actions.getColumnById>
     ),
     getBoardById: vi.fn(),
+    ChangeCompletedCard: vi.fn(),
+    DeleteCard: vi.fn(),
     }
 })
 
-vi.mock("@/app/util/mutations", () => ({
-  onMutateFunction: vi.fn(),
-}))
 
 vi.mock("next/navigation", () => {
   return {

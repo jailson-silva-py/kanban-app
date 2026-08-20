@@ -1,13 +1,14 @@
 "use client";
 import { ChangeCompletedCard, DeleteCard } from "@/actions/actions";
 import { Card as CardType } from "@/types/dataTypes";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, memo} from "react";
 import { TbCheck } from "react-icons/tb";
 import DropdownMenuWithDots from "./DropdownMenuWithDots";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { onMutateFunction } from "@/app/util/mutations";
 import { ColumnClient } from "@/types/clientDataTypes";
+import { column } from "@/constrants/queryKeys";
 
 type CardProps = {
   card: CardType;
@@ -15,7 +16,7 @@ type CardProps = {
 } & React.ComponentProps<"li">;
 
 const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
-  const queryKey = ['column', card.columnId];
+  const queryKey = column(card.columnId);
   const [completed, setCompleted] = useState(card.completed);
   const { ref, isDragging, isDropping, isDropTarget } = useSortable({
     id: `card-${card.id}`,
@@ -41,7 +42,8 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
 
       return await onMutateFunction<ColumnClient>(context, cardsKey ?? queryKey, (old) => {
 
-        const {cardsMap, cards:oldCards} = old
+        const cardsMap = new Map(old.cardsMap);
+        const oldCards = [...old.cards];
 
         if (variables.isDeletion) {
 
@@ -64,7 +66,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
 
     onError: (error, variables, result, context) => {
       setCompleted(!completed);
-      context.client.setQueryData(cardsKey ?? queryKey, result?.previousState);
+      context.client.setQueryData(cardsKey ?? queryKey, () => ({...result?.previousState}));
     },
   });
 
@@ -85,6 +87,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
 
   return (
     <li
+      aria-label="card"
       style={{border:isDropTarget ? "1px solid white":""}}
       className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-secondary shadow-shadow shadow-default px-4 py-2 rounded-sm text-xs font-light font-geist cursor-pointer hover:-top-0.5 ease-out"
       {...props}
@@ -102,6 +105,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
           }}
         >
           <input
+            aria-label="checkbox-completed-card"
             type="checkbox"
             name="card_completed"
             id="card_completed"
@@ -110,7 +114,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
             className="absolute cursor-pointer z-1 w-full h-full opacity-0"
             disabled={isPending}
           />
-          {completed && <TbCheck size={16} />}
+          {completed && <TbCheck size={16} role="img" aria-label="completed-svg"/>}
         </div>
       </form>
       <p className="wrap-break-word text-ellipsis leading-7 line-clamp-4 hyphens-auto">
@@ -120,6 +124,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
         <DropdownMenuWithDots.Item>
           <form onSubmit={onChangeIsComplete} className="h-max full">
             <button
+              aria-label="completed-card-btn"
               type="submit"
               className="p-1 w-full h-7 btn-ghost hover:bg-text/20 rounded-sm"
             >
@@ -131,6 +136,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
         <DropdownMenuWithDots.Item>
           <form onSubmit={onChangeDeleteCard} className="h-max full">
             <button
+              aria-label="delete-card-btn"
               type="submit"
               className="flex justify-center items-center p-1 w-full h-7 btn-ghost hover:bg-error/20 rounded-sm"
               disabled={isPending}

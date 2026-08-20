@@ -10,10 +10,10 @@ const createQueryClient = (): QueryClient => {
   });
 };
 
-export const renderWithProviders = (ui: React.ReactElement) => {
+export const renderWithProviders = (children: React.ReactElement, queryClient?: QueryClient) => {
   return render(
-    <QueryClientProvider client={createQueryClient()}>
-      {ui}
+    <QueryClientProvider client={queryClient ?? createQueryClient()}>
+      {children}
     </QueryClientProvider>
-  );
+    );
 };

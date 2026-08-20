@@ -17,6 +17,6 @@ queryKey: string[], callbackSetData: (old:A) => A, conditions?:boolean) {
 
   })
 
-  return { previousState } as {previousState:A}
+  return { previousState:{...previousState} } as {previousState:A}
 
 }
