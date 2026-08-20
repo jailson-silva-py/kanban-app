@@ -526,3 +526,13 @@ export const reOrderCardsFromColumns = async ({
 
   return result;
 };
+
+
+export async function deleteBoard({id}:{id:string}) {
+  return await protectedActions(async (session) => {
+    return prisma.board.delete({
+      where: { ownerId: session.user?.id, id },
+      select: { id: true, title: true }
+    })
+  })
+}

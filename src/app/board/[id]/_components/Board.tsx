@@ -17,6 +17,8 @@ import { column } from "@/constrants/queryKeys";
 import { ColumnClient } from "@/types/clientDataTypes";
 import { Separator } from "@/components/Separator";
 import useFloatMenuStorage from "@/hooks/useFloatMenuStorage";
+import BtnBoardDelete from "./BtnBoardDelete";
+import DropdownMenuWithDots from "@/components/DropdownMenuWithDots";
 
 interface Iprops {
   initialData: BoardFull;
@@ -33,8 +35,8 @@ const Board = ({ initialData }: Iprops) => {
   const queryClient = useQueryClient();
   const refListColumnsBoard = useRef<HTMLUListElement>(null);
   const storage = useFloatMenuStorage()
-
   const { data: board, isLoading } = useGetInitialBoard(initialData);
+
   const { mutate } = useMutation({
     mutationFn: reOrderCardsFromColumns,
     onSuccess: (
@@ -90,9 +92,16 @@ const Board = ({ initialData }: Iprops) => {
   return (
     <div style={{display:!storage.openBoard ? "none": undefined}} className="relative shadow-shadow shadow-default bg-primary overflow-hidden  w-full h-full rounded-sm flex flex-col">
       <header className="flex items-center flex-3 basis-15 shrink-0 grow-0 px-8 w-full bg-secondary">
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex relative items-center justify-center gap-2 w-full h-full">
           <TbChalkboard size={24} />
+          <div className="w-full flex gap-2 justify-between items-center">
           <BtnInputEditBoardTitle id={board.id} title={board.title} />
+          <DropdownMenuWithDots positionBtn="relative" className="w-40">
+            <DropdownMenuWithDots.Item>
+              <BtnBoardDelete id={board.id}/>
+            </DropdownMenuWithDots.Item>
+          </DropdownMenuWithDots>
+          </div>
         </div>
       </header>
       <Separator/>

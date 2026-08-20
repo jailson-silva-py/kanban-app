@@ -4,9 +4,10 @@ import { TbDotsVertical } from "react-icons/tb";
 
 type DropdownMenuWithDotsProps = {
   children: React.ReactNode;
+  positionBtn?:"relative"|"absolute"|"fixed"
 } & React.ComponentProps<'ul'>;
 
-const DropdownMenuWithDots = ({ children, ...props }: DropdownMenuWithDotsProps) => {
+const DropdownMenuWithDots = ({ children, positionBtn,...props }: DropdownMenuWithDotsProps) => {
   const [openDrop, setOpenDrop] = useState(false);
   const refListOptions = useOutClick<HTMLUListElement>(() =>
     setOpenDrop(false),
@@ -20,7 +21,7 @@ const DropdownMenuWithDots = ({ children, ...props }: DropdownMenuWithDotsProps)
     <>
       <button
         onClick={handleOpenDropdown}
-        className="absolute cursor-pointer right-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-text/5"
+        className={`${positionBtn ?? "absolute"} cursor-pointer ${positionBtn && positionBtn !== "absolute" ? "":"right-2 top-1/2 -translate-y-1/2"}  rounded-full p-1 hover:bg-text/5`}
         aria-label="more-options"
         title="Mais Opções"
       >
@@ -44,7 +45,7 @@ DropdownMenuWithDots.Item = function DropdownMenuWithDotsItem({
 }: {
   children: React.ReactNode;
 }) {
-  return <li className="p-1 bg-primary/60 h-max w-full">{children}</li>;
+  return <li className="p-1 bg-primary/70 h-max w-full tracking-widest font-geist">{children}</li>;
 };
 
 export default DropdownMenuWithDots;
