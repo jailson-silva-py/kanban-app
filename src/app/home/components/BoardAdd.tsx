@@ -43,7 +43,7 @@ const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
 
   return (
     <>
-      <li className="flex flex-col rounded-sm w-full h-37.5" {...props}>
+      <li className="flex flex-col rounded-sm w-full h-37.5 tracking-widest" {...props}>
         <button
           type="submit"
           className="bg-secondary/60 z-1 h-8/10 w-full flex flex-col text-xs gap-2 items-center justify-center shadow-bottom shadow-shadow rounded-sm hover:brightness-150 cursor-pointer"
@@ -61,7 +61,7 @@ const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
         >
           <label className="my-auto w-full flex flex-col gap-2">
             <input
-              className="default-input text-sm"
+              className="default-input text-sm focus-primary"
               name="title_board"
               placeholder="Digite o título do quadro: "
               required
@@ -70,10 +70,10 @@ const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
 
           <button
             type="submit"
-            className="flex items-center justify-center default-btn bg-secondary/20 ml-auto h-10 min-w-25 disabled:opacity-60 hover:brightness-135"
+            className="ml-auto w-24 flex items-center justify-center btn-md btn-secondary focus-primary outline-0"
             disabled={isPending}
           >
-            {isPending ? <LoadingSpinner size={24} /> : <span>Criar</span>}
+            {isPending ? <LoadingSpinner size={24} className="text-primary"/> : <span>Criar</span>}
           </button>
         </form>
       </Dialog>

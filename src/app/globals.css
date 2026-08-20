@@ -8,7 +8,7 @@
     --color-primary: oklch(0.1217 0 316);
     --color-secondary: oklch(0.1513 0 0);
     --color-accent: oklch(0.1625 0.0025 106.41);
-    --color-text: oklch(0.9585 0.0011 197.14);
+    --color-text: oklch(0.8665 0.0011 197.14);
     --color-text-secondary: oklch(from var(--color-text) calc(l - 0.3) c h);
     --color-error: oklch(0.625 0.2491 22.76);
     --color-success: oklch(0.6231 0.1973 151.94);
@@ -55,14 +55,14 @@
         transition: stroke-width 0.3s ease;
     }
 
-    .focus-primary { @apply focus:shadow-medium focus:shadow-text/20}
-    .focus-secondary {@appy focus:shadow-medium focus:shadow-primary/20}
+    .focus-primary { @apply focus:shadow-medium focus:shadow-text/40}
+    .focus-secondary {@appy focus:shadow-medium focus:shadow-primary/40}
     .btn-xs {@apply h-6 px-2 text-xs rounded-sm}
     .btn-sm {@apply h-8 px-3 text-sm rounded-sm}
     .btn-md {@apply h-10 px-4 text-sm rounded-sm}
 
-    .btn-primary {@apply bg-primary text-text hover:bg-text/30 shadow-default shadow-shadow}
-    .btn-secondary {@apply bg-text text-primary hover:bg-text/70 shadow-default shadow-shadow}
+    .btn-primary {@apply bg-primary text-text hover:bg-text/30 shadow-default shadow-shadow cursor-pointer}
+    .btn-secondary {@apply bg-text text-primary hover:bg-text/70 shadow-default shadow-shadow cursor-pointer}
     .btn-ghost {@apply text-xs hover:bg-text/30 cursor-pointer}
 
 

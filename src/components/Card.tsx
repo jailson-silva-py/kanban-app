@@ -1,7 +1,7 @@
 "use client";
 import { ChangeCompletedCard, DeleteCard } from "@/actions/actions";
 import { Card as CardType } from "@/types/dataTypes";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useState, memo} from "react";
 import { TbCheck } from "react-icons/tb";
 import DropdownMenuWithDots from "./DropdownMenuWithDots";
