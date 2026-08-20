@@ -14,7 +14,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { TbCheck, TbInnerShadowTopLeft } from "react-icons/tb";
+import { TbChecks, TbInnerShadowTopLeft } from "react-icons/tb";
 
 interface Iprops {
   id: string;
@@ -120,11 +120,11 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
           <button
             aria-label="change-title-board"
             type="submit"
-            className="absolute -bottom-1 translate-y-full h-8 w-10 default-btn bg-btn/50 backdrop-blur-sm disabled:opacity-60 hover:brightness-120"
+            className="w-8 h-8 z-2 group backdrop-blur-[2px] absolute -bottom-1 left-0 default-btn translate-y-full bg-primary/90 hover:bg-text/10 disabled:opacity-60"
             disabled={isPending}
           >
             {!isPending ? (
-              <TbCheck size={24} className="stroke-2" />
+              <TbChecks size={24} />
             ) : (
               <TbInnerShadowTopLeft size={24} className="animate-spin" />
             )}

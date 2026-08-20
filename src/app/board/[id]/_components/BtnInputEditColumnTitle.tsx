@@ -119,12 +119,12 @@ const BtnInputEditColumnTitle = ({
           <button
             aria-label="change-title-column"
             type="submit"
-            className="z-2 group backdrop-blur-[2px] absolute -bottom-1 left-0 default-btn translate-y-full bg-btn/20 hover:bg-btn/40 disabled:opacity-60"
+            className="w-8 h-8 z-2 group backdrop-blur-[2px] absolute -bottom-2 left-0  default-btn translate-y-full bg-primary/90 hover:bg-text/10 disabled:opacity-60"
             disabled={isPending}
           >
             {!isPending ? (
               <TbChecks
-                size={18}
+                size={24}
                 className="group-hover:text-text group-hover:scale-110  text-text/80"
               />
             ) : (
