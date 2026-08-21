@@ -46,7 +46,7 @@ export default function BtnBoardDelete({ id }: { id: string }) {
 
   return (
       <>
-      <button onClick={handleOpenDialog} className="w-full btn-sm btn-ghost items-center justify-center hover:bg-text/90 " disabled={ isPending }>
+      <button onClick={handleOpenDialog} className="w-full btn-sm btn-ghost items-center justify-center hover:bg-error/20" disabled={ isPending }>
       {isPending ? <span>Processando ...</span> : <span className="text-xs">Deletar Board</span>}
       </button>
       <Dialog state={openDialog} setState={setOpenDialog}>
@@ -54,7 +54,6 @@ export default function BtnBoardDelete({ id }: { id: string }) {
           Ao excluir o quadro, todas as colunas e cartões também serão <b>excluídos permanentemente</b>, deseja excluí-los?
         </p>
         <form onSubmit={handleDeleteBoard} className="my-auto ml-auto flex gap-2 items-center justify-center">
-
           <button type="submit" className="flex btn-sm w-24 btn-secondary focus-primary items-center justify-center">
             {isPending ? <LoadingSpinner className="text-primary"/> : <span>Confirmar</span>}
           </button>
