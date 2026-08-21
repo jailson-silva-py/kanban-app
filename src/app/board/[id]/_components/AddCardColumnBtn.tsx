@@ -32,7 +32,6 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
         const card: Card = { ...variables, columnId: old.id, completed: false, position: Infinity }
         const cards = [card, ...old.cards]
         const cardsMap = old.cardsMap.set(variables.id, card)
-        console.log(cards)
         return { ...old, cards, cardsMap }
 
       })

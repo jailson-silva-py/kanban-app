@@ -14,7 +14,6 @@ export default function Error({
     console.error("Erro capturado:", error);
     // ex: enviarParaServicoDeLog(error);
   }, [error]);
-  console.log(error.digest);
   return (
     <div className="mt-4 w-full h-[calc(100vh-100px)] flex flex-col items-center gap-2 font-geist">
       <div className="pt-[20vh] px-4 flex flex-col items-center gap-4">

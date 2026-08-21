@@ -12,7 +12,6 @@ const MenuFloat = () => {
   useEffect(() => {
     floatMenuStorage.showMenu()
   }, [])
-  console.log(storage.isShow)
   return (
     <div className="fixed bottom-2 left-1/2 -translate-x-1/2">
 
@@ -39,8 +38,6 @@ const MenuFloat = () => {
         :
         <button title="Exibir painel Board/InBox" aria-label="show-menu" onClick={() => {
           floatMenuStorage.showMenu();
-          console.log("Clicks")
-          console.log(storage.isShow);
         }}
           className="bg-info/5  w-12 h-12 border-text  group fixed bottom-1/2 top-1/2 -translate-1/2 default-btn btn-sm rounded-full">
           <TbArrowBigUpLine size={24} className="animate-to-jump group-hover:text-info"/>

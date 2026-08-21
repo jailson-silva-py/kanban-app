@@ -26,7 +26,6 @@ function ColumnBoard({ id, boardId,  ...props }: Iprops) {
     accept: "card",
     collisionPriority: CollisionPriority.Low,
   });
-  console.log(data?.cards)
   return (
 
     <li
