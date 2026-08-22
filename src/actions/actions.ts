@@ -322,9 +322,11 @@ export const DeleteColumn = async ({ id }: { id: string }) => {
 };
 
 export const globalSearchWithText = async ({ text }: { text: string }) => {
-  return protectedActions(async () => {
+  return protectedActions(async (session) => {
+    const ownerId = session?.user?.id;
     const resultBoards = prisma.board.findMany({
       where: {
+        ownerId,
         title: { contains: text, mode: "insensitive" },
         isInbox: false,
       },
@@ -338,7 +340,7 @@ export const globalSearchWithText = async ({ text }: { text: string }) => {
     const resultColumns = prisma.column.findMany({
       where: {
         title: { contains: text, mode: "insensitive" },
-        board: { isInbox: false },
+        board: { isInbox: false, ownerId },
       },
       take: 5,
       select: {
@@ -351,7 +353,7 @@ export const globalSearchWithText = async ({ text }: { text: string }) => {
     const resultCards = prisma.card.findMany({
       where: {
         title: { contains: text, mode: "insensitive" },
-        column: { board: { isInbox: false } },
+        column: { board: { isInbox: false, ownerId } },
       },
       take: 5,
       select: {
