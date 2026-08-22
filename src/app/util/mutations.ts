@@ -1,10 +1,10 @@
-import { Column } from "@/types/dataTypes";
+import { Column, User } from "@/types/dataTypes";
 import { BoardClient, CardsClient, ColumnClient, InBoxClient } from "@/types/clientDataTypes";
 import { ColumnSkeleton } from "@/types/dataTypes";
 import { MutationFunctionContext } from "@tanstack/react-query";
 
 export async function onMutateFunction
-<A extends BoardClient<Column | ColumnSkeleton> | ColumnClient | CardsClient | InBoxClient>
+<A extends BoardClient<Column | ColumnSkeleton> | ColumnClient | CardsClient | InBoxClient|User>
 (context: MutationFunctionContext,
 queryKey: string[], callbackSetData: (old:A) => A, conditions?:boolean) {
 

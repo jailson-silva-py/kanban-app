@@ -10,13 +10,13 @@ import { Toaster } from "@/components/Toaster";
 const geistSans = Geist({
   variable: "--font-geist",
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "600", "700"],
+  weight: ["100", "200", "300", "400","500", "600", "700"],
 });
 
 const rethink_sans = Rethink_Sans({
   variable: "--font-rethink",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "600","500", "700"],
 });
 
 const marck_script = Marck_Script({

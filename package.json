@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NODE_OPTIONS='max-old-space-size=2048' next dev --turbo",
+    "dev": "next dev --turbo",
     "build": "npx prisma generate && npx prisma migrate deploy && next build --turbo",
     "build-test": "next build --turbo",
     "start": "next start",
@@ -22,6 +22,7 @@
     "@tanstack/react-query": "^5.100.9",
     "@tanstack/react-query-devtools": "^5.100.9",
     "argon2": "^0.44.0",
+    "cloudinary": "^2.10.1",
     "next": "^16.2.0",
     "next-auth": "^5.0.0-beta.30",
     "pg": "^8.20.0",

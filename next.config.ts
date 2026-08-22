@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   images:{
 
-    remotePatterns:[new URL('https://lh3.googleusercontent.com/**')]
+    remotePatterns:[new URL('https://lh3.googleusercontent.com/**'), new URL("https://res.cloudinary.com/**")]
 
   },
 };

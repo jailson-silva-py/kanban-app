@@ -40,7 +40,7 @@ const ProfileButton = ({user}:Iprops) => {
 
           {data ?
             <button onClick={handleBtnProfile} className="relative h-8 w-8 rounded-full hover:scale-110 cursor-pointer duration-200 ease-in-out transition-transform shadow-default shadow-shadow">
-              <Image src={data?.image || ""}  alt="profile-image" fill sizes="100%, 100%" className="rounded-full" loading="eager"/>
+              <Image src={data?.image || ""}  alt="profile-image" fill sizes="100%, 100%" className="rounded-full object-cover" loading="eager"/>
             </button>
             :
             <Link href="/signin" className="w-28 default-btn text-xs btn-secondary btn-sm font-semibold flex justify-center gap-2">
