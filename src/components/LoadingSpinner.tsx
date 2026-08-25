@@ -4,7 +4,7 @@ type Iprops = React.ComponentProps<typeof TbIcons>;
 
 const LoadingSpinner: React.FC<Iprops> = ({ ...props }) => {
   return (
-    <TbLoader3 size={ 16 } {...props} className={`[stroke-dasharray:90] [stroke-dashoffset:90] animate-draw-spin ${props.className||""}`}
+    <TbLoader3 size={ 16 } {...props} className={`[stroke-dasharray:90] [stroke-dashoffset:90] animate-draw-spin text-inherit ${props.className||""}`}
     />
   );
 };

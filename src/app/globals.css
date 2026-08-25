@@ -72,6 +72,7 @@
 
     .dropdown-md {@apply max-w-52.5 z-4 absolute flex flex-col gap-2 overflow-hidden font-medium}
     .dropdown-primary {@apply px-2 py-2 bg-accent shadow-default shadow-shadow font-medium}
+    .form-width {@apply min-w-75 w-9/10 max-w-150}
 
 }
 

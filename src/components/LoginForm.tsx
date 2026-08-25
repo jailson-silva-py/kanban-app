@@ -76,7 +76,7 @@ function reducer(prevState: StateFormType, action: ActionType): StateFormType {
       };
 
       if (!objEmailVerify.success) {
-        state_email.errors = z.formatError(objEmailVerify.error)._errors;
+        state_email.errors = objEmailVerify.error.format()._errors;
       }
 
       return state_email;
@@ -90,7 +90,7 @@ function reducer(prevState: StateFormType, action: ActionType): StateFormType {
       };
 
       if (!objPassVerify.success) {
-        statePass.errors = z.formatError(objPassVerify.error)._errors;
+        statePass.errors = objPassVerify.error.format()._errors;
       }
 
       return statePass;
@@ -109,7 +109,7 @@ function reducer(prevState: StateFormType, action: ActionType): StateFormType {
       };
 
       if (!objNameVerify.success) {
-        state_name.errors = z.formatError(objNameVerify.error)._errors;
+        state_name.errors = objNameVerify.error.format()._errors;
       }
 
       return state_name;

@@ -56,3 +56,13 @@ export class InvalidMethodAccessError extends CredentialsSignin {
   }
 
 }
+
+export class InvalidTokenError extends AppError {
+
+  constructor(public status?:number) {
+    super("Código inválido. Tente de novo ou solicite um novo envio.")
+    this.name = "InvalidTokenError";
+    this.status = 400;
+  }
+
+}

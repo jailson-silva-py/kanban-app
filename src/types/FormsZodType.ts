@@ -7,4 +7,4 @@ export const passwordType = z.string().min(8, "A senha deve ter pelo menos 8 car
             .regex(/[A-Z]/, "A senha deve ter pelo menos uma letra maiúscula")
             .regex(/[!@#$%^&*(),.?":{}|<>]/, "A senha tem que ter pelo menos um caractere especial.")
 
-export const emailType = z.email("E-mail inválido")
+export const emailType = z.string().email("Email inválido!")
