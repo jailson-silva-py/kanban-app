@@ -10,11 +10,11 @@ export default async function VerifyTokenPage() {
   const userCookies = await cookies();
   const cookieChangePassword = userCookies.get({ name:"verification_change_password", value:user?.id});
   if (!cookieChangePassword) {
-    const cookieChangePassword = userCookies.get({name:"change_password_verified", value:user?.id});
-    if (!cookieChangePassword) {
-      redirect("/profile/change_password/")
+    const cookiePasswordVerified = userCookies.get({ name: "change_password_verified", value: user?.id });
+    if (cookiePasswordVerified) {
+      redirect("/profile/change_password/new_password")
     }
-    redirect("/profile/change_password/new_password")
+    redirect("/profile/change_password/")
 
   }
 

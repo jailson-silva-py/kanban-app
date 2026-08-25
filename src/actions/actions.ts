@@ -17,7 +17,6 @@ import { passwordType } from "@/types/FormsZodType";
 import { hash } from "argon2"
 import { InvalidFieldsError } from "@/types/GlobalErrors";
 import * as nodemailer from "nodemailer"
-import { TbMenuOrder } from "react-icons/tb";
 import { emailHtml, textEmail } from "./_constraints";
 
 export async function getUser() {
@@ -540,7 +539,7 @@ export async function createToken() {
       subject:"Seu código de verificação do Kanboom",
       text:textEmail(code),
       html:emailHtml(code),
-      from:process.env.SMTP_EMAIL ,
+      from:process.env.SMTP_USER ,
       to: session?.user?.email as string,
 
     });
@@ -577,7 +576,6 @@ export async function verifyTokenCode(code:string) {
       secure: process.env.NODE_ENV == "production",
       path:"/",
     });
-
   })
 }
 

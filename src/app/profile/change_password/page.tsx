@@ -8,8 +8,8 @@ export default async function ChangePasswordPage() {
   const user = await getUser();
   const userCookies = await cookies();
   if (!user) redirect("/login");
-  const cookieVerifyPassword = userCookies.get({name:"verification_change_password", value:user.id});
-  const cookieNewPassword = userCookies.get({name:"change_password_verified", value:user.id});
+  const cookieVerifyPassword = userCookies.get({name:"verification_change_password", value:user?.id});
+  const cookieNewPassword = userCookies.get({name:"change_password_verified", value:user?.id});
 
   if (cookieVerifyPassword) redirect("/profile/change_password/verify");
   if (cookieNewPassword) redirect("/profile/change_password/new_password")
