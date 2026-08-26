@@ -1,5 +1,5 @@
 "use client";
-import { createToken, verifyTokenCode } from "@/actions/actions";
+import { createTokenNewUser, verifyNewUser } from "@/actions/actions";
 import { censuredEmail } from "@/app/util/censuredEmail";
 import { toast } from "@/app/util/toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -12,20 +12,20 @@ interface IFormType {
   code: string;
 }
 
-export default function FormVerifyCode({ user }: { user: User }) {
+export default function FormConfirmCode({ user }: { user: User }) {
 
   const { register, handleSubmit, setValue, watch, formState: { isSubmitting, errors, isValid } } = useForm<IFormType>({ mode: "onChange" });
   const [isPending, startTransition] = useTransition();
   const onVerifyCode: SubmitHandler<IFormType> = async (data) => {
 
-    await verifyTokenCode(data.code).catch(err => {
+    await verifyNewUser(data.code).catch(err => {
       if (err?.name === "InvalidTokenError") {
         toast.error(err.message);
         return
       }
       toast.error("Ocorreu um erro inesperado, tente novamente");
       return
-    }).then(() => redirect("/profile/change_password/new_password"));
+    }).then(() => redirect("/home"));
 
 
 
@@ -34,13 +34,13 @@ export default function FormVerifyCode({ user }: { user: User }) {
   const handleResendCode = async (e: MouseEvent) => {
     e.preventDefault();
     startTransition(async () => {
-      await createToken();
+      await createTokenNewUser();
     })
   }
 
   const codeValue = watch("code");
   return (
-    <form onSubmit={handleSubmit(onVerifyCode)} className="px-8 py-4 min-h-75 flex flex-col gap-4 items-center justify-center shadow-shadow shadow-default form-width">
+    <form onSubmit={handleSubmit(onVerifyCode)} className="w-ful h-full flex flex-col gap-4 justify-center items-center">
       <p className="text-sm hyphens-auto break-all">Nós enviamos um código para o email: { censuredEmail(user.email)}.</p>
       <label className="mt-4 flex flex-col gap-4 group">
         <span className="font-medium text-sm">Insira o código abaixo:</span>

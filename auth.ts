@@ -11,8 +11,8 @@ import {
   InvalidMethodAccessError,
 } from "@/types/AuthErrors";
 import { InvalidFieldsError } from "@/types/GlobalErrors";
-
-//TODO: Fluxo login e signin separados
+import { User } from "@/types/dataTypes";
+import { inspect } from "util";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
@@ -25,7 +25,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         name: {},
       },
       id:"credentials-signin",
-      authorize: async (credentials) => {
+      authorize: async (credentials):Promise<User|null> => {
 
           const isValidPass = passwordType.safeParse(
             credentials.password,
@@ -61,8 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     CredentialsProvider({
       id: "credentials-login",
       credentials: { email: {}, password: {} },
-      authorize: async (credentials) => {
-
+      authorize: async (credentials):Promise<User|null> => {
         const isValidPass = passwordType.safeParse(
           credentials.password,
         ).success;
@@ -89,16 +88,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+
+    async jwt({ token, user, account }) {
       if (user) {
+        token.emailVerified = user.emailVerified;
         token.id = user.id;
+        if (account?.provider) {
+          token.provider = account?.provider;
+        }
       }
+
       return token;
     },
 
     async session({ session, token }) {
       if (token?.id) {
         session.user.id = token.id as string;
+        session.user.emailVerified = token.emailVerified as Date | null;
+      }
+      if (token?.provider) {
+        session.user.provider = token.provider as string;
       }
 
       return session;

@@ -11,9 +11,6 @@ const SignIn = async () => {
 
   }
     return (
-
-    <div className="flex justify-center items-center h-[calc(100vh-60px)] w-screen p-4 tracking-wider font-geist">
-    <div className="p-8 flex items-center justify-center max-w-93.75 max-h-93.75 w-[90vw] shadow-default shadow-shadow rounded-sm">
         <div className="min-w-25 w-9/10 h-90 flex flex-col items-center justify-center gap-4">
 
         <form action={SignIn} className="h-10 w-full">
@@ -22,19 +19,9 @@ const SignIn = async () => {
         </button>
         </form>
         <Separator/>
-            <LoginForm isSignIn={ true } />
+          <LoginForm isSignIn={ true } />
           <span className="text-xs mx-auto">Já possui uma conta? <Link className="underline" href={"/login"}>Entrar</Link></span>
         </div>
-
-
-        <h2></h2>
-
-
-
-    </div>
-
-    </div>
-
     )
 
 }

@@ -49,7 +49,7 @@ export type Card = CardGetPayload<{
 }>;
 
 export type User = UserGetPayload<{
-  select: { id: true; email: true; name: true; image: true };
+  select: { id: true; email: true; name: true; image: true, emailVerified:true };
 }>;
 
 export type CartTypeFromInBox = PromiseReturnType<typeof getColumnForInBoxUser>;

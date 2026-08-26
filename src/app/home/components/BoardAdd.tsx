@@ -70,7 +70,7 @@ const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
 
           <button
             type="submit"
-            className="ml-auto w-24 flex items-center justify-center btn-md btn-secondary focus-primary outline-0"
+            className="ml-auto w-24 flex items-center justify-center btn-sm btn-secondary focus-primary"
             disabled={isPending}
           >
             {isPending ? <LoadingSpinner size={24} className="text-primary"/> : <span>Criar</span>}

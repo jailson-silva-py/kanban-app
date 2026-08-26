@@ -9,7 +9,7 @@ const Home = async () => {
   const initialData = await getAllBoardFromUser().catch(err => {
     if (err instanceof UnAuthentichatedError) {
       toast.error("Acesso negado. Faça Login para Continuar!")
-      redirect("/login")
+
     }
     else throw err
   })

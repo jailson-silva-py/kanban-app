@@ -18,16 +18,16 @@ import { hash } from "argon2"
 import { InvalidFieldsError } from "@/types/GlobalErrors";
 import * as nodemailer from "nodemailer"
 import { emailHtml, textEmail } from "./_constraints";
+import { after } from "next/server";
 
-export async function getUser() {
+export async function getUser():Promise<User|null> {
 
   const session = await auth();
   if (!session?.user?.id) return null
     return prisma.user.findFirst({
       where: { id: session?.user.id },
-      select: { name: true, image: true, id: true, email: true },
+      select: { name: true, image: true, id: true, email: true, emailVerified:true },
     });
-
 
 }
 
@@ -507,7 +507,7 @@ export async function updateImageUser({ url }: { url: string }):Promise<string> 
 export async function changeUsername({ newName: name }: { newName: string }):Promise<User> {
   return protectedActions(async (session) => {
     const id = session?.user?.id;
-    return prisma.user.update({where:{id}, data:{name}, select:{name:true, id:true, email:true, image:true}})
+    return prisma.user.update({where:{id}, data:{name}, select:{name:true, id:true, email:true, image:true, emailVerified:true}})
   })
 }
 
@@ -535,13 +535,14 @@ export async function createToken() {
       },
     })
 
-    transport.sendMail({
-      subject:"Seu código de verificação do Kanboom",
-      text:textEmail(code),
-      html:emailHtml(code),
-      from:process.env.SMTP_USER ,
-      to: session?.user?.email as string,
-
+    after(async () => {
+      await transport.sendMail({
+        subject: "Seu código de verificação do Kanboom",
+        text: textEmail(code),
+        html: emailHtml(code),
+        from: process.env.SMTP_USER,
+        to: session?.user?.email as string,
+      })
     });
 
     const cookiesStore = await cookies();
@@ -593,5 +594,68 @@ export async function changeUserPassword({password}: {password:string}) {
     const token = await prisma.verificationToken.findFirst({where:{identifier:userId as string}})
     cookiesStore.delete("change_password_verified");
     await prisma.verificationToken.delete({ where: { identifier_token: { identifier:userId as string, token:token?.token as string} } });
+  })
+}
+
+export async function createTokenNewUser() {
+  const code = crypto.randomInt(0, 99999);
+  const finalCode = String(code).padStart(5, "0");
+  const nowDate = new Date();
+  const finalDate = new Date(nowDate.getTime() + 1000 * 60 * 3) // 3 minutos
+
+  return protectedActions(async (session) => {
+    const userId = session.user?.id
+    const existingToken = await prisma.verificationToken.findFirst({ where: { identifier: userId as string } });
+    await prisma.verificationToken.upsert({
+      where: { identifier_token: { identifier: userId as string, token: existingToken?.token ?? finalCode } },
+      create: { token: finalCode, expires: finalDate, identifier: userId as string },
+      update: {expires:finalDate, token:finalCode}
+    })
+    const transport = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    })
+
+    after(async () => {
+      await transport.sendMail({
+        subject: "Seu código de verificação do Kanboom",
+        text: textEmail(code),
+        html: emailHtml(code),
+        from: process.env.SMTP_USER,
+        to: session?.user?.email as string,
+
+      })
+    });
+
+    const cookiesStore = await cookies();
+    cookiesStore.set({
+      name: "verification_new_user",
+      value: userId as string,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/signin/verify",
+      maxAge: 60 * 3,
+    });
+    return true
+    })
+}
+
+
+export async function verifyNewUser(code:string) {
+  return protectedActions(async (session) => {
+    const userId = session.user?.id;
+    const cookiesStore = await cookies();
+    const tokenActive = await prisma.verificationToken.findFirst({ where: { identifier: userId, token: code } });
+    if (!tokenActive) {
+      throw new InvalidTokenError();
+    }
+    await prisma.user.update({where:{id:userId}, data:{emailVerified:new Date()}, select:{emailVerified:true}})
+    cookiesStore.delete("verification_new_user");
+    await prisma.verificationToken.delete({where:{identifier_token:{identifier:userId, token:tokenActive.token}}})
   })
 }

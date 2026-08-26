@@ -42,7 +42,6 @@ export default function RootLayout({
       >
         <Loading />
         <SessionProvider>
-
           <QueryProvider>
             <Menu />
             {children}
