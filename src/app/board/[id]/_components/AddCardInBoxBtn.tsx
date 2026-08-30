@@ -34,7 +34,12 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
 
     onSuccess: (data, variables, result, context) => {
       const queryData = context.client.getQueryData<InBoxClient>(cardsKey);
-      if (!data || !queryData) return;
+      if (!data || !queryData) {
+        if (!queryData?.id) {
+          context.client.invalidateQueries({queryKey:cardsKey})
+        }
+        return
+      };
       const cards = [...queryData.cards];
       const targetIndex = cards.findIndex((target) => target.id == data.id);
       cards[targetIndex] = data
@@ -79,9 +84,10 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
           />
           <div className="w-full flex justify-end gap-2">
             <button
-              aria-label="create-card-inbox"
-              type="submit"
-              className="flex items-center justify-center btn-secondary btn-default focus-primary w-20"
+                aria-label="create-card-inbox"
+                type="submit"
+                className="flex items-center justify-center btn-secondary btn-default focus-primary w-20"
+                disabled={ isPending }
             >
               {!isPending ? (
                 <span>Adicionar</span>

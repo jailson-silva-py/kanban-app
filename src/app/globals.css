@@ -61,8 +61,8 @@
     .btn-sm {@apply h-8 px-3 text-sm rounded-sm}
     .btn-md {@apply h-10 px-4 text-sm rounded-sm}
 
-    .btn-primary {@apply bg-primary text-text hover:bg-text/30 shadow-default shadow-shadow cursor-pointer}
-    .btn-secondary {@apply bg-text text-primary hover:bg-text/70 shadow-default shadow-primary/30 cursor-pointer}
+    .btn-primary {@apply bg-primary text-text hover:bg-text/30 shadow-default shadow-shadow cursor-pointer disabled:opacity-50}
+    .btn-secondary {@apply bg-text text-primary hover:bg-text/70 shadow-default shadow-primary/30 cursor-pointer disabled:opacity-50}
     .btn-ghost {@apply text-xs hover:bg-text/30 cursor-pointer}
 
 
