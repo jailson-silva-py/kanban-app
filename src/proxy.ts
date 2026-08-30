@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function proxy(request: NextRequest) {
   const isLogged = await auth();
-  const isVerified = isLogged?.user.emailVerified || isLogged?.user.provider;
+  const isVerified = isLogged?.user.emailVerified || !isLogged?.user.provider?.includes("credentials");
   const privateRoutes = ["/home", "/profile", "/board"];
   const publicRoutes = ["/login", "/signin"]
 

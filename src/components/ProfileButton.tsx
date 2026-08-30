@@ -1,6 +1,5 @@
 "use client";
 import useOutClick from "@/hooks/useOutClick";
-import { User } from "@/types/dataTypes";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { Activity, useState, useTransition } from "react";
@@ -9,40 +8,34 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { profile } from "@/constrants/queryKeys";
 import { getUser } from "@/actions/actions";
+import LoadingSpinner from "./LoadingSpinner";
 
-interface Iprops {
+const ProfileButton = () => {
 
-    user:User|undefined|null;
-
-}
-const ProfileButton = ({user}:Iprops) => {
-
-    const {data, refetch} = useQuery({initialData:user, queryKey:profile, queryFn:getUser})
+    const {data, refetch, isLoading} = useQuery({queryKey:profile, queryFn:getUser})
     const [openDropdown, setOpenDropdown] = useState(false);
     const [isPending, startTransition] = useTransition()
     const ref = useOutClick<HTMLUListElement>(() => setOpenDropdown(false));
     const handleBtnProfile = () => setOpenDropdown(prev => !prev);
 
     const handleLogout =  async () => {
-
       startTransition(async () => {
         signOut()
         refetch()
       })
-
     }
 
     return (
-
         <div className="w-full h-full flex itens-center justify-end font-light tracking-wider font-geist text-sm">
 
         <div className="relative flex justify-center items-center w-full">
-
-          {data ?
+          {!data && isLoading && <div className="w-8 h-8 flex items-center justify-center shadow-shadow shadow-default rounded-full"><LoadingSpinner/></div>}
+          {data && !isLoading &&
             <button onClick={handleBtnProfile} className="relative h-8 w-8 rounded-full hover:scale-110 cursor-pointer duration-200 ease-in-out transition-transform shadow-default shadow-shadow">
-              <Image src={data?.image || ""}  alt="profile-image" fill sizes="100%, 100%" className="rounded-full object-cover" loading="eager"/>
+              <Image src={data?.image || ""} alt="profile-image" fill sizes="100%, 100%" className="rounded-full object-cover" loading="eager" />
             </button>
-            :
+          }
+          {!data && !isLoading &&
             <Link href="/signin" className="w-28 default-btn text-xs btn-secondary btn-sm font-semibold flex justify-center gap-2">
               Fazer login
             </Link>
@@ -64,13 +57,9 @@ const ProfileButton = ({user}:Iprops) => {
                   </button>
               </li>
            </ul>
-
           </Activity>
-
           </div>
-
         </div>
-
     )
 
 }

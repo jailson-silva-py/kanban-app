@@ -12,7 +12,6 @@ import {
 } from "@/types/AuthErrors";
 import { InvalidFieldsError } from "@/types/GlobalErrors";
 import { User } from "@/types/dataTypes";
-import { inspect } from "util";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
@@ -89,7 +88,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
       if (user) {
         token.emailVerified = user.emailVerified;
         token.id = user.id;
@@ -97,7 +96,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.provider = account?.provider;
         }
       }
-
+      if (trigger === "update" && session.emailVerified) {
+        token.emailVerified = session.emailVerified;
+      }
       return token;
     },
 
@@ -115,7 +116,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   adapter: PrismaAdapter(prisma),
   pages: {
-    signIn:"/login",
+    signIn: "/login",
   },
 
 });

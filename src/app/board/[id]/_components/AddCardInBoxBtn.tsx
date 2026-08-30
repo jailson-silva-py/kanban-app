@@ -35,10 +35,10 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
     onSuccess: (data, variables, result, context) => {
       const queryData = context.client.getQueryData<InBoxClient>(cardsKey);
       if (!data || !queryData) return;
-      const cards = queryData.cards;
+      const cards = [...queryData.cards];
       const targetIndex = cards.findIndex((target) => target.id == data.id);
       cards[targetIndex] = data
-      const cardsMap = queryData.cardsMap;
+      const cardsMap = new Map(queryData.cardsMap);
       context.client.setQueryData<InBoxClient>(cardsKey, {...queryData, cardsMap, cards});
     },
 
@@ -56,11 +56,13 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
     mutate({ id, title });
   };
 
+  const handleClose = () => { setEdition(false) }
+  const handleOpen = () => {setEdition(true)}
+
   return (
     <div className="w-full flex-3 p-4 grow-0 shrink-0" aria-label="content-add-card-inbox">
       {!edition ? (
-        <button aria-label="add-card-inbox"
-          onClick={() => setEdition(true)}
+        <button aria-label="add-card-inbox" onClick={handleOpen}
           className="w-full h-9 shadow-shadow shadow-default rounded-sm cursor-pointer hover:bg-text/30 duration-300"
         >
           {children}
@@ -79,7 +81,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
             <button
               aria-label="create-card-inbox"
               type="submit"
-              className="btn-primary btn-default focus-primary btn-xs w-20"
+              className="flex items-center justify-center btn-secondary btn-default focus-primary w-20"
             >
               {!isPending ? (
                 <span>Adicionar</span>
@@ -90,8 +92,8 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
             <button
               type="button"
               aria-label="cancel-create-card-inbox"
-              onClick={() => setEdition(false)}
-              className="btn-primary btn-default focus-primary"
+              onClick={handleClose}
+              className="flex items-center justify-center btn-primary btn-default focus-secondary w-20"
             >
               Cancelar
             </button>

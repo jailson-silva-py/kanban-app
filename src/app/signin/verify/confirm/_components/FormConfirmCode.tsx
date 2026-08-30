@@ -4,6 +4,7 @@ import { censuredEmail } from "@/app/util/censuredEmail";
 import { toast } from "@/app/util/toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { User } from "@/types/dataTypes";
+import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { ChangeEvent, MouseEvent, useTransition } from "react";
 import { SubmitHandler, useForm } from "react-hook-form"
@@ -16,8 +17,8 @@ export default function FormConfirmCode({ user }: { user: User }) {
 
   const { register, handleSubmit, setValue, watch, formState: { isSubmitting, errors, isValid } } = useForm<IFormType>({ mode: "onChange" });
   const [isPending, startTransition] = useTransition();
+  const { update } = useSession();
   const onVerifyCode: SubmitHandler<IFormType> = async (data) => {
-
     await verifyNewUser(data.code).catch(err => {
       if (err?.name === "InvalidTokenError") {
         toast.error(err.message);
@@ -25,10 +26,10 @@ export default function FormConfirmCode({ user }: { user: User }) {
       }
       toast.error("Ocorreu um erro inesperado, tente novamente");
       return
-    }).then(() => redirect("/home"));
-
-
-
+    }).then(async () => {
+      await update({emailVerified:new Date()});
+      redirect("/home");
+    });
   }
 
   const handleResendCode = async (e: MouseEvent) => {

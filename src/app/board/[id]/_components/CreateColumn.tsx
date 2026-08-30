@@ -110,6 +110,7 @@ const CreateColumnItemBtn = () => {
             aria-label="title-column"
             type="text"
             name="title_column"
+            placeholder="Digite o nome da coluna ..."
             className="default-input"
             ref={refInput}
             required
@@ -117,7 +118,7 @@ const CreateColumnItemBtn = () => {
           <button
             aria-label="create-column"
             type="submit"
-            className="default-btn btn-primary flex items-center justify-center w-15 h-8"
+            className="flex items-center justify-center btn-secondary btn-default focus-primary w-20"
           >
             {!isPending ? <span>Criar</span> : <LoadingSpinner size={18} />}
           </button>

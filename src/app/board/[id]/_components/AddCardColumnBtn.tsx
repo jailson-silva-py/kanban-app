@@ -62,6 +62,10 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
     setEdition(true);
   };
 
+  const handleClose = () => {
+    setEdition(false)
+  }
+
   useEffect(() => {
     if (!edition || !refTextArea.current) return;
     refTextArea.current.focus();
@@ -92,7 +96,7 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
               <button
               aria-label="create-card"
               type="submit"
-              className="flex items-center justify-center btn-default bg-btn hover:brightness-120 w-20"
+              className="flex items-center justify-center btn-secondary btn-default focus-primary w-20"
             >
               {isPending ? (
                 <LoadingSpinner size={18} />
@@ -103,8 +107,8 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
             <button
               type="submit"
               aria-label="create-cancel"
-              onClick={() => setEdition(false)}
-              className="btn-default hover:bg-text/30"
+              onClick={handleClose}
+              className="flex items-center justify-center btn-primary btn-default focus-secondary w-20"
             >
               Cancelar
             </button>

@@ -62,7 +62,7 @@ export default function FormEditImage({ user }: { user: User }) {
             alt="Imagem de Perfil"
             className="object-cover shadow-shadow shadow-default"
             sizes="(max-width: 768px) 80px, (max-width: 1200px) 120px"
-            loading="lazy"
+            loading="eager"
             aria-label="profile-image"
           ></Image>
         </div>

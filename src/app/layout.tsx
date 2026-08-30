@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Rethink_Sans, Marck_Script } from "next/font/google";
 import "./globals.css";
 import Menu from "@/components/Menu";
-import Loading from "@/components/Loading";
 import { SessionProvider } from "next-auth/react";
 import { QueryProvider } from "@/providers/QueryPovider";
 import { Toaster } from "@/components/Toaster";
@@ -38,9 +37,7 @@ export default function RootLayout({
   return (
     <html lang="pt">
       <body
-        className={`${geistSans.variable} ${rethink_sans.variable} ${marck_script.variable} antialiased`}
-      >
-        <Loading />
+        className={`${geistSans.variable} ${rethink_sans.variable} ${marck_script.variable} antialiased`}>
         <SessionProvider>
           <QueryProvider>
             <Menu />

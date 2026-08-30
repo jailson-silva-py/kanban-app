@@ -1,11 +1,10 @@
-import ProfileButton from "./ProfileButton";
 import { getUser } from "@/actions/actions";
 import GlobalSearch from "./GlobalSearch";
 import Link from "next/link";
+import ProfileButton from "./ProfileButton";
 
 const Menu = async () => {
   const user = await getUser();
-
   return (
     <nav className="md:px-8 px-4 h-15 w-screen py-2 flex items-center rounded-b-sm bg-secondary">
       <ul className="flex justify-between  gap-4 w-full h-full">
@@ -20,7 +19,7 @@ const Menu = async () => {
         </li>}
 
         <li className="flex-1 basis-10 flex items-center grow-0">
-          <ProfileButton user={user} />
+          <ProfileButton />
         </li>
       </ul>
     </nav>

@@ -89,13 +89,11 @@ export async function createCartForColumnInBox({
         ownerId: userId,
         isInbox: true,
       },
-      include: {
+      select: {
+        id:true,
         columns: {
           select: {
             id: true,
-            title: true,
-            order: true,
-            cards: { select: { id: true, position: true } },
           },
         },
       },
@@ -104,13 +102,11 @@ export async function createCartForColumnInBox({
     if (!inBoxBoard) {
       inBoxBoard = await prisma.board.create({
         data: { title: "InBox", ownerId: userId as string, isInbox: true },
-        include: {
+        select: {
+          id:true,
           columns: {
             select: {
               id: true,
-              title: true,
-              order: true,
-              cards: { select: { id: true, position: true } },
             },
           },
         },

@@ -27,6 +27,9 @@ const queryClient = new QueryClient({
         queryClient.invalidateQueries({ queryKey: [prefixKeysFromDynamic.search] });
       }
     },
+    onError: (error) => {
+      if (process.env.NODE_ENV !== "production") console.error(new Date().toDateString() + error.cause + error.message);
+    }
   }),
 });
 
