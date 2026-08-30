@@ -32,11 +32,12 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
       })
     },
 
-    onSuccess: (data, variables, result, context) => {
+    onSuccess: async (data, variables, result, context) => {
       const queryData = context.client.getQueryData<InBoxClient>(cardsKey);
+      console.log(queryData?.id)
       if (!data || !queryData) {
         if (!queryData?.id) {
-          context.client.invalidateQueries({queryKey:cardsKey})
+          await context.client.invalidateQueries({queryKey:cardsKey})
         }
         return
       };
@@ -44,6 +45,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
       const targetIndex = cards.findIndex((target) => target.id == data.id);
       cards[targetIndex] = data
       const cardsMap = new Map(queryData.cardsMap);
+      cardsMap.set(data.id, data);
       context.client.setQueryData<InBoxClient>(cardsKey, {...queryData, cardsMap, cards});
     },
 

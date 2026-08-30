@@ -115,7 +115,7 @@ export async function createCartForColumnInBox({
 
     if (inBoxBoard.columns.length > 0) {
       const column = inBoxBoard.columns[0];
-      return await createCartForColumn({ columnId:column.id, title });
+      return await createCartForColumn({ id, columnId:column.id, title });
     }
 
     const column = await prisma.column.create({
@@ -303,9 +303,10 @@ export const ChangeCompletedCard = async ({
 };
 
 export const DeleteCard = async ({ id }: { id: string }): Promise<Card> => {
-  return protectedActions(async () =>
-    prisma.card.delete({
-      where: { id },
+
+  return protectedActions(async (session) => {
+    return prisma.card.delete({
+      where: { id, column: { board: { ownerId: session.user.id } } },
       select: {
         id: true,
         title: true,
@@ -313,14 +314,15 @@ export const DeleteCard = async ({ id }: { id: string }): Promise<Card> => {
         columnId: true,
         completed: true,
       },
-    }),
+    })
+    }
   );
 };
 
 export const DeleteColumn = async ({ id }: { id: string }) => {
-  return protectedActions(async () =>
+  return protectedActions(async (session) =>
     prisma.column.delete({
-      where: { id },
+      where: { id, board:{ownerId:session.user.id} },
     }),
   );
 };
