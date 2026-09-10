@@ -6,11 +6,11 @@ import { MutationFunctionContext } from "@tanstack/react-query";
 export async function onMutateFunction
 <A extends BoardClient<Column | ColumnSkeleton> | ColumnClient | CardsClient | InBoxClient|User>
 (context: MutationFunctionContext,
-queryKey: string[], callbackSetData: (old:A) => A, conditions?:boolean) {
+queryKey: string[], callbackSetData: (old:A) => A) {
 
   await context.client.cancelQueries({ queryKey });
   const previousState:A|undefined = context.client.getQueryData<A>(queryKey);
-  if (!previousState || conditions) return;
+  if (!previousState) return;
   context.client.setQueryData(queryKey, (old: A) => {
 
     return callbackSetData(old)

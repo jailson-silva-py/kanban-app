@@ -10,12 +10,24 @@ afterAll(() => {
   vi.restoreAllMocks();
 });
 
+afterEach(() => {
+  vi.resetAllMocks();
+  vi.restoreAllMocks();
+})
 globalThis.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
 }
 
+vi.mock('auth', () => ({
+  auth: vi.fn().mockResolvedValue({
+    user: { id:"123", name: 'Test User', email: 'test@example.com', provider:"credentials", emailVerified:Date.now() },
+  }),
+  handlers: {},
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+}));
 vi.mock("next-auth/react", () => ({
   useSession: () => ({
     data: { user: { name: "Test User" } },
@@ -41,9 +53,16 @@ vi.mock("@/actions/actions", ():typeActionsMock => {
     getBoardById: vi.fn(),
     ChangeCompletedCard: vi.fn(),
     DeleteCard: vi.fn(),
+    getUser: vi.fn(),
+    getInBoxBoard: vi.fn(),
+    reOrderCardsFromColumns: vi.fn(),
+
     }
 })
 
+vi.mock("@/actions/wrappers", () => ({
+  protectedActions: vi.fn((cb) => cb({ user: { id: "test-user" } })),
+}));
 
 vi.mock("next/navigation", () => {
   return {

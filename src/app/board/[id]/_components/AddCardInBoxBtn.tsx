@@ -34,7 +34,6 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
 
     onSuccess: async (data, variables, result, context) => {
       const queryData = context.client.getQueryData<InBoxClient>(cardsKey);
-      console.log(queryData?.id)
       if (!data || !queryData) {
         if (!queryData?.id) {
           await context.client.invalidateQueries({queryKey:cardsKey})

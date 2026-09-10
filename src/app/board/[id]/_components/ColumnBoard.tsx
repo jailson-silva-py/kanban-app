@@ -18,7 +18,7 @@ type Iprops = {
 
 function ColumnBoard({ id, boardId,  ...props }: Iprops) {
 
-  const { data, isPlaceholderData } = useGetColumn(id, boardId as string)
+  const { isPending, data, isPlaceholderData } = useGetColumn(id, boardId as string)
 
   const { ref } = useDroppable({
     id: `column-${id}`,
@@ -45,19 +45,18 @@ function ColumnBoard({ id, boardId,  ...props }: Iprops) {
           <AddCartColumn columnId={data?.id as string} textForArea="Adicione um cartão gostosinho">
               Adicionar um cartão
           </AddCartColumn>
-            {!isPlaceholderData && data ?
+            {!isPending && data && !isPlaceholderData && (
               <CardsContent
-            columnId={data.id}
-            id={`column-${data.id}`}
-
-            className="p-4 flex-8 overflow-y-auto shrink-0 basis-96 duration-2000 ease-in-out"
-          >
-
-              {data.cards.map((card) => { return (<Card key={card.id} card={card} />)})}
+                columnId={data.id}
+                id={`column-${data.id}`}
+                className="p-4 flex-8 overflow-y-auto shrink-0 basis-96 duration-2000 ease-in-out"
+              >
+                {data.cards.map((card) => {
+                  return <Card key={card.id} card={card} />;
+                })}
               </CardsContent>
-              :
-              <CardsLoading/>
-            }
+            )}
+            {(isPending || isPlaceholderData) && <CardsLoading />}
           </CardsColumn>
     </li>
 

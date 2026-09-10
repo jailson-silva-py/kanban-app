@@ -6,9 +6,10 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/setupTests.ts"],
     globals: true,
-    coverage: { enabled: true }
+    coverage: { enabled: true },
   },
   resolve: {
-    tsconfigPaths:true,
-  }
+    tsconfigPaths: true,
+  },
+
 })

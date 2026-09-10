@@ -30,16 +30,17 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
       //Set Data da Query é feita no onMutateFunci
       return onMutateFunction<ColumnClient>(context, queryKey, (old) => {
         const card: Card = { ...variables, columnId: old.id, completed: false, position: Infinity }
-        const cards = [card, ...old.cards]
-        const cardsMap = old.cardsMap.set(variables.id, card)
+        const cards = [card, ...old.cards];
+        const cardsMap = new Map(old.cardsMap).set(variables.id, card);
         return { ...old, cards, cardsMap }
 
       })
     },
-    onSuccess: (data, variables, onMutateResult, context) => {
-      const queryData = context.client.getQueryData<ColumnClient>(queryKey)
-      if (!queryData || !data) return
-      const { cards, cardsMap } = queryData;
+    onSuccess: (data, variables, result, context) => {
+      const queryData = context.client.getQueryData<ColumnClient>(queryKey);
+      if (!queryData|| !data) return
+      const cards = [...queryData.cards];
+      const cardsMap = new Map(queryData.cardsMap).set(variables.id, data);
       const indexTarget = cards.findIndex((target) => target.id === data.id);
       cards[indexTarget] = data
       context.client.setQueryData<ColumnClient>(queryKey, {...queryData, cards, cardsMap});

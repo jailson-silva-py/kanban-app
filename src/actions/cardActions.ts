@@ -1,5 +1,4 @@
 "use server";
-
 import { Card } from "@/types/dataTypes";
 import { prisma } from "prisma";
 import { protectedActions } from "./wrappers";
@@ -120,9 +119,24 @@ export const ChangeCompletedCard = async ({
 }: {
   id: string;
 }): Promise<Card> => {
-  return protectedActions(() =>
-    prisma.$queryRaw`UPDATE "Card" SET completed = NOT completed WHERE id=${id} RETURNING id, completed, title, position, "columnId"` as Promise<Card>,
-  );
+  return protectedActions(async (session) =>
+  {
+    const result = await prisma.$queryRaw`UPDATE "Card"
+      SET completed = NOT completed
+      FROM "Column", "Board"
+      WHERE "Card".id = ${id}
+        AND "Card"."columnId" = "Column".id
+        AND "Column"."boardId" = "Board".id
+        AND "Board"."ownerId" = ${session.user.id}
+      RETURNING
+        "Card".id,
+        "Card".completed,
+        "Card".title,
+        "Card".position,
+        "Card"."columnId";
+    `
+      return Array.isArray(result) ? result[0]:null
+  })
 };
 
 export const DeleteCard = async ({ id }: { id: string }): Promise<Card> => {

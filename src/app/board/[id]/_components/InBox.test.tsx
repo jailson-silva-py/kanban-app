@@ -3,10 +3,6 @@ import { screen, waitFor } from "@testing-library/react"
 import InBox from "./InBox."
 import { renderWithProviders } from "@/app/util/testImplementations"
 
-vi.mock("@/actions/actions", () => {
-  return {createCartForColumn: vi.fn()}
-});
-
 describe("Inbox component testing", () => {
   test("Possui o cabeçalho correto.", () => {
     renderWithProviders(<InBox></InBox>)

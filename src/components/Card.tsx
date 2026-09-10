@@ -1,14 +1,12 @@
 "use client";
-import { ChangeCompletedCard, DeleteCard } from "@/actions/actions";
 import { Card as CardType } from "@/types/dataTypes";
-import { useMutation } from "@tanstack/react-query";
-import { useState, memo} from "react";
+import { memo, MouseEvent} from "react";
 import { TbCheck } from "react-icons/tb";
 import DropdownMenuWithDots from "./DropdownMenuWithDots";
 import { useSortable } from "@dnd-kit/react/sortable";
-import { onMutateFunction } from "@/app/util/mutations";
-import { ColumnClient } from "@/types/clientDataTypes";
-import { column } from "@/constrants/queryKeys";
+import { useMutationCards } from "@/hooks/useMutationCards";
+import Dialog from "./Dialog";
+import { PainelMoveCardFor } from "./PainelMoveCardFor";
 
 type CardProps = {
   card: CardType;
@@ -16,8 +14,6 @@ type CardProps = {
 } & React.ComponentProps<"li">;
 
 const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
-  const queryKey = column(card.columnId);
-  const [completed, setCompleted] = useState(card.completed);
   const { ref, isDragging, isDropping, isDropTarget } = useSortable({
     id: `card-${card.id}`,
     index: card.position,
@@ -26,60 +22,23 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
     group: `column-${card.columnId}`,
     data: card,
   });
-  const { isPending, mutate } = useMutation({
-    mutationFn: async ({
-      isDeletion,
-    }: {
-      isDeletion: boolean;
-    }): Promise<CardType | null> => {
-      if (isDeletion) {
-        await DeleteCard({ id: card.id });
-        return null;
-      }
-      return await ChangeCompletedCard({ id: card.id });
-    },
-    onMutate: async (variables, context) => {
-
-      return await onMutateFunction<ColumnClient>(context, cardsKey ?? queryKey, (old) => {
-
-        const cardsMap = new Map(old.cardsMap);
-        const oldCards = [...old.cards];
-
-        if (variables.isDeletion) {
-
-          cardsMap.delete(card.id);
-          const cards = oldCards.filter((target) => target.id !== card.id);
-          return { ...old, cardsMap, cards }
-
-        }
-
-        const oldCard = cardsMap.get(card.id) as CardType
-        const newCard = { ...oldCard, completed: !oldCard?.completed }
-
-        const index = oldCards.findIndex((target) => target.id == card.id);
-        oldCards[index] = newCard;
-        cardsMap.set(card.id, newCard)
-        return { ...old, cardsMap, cards:oldCards }
-        });
-
-    },
-
-    onError: (error, variables, result, context) => {
-      setCompleted(!completed);
-      context.client.setQueryData(cardsKey ?? queryKey, () => ({...result?.previousState}));
-    },
-  });
+  const { isPending, mutate, completed, setCompleted, openDialog, setOpenDialog } = useMutationCards({card, cardsKey});
 
   const onChangeIsComplete = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setCompleted(!completed);
-    mutate({ isDeletion: false });
+    setCompleted((prev) => !prev);
+    mutate({ operation: "change-completed" });
   };
 
   const onChangeDeleteCard = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    mutate({ isDeletion: true });
+    mutate({ operation: "delete" });
   };
+
+  const handleOpenDialog = (e: MouseEvent) => {
+    e.preventDefault();
+    setOpenDialog(true);
+  }
 
   const handleChangeCompleted = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.currentTarget.form?.requestSubmit();
@@ -120,6 +79,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
       <p className="wrap-break-word text-ellipsis leading-7 line-clamp-4 hyphens-auto">
         {card.title}
       </p>
+      <p>{card.position}</p>
       <DropdownMenuWithDots>
         <DropdownMenuWithDots.Item>
           <form onSubmit={onChangeIsComplete} className="h-max full">
@@ -145,7 +105,16 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
             </button>
           </form>
         </DropdownMenuWithDots.Item>
+        <DropdownMenuWithDots.Item>
+          <button className="flex justify-center items-center p-1 w-full h-7 btn-ghost rounded-sm" onClick={handleOpenDialog}>
+            Mover
+          </button>
+          <Dialog state={openDialog} setState={setOpenDialog}>
+            <PainelMoveCardFor card={card} cardsKey={cardsKey}/>
+          </Dialog>
+        </DropdownMenuWithDots.Item>
       </DropdownMenuWithDots>
+
     </li>
   );
 };
