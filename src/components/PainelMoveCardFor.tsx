@@ -1,14 +1,16 @@
 "use client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { CustomSelect } from "./CustomSelect";
-import { board, boards, column, inBoxCards } from "@/constrants/queryKeys";
-import { BoardFull, Card } from "@/types/dataTypes";
-import { ChangeEvent, useReducer } from "react";
-import { ColumnClient, InBoxClient } from "@/types/clientDataTypes";
+import { boards, column, inBoxCards } from "@/constrants/queryKeys";
+import {  Card } from "@/types/dataTypes";
+import { ChangeEvent, useMemo, useReducer } from "react";
 import { getAllBoardFromUser } from "@/actions/boardActions";
 import LoadingSpinner from "./LoadingSpinner";
 import { useMutationCards } from "@/hooks/useMutationCards";
 import { toast } from "@/app/util/toast";
+import { useGetCachedBoard } from "@/hooks/useGetCachedBoard";
+import { useGetColumn } from "@/hooks/useGetColumn";
+import { useGetCachedCardsInBox } from "@/hooks/useGetCachedCardsInBox";
 
 type ActionsTypes =  "select_board"|"select_column"|"select_card"|"select_column_inbox"
 type Action = {
@@ -18,17 +20,11 @@ type InitialState = {
   board:{boardId:string|null, index:number|null},
   column:{columnId:string|null, index:number|null, isInBox:boolean},
   card:{cardId:string|null, index:number|null},
-  boardOptions:[]
-  columnOptions:[]
-  cardOptions:[]
 }
 const initialState = {
   board:{boardId:null, index:null},
   column:{columnId:null, index:null, isInBox:false},
   card: {cardId:null, index:null},
-  boardOptions: [],
-  columnOptions: [],
-  cardOptions:[],
 } satisfies InitialState
 
 function reducer(state: InitialState, action: Action): InitialState {
@@ -50,23 +46,49 @@ function reducer(state: InitialState, action: Action): InitialState {
 
 
 export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:string[]|undefined}) {
-  const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(reducer, initialState)
   const queryKey = state.column.isInBox ? inBoxCards : column(state?.column.columnId as string);
   const {isPending, mutate} = useMutationCards({card, targetColMoveCardKey:queryKey, cardsKey})
   const { data } = useQuery({ queryKey: boards, queryFn: getAllBoardFromUser });
-  const boardsOptions = data ? data.map(({ id: value, title: label }) => ({ value, label })):null;
-  const columnInbox = state.board.boardId ? queryClient.getQueryData<InBoxClient>(inBoxCards) : null;
-  const columnsArray = state.board.boardId ? (columnInbox && [{ id: columnInbox.id, title: "InBox", order: 100 }] || []).concat(Array.from(queryClient.getQueryData<BoardFull>(board(state?.board.boardId as string))?.columns.values() || [])):null
-  const columnsOptions = state.board.boardId ? columnsArray && columnsArray.map(
-    ({ id: value, title: label }) => ({value, label})):null
-  const cardsArray = state.column.columnId ? (state.column.isInBox ? columnInbox : queryClient.getQueryData<ColumnClient>(column(state.column.columnId as string))):null
-  const cardsOptions =  cardsArray && cardsArray?.cards?.length > 0 ?  cardsArray.cards.map(
-  ({ id: value }, idx) => ({label:idx.toString(), value })):[{label:"0", value:"null"}]
+  const { data: columnInbox } = useGetCachedCardsInBox({queryKey:inBoxCards as unknown as string[], enabled: state.column.isInBox && !!state.board.boardId });
+
+  const { data: boardData } = useGetCachedBoard(state.board.boardId as string, { enabled: !!state.board.boardId });
+
+  const { data: columnData } = useGetColumn(state.column.columnId as string, state.board.boardId as string, { enabled: !!state.column.columnId && !state.column.isInBox });
+
+  const boardsOptions = useMemo(() => {
+    return data ? data.map(({ id: value, title: label }) => ({ value, label })) : null;
+  }, [data]);
+
+  const columnsArray = useMemo(() => {
+
+    if (!state.board.boardId) return null;
+    const inboxItem = columnInbox ? [{ id: columnInbox.id, title: "InBox", order: 100 }] : [];
+    const boardColumns = boardData?.columns ? Array.from(boardData.columns.values()) : [];
+    return inboxItem.concat(boardColumns);
+
+  }, [state.board.boardId, columnInbox, boardData]);
+
+  const columnsOptions = useMemo(() => {
+    return columnsArray ? columnsArray.map(({ id: value, title: label }) => ({ value, label })) : null;
+  }, [columnsArray]);
+
+  const cardsArray = useMemo(() => {
+    if (!state.column.columnId) return null;
+    return state.column.isInBox ? columnInbox : columnData;
+  }, [state.column.columnId, state.column.isInBox, columnInbox, columnData]);
+
+  const cardsOptions = useMemo(() => {
+    if (!cardsArray || !cardsArray.cards || cardsArray.cards.length === 0) {
+      return [{ label: "0", value: "null" }];
+    }
+    return cardsArray.cards.map(({ id: value }, idx) => ({ label: idx.toString(), value }));
+  }, [cardsArray]);
 
   const handleBoardSelect = ({ id, idx }:{id:string, idx:number}, ) => {
     dispatch({type: "select_board", payload:{id, idx}})
   }
+
   const handleColumnSelect = ({ id, idx }: { id: string, idx:number }, ) => {
 
     if (columnsOptions && columnsOptions.length > 0 && columnsOptions?.[idx].label === "InBox") {
@@ -89,20 +111,32 @@ export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:strin
       toast.error("A coluna alvo não foi encontrada.");
       return
     }
+    if (card.id && state.card.cardId && card.id === state.card.cardId) {
+      toast.error("A posição atual do cartão é a mesma que a posição alvo.");
+      return;
+    };
+    // A lista tá ordenada em ordem decrescente de posição
+    // Portanto, o card atual está na posição `currentIndex` e o anterior está em `currentIndex - 1`
     const currentIndex = state.card.index as number;
-    const targetCard = cardsArray?.cards?.[currentIndex];
-    const prevCard = cardsArray?.cards?.[currentIndex - 1];
+    const isEqualColumns = state.column.columnId === card.columnId;
+    const isPositionCardGiantTo = cardsArray && cardsArray.cards.length > 0 && card.position > cardsArray?.cards?.[currentIndex]?.position;
+    const targetIndex = isEqualColumns && isPositionCardGiantTo ? currentIndex + 1 : currentIndex;
+    const targetCard = cardsArray?.cards?.[targetIndex];
+    const tryPrevCard = cardsArray?.cards?.[targetIndex - 1];
+    const prevCard = tryPrevCard?.id && tryPrevCard.id !== card.id ? tryPrevCard : cardsArray?.cards?.[targetIndex + 1];
 
     const isFirst = currentIndex === 0;
     const isLast = cardsArray?.cards && currentIndex === cardsArray?.cards?.length - 1;
 
     let positionCard = 100;
+
     if (isFirst) {
       // No topo: precisa ser maior que o próximo (que agora está logo abaixo)
       positionCard = targetCard ? targetCard.position + 100 : 100;
     } else if (isLast) {
       // No fundo: precisa ser menor que o anterior (que está logo acima)
-      positionCard = prevCard ? prevCard.position - 100 : 100;
+      const lastCard = cardsArray?.cards?.[currentIndex];
+      positionCard = cardsArray?.cards?.[currentIndex] ? lastCard.position - 100 : 100;
     } else if (prevCard && targetCard) {
       // No meio: tira a média entre o card de cima e o de baixo
       positionCard = (prevCard.position + targetCard.position) / 2;
@@ -115,14 +149,14 @@ export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:strin
   return (
     <div className="relative z-1  h-max w-full">
       <form className="h-full w-full flex flex-col gap-4" onSubmit={onSubmit}>
-        {boardsOptions && <CustomSelect handleSelect={handleBoardSelect} options={boardsOptions} placeholder="Pesquise um board..." />}
-        {columnsOptions &&  state.board.boardId ?
+        {boardsOptions && boardsOptions?.length > 0 && <CustomSelect handleSelect={handleBoardSelect} options={boardsOptions} placeholder="Pesquise um board..." />}
+        {columnsOptions && columnsOptions.length > 0 &&  state.board.boardId ?
           <CustomSelect handleSelect={handleColumnSelect} options={columnsOptions} placeholder="Pesquise uma coluna..." />
           :
           <div className="default-input opacity-20 h-8 flex items-center">Pesquise uma coluna...</div>
         }
-        {cardsOptions && state.column.columnId ?
-          <select name="new_position_card" className="bg-accent h-8 shadow-shadow default-shadow focus-primary *:text-inherit font-geist text-sm font-medium text-center rounded-sm" onChange={handleCardSelect} required>
+        {cardsOptions && cardsOptions?.length > 0 && state.column.columnId ?
+          <select name="new_position_card" defaultValue={state.card.cardId || ""} className="bg-accent h-8 shadow-shadow default-shadow focus-primary *:text-inherit font-geist text-sm font-medium text-center rounded-sm" onChange={handleCardSelect} required>
             <option value="">--Selecione uma opção--</option>
             {cardsOptions.length > 0 ?
               cardsOptions.map(({ value: id, label: text }) => (<option value={id} key={id}>{text}</option>))
@@ -133,7 +167,7 @@ export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:strin
           :
           <div className="default-input opacity-20 h-8 flex items-center">Selecione a posição:</div>
         }
-        <button type="submit" className="btn-secondary btn-sm focus-primary" disabled={isPending || !state.board.boardId || !state.column.columnId || !state.card.cardId}>
+        <button type="submit" className="btn-secondary btn-sm focus-primary flex items-center justify-center" disabled={isPending || !state.board.boardId || !state.column.columnId || !state.card.cardId}>
           {isPending ? <LoadingSpinner></LoadingSpinner>:<span>Mover Card</span>}
         </button>
       </form>

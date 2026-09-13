@@ -44,15 +44,28 @@ export function useMutationCards({ targetColMoveCardKey, card, cardsKey }: { tar
     },
     onMutate: async (variables, context) => {
       if (variables.operation === "move") {
-          if (!targetColMoveCardKey) return;
-          const actualCardColumnKey = cardsKey ?? column(card.columnId);
-          // 1.1 Cancela as requisições ativas para não sobrescrever o cache otimista
-          await context.client.cancelQueries({ queryKey: targetColMoveCardKey });
-          await context.client.cancelQueries({ queryKey: targetColMoveCardKey });
+        if (!targetColMoveCardKey) return;
+        const actualCardColumnKey = cardsKey ?? column(card.columnId);
+        // 1.1 Cancela as requisições ativas para não sobrescrever o cache otimista
+        await context.client.cancelQueries({ queryKey: targetColMoveCardKey });
+        await context.client.cancelQueries({ queryKey: targetColMoveCardKey });
 
-          // 1.2 Salva o backup dos dois estados para o onError
-          const previousSourceState = context.client.getQueryData<ColumnClient>(actualCardColumnKey);
-          const previousTargetState = context.client.getQueryData<ColumnClient>(targetColMoveCardKey);
+        // 1.2 Salva o backup dos dois estados para o onError
+        const previousSourceState = context.client.getQueryData<ColumnClient>(actualCardColumnKey);
+        const previousTargetState = context.client.getQueryData<ColumnClient>(targetColMoveCardKey);
+
+        if (targetColMoveCardKey?.[0] === actualCardColumnKey?.[0] && targetColMoveCardKey?.[1] === actualCardColumnKey?.[1]) {
+          context.client.setQueryData<ColumnClient|undefined>(actualCardColumnKey, (old) => {
+            if (!old || old.cards.length === 0) return
+            const indexCardNewPosition = old.cards.findIndex((actual) => card.id === actual.id);
+            const cards = [...old.cards];
+            cards[indexCardNewPosition].position = variables.positionCard;
+            cards.sort((a, b) => b.position - a.position);
+            const cardTarget = old.cardsMap.get(card.id);
+            const cardsMap = new Map().set(card.id, {...cardTarget, position:variables.positionCard});
+            return { ...old, cards, cardsMap } satisfies ColumnClient;
+            })
+        } else {
           // 1.3 Altera a coluna DESTINO
           context.client.setQueryData<ColumnClient>(targetColMoveCardKey, (old) => {
             if (!old) return old;
@@ -79,6 +92,7 @@ export function useMutationCards({ targetColMoveCardKey, card, cardsKey }: { tar
             const cardsMoveOriginalColumn = old.cards.filter((c) => c.id !== variables.cardId);
             return { ...old, cards: cardsMoveOriginalColumn, cardsMap };
           });
+        }
 
           // 1.5 Retorna os backups para o React Query poder usar no onError
           return { previousSourceState, previousTargetState, targetQueryKey: targetColMoveCardKey };
