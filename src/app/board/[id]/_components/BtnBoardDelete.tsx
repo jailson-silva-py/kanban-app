@@ -47,7 +47,7 @@ export default function BtnBoardDelete({ id }: { id: string }) {
   return (
       <>
       <button onClick={handleOpenDialog} className="w-full btn-sm btn-ghost items-center justify-center hover:bg-error/20" disabled={ isPending }>
-      {isPending ? <span>Processando ...</span> : <span className="text-xs">Deletar Board</span>}
+      {isPending ? <span>Processando ...</span> : <span className="text-xs">Deletar board</span>}
       </button>
       <Dialog state={openDialog} setState={setOpenDialog}>
         <p className="text-sm/relaxed tracking-widest hyphens-auto text-justify">

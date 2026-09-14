@@ -96,7 +96,7 @@ const CreateColumnItemBtn = () => {
           onClick={handleChangeCreateMode}
         >
           <TbPlus size={24} />
-          <span>Create new Column</span>
+          <span>Criar nova coluna</span>
         </button>
       </Activity>
 

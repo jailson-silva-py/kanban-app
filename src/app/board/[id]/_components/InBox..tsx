@@ -19,7 +19,7 @@ const InBox = () => {
       </header>
       <Separator/>
       <AddCartInBox textForArea="Insira um título ou link">
-        Adicionar um Cartão
+        Adicionar um cartão
       </AddCartInBox>
       <ColumnInBox/>
     </div>
