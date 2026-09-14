@@ -42,7 +42,7 @@ const ProfileButton = () => {
           }
           <Activity mode={openDropdown && data ? "visible" : "hidden"}>
 
-           <ul ref={ref} className="dropdown-md dropdown-primary rounded-sm w-[20vw] -bottom-2 right-1 translate-y-full">
+           <ul ref={ref} className="dropdown-md dropdown-primary rounded-sm w-[20vw] min-w-37.5 bottom-2 right-1 translate-y-full">
 
               <li className="flex flex-col gap-1">
                   <span className="px-2 text-xs text-text-secondary">{data?.name}</span>
