@@ -1,3 +1,4 @@
+"use client";
 import { floatMenuStorageCore } from "@/app/util/floatMenuStorage"
 import { useSyncExternalStore } from "react"
 

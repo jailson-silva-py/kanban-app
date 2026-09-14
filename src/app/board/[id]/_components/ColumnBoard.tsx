@@ -49,6 +49,7 @@ function ColumnBoard({ id, boardId,  ...props }: Iprops) {
               <CardsContent
                 columnId={data.id}
                 id={`column-${data.id}`}
+                style={{overflowX:"visible"}}
                 className="p-4 flex-8 overflow-y-auto shrink-0 basis-96 duration-2000 ease-in-out"
               >
                 {data.cards.map((card) => {

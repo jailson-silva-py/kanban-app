@@ -66,11 +66,7 @@ const BtnInputEditColumnTitle = ({
   const handleChangeTitle = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
     const text = e.target.value;
-    const width = parseInt(e.target.style.width.replace("px", ""));
     if (text.length > 50) return;
-
-    e.target.style.width = "auto";
-    e.target.style.width = `${width < 188 ? width + (title.length * 9 - width) + 16 : e.target.scrollWidth + 8}px`;
     setTitle(text);
   };
 
@@ -87,12 +83,12 @@ const BtnInputEditColumnTitle = ({
   };
 
   return (
-    <div className="relative gap-1 p-2  bg-primary/20 w-full h-12">
+    <div className="relative flex items-center justify-center gap-1 p-2 bg-primary/20 w-full h-12 ">
       <Activity mode={!editMode ? "visible" : "hidden"}>
         <button
           aria-label="edit-title-column"
           onClick={handleShowInput}
-          className="text-start hover:default-input h-9 text-sm/loose cursor-pointer max-w-[calc(100%-32px)] px-2 py-2 truncate"
+          className="flex items-center justify-start hover:default-input h-9 text-sm/loose cursor-pointer max-w-full flex-1 px-2 py-2 truncate"
         >
           {columnTitle || data?.title}
         </button>
@@ -101,16 +97,15 @@ const BtnInputEditColumnTitle = ({
         <form
           onSubmit={onEditTitleColumn}
           ref={ref}
-          className="relative w-max max-w-[calc(100%-32px)] h-8"
+          className="relative flex-1 h-9"
         >
-          <label className=" w-full h-9">
+          <label className="w-full h-9">
             <textarea
               aria-label="title-column"
-              style={{ width: `${columnTitle.length * 9 + 16}px` }}
               id="title_column"
               onChange={handleChangeTitle}
               ref={refTextAreaTitle}
-              className=" default-input text-xs mt-1 px-2 py-2 min-w-20 max-w-full max-h-full overflow-hidden text-nowrap resize-none"
+              className="default-input focus-primary text-xs mt-1 p-2  w-full max-h-full overflow-hidden text-nowrap resize-none"
               value={title}
               name="title_column"
               required
@@ -119,13 +114,13 @@ const BtnInputEditColumnTitle = ({
           <button
             aria-label="change-title-column"
             type="submit"
-            className="w-8 h-8 z-2 group backdrop-blur-[2px] absolute -bottom-2 left-0  default-btn translate-y-full bg-primary/90 hover:bg-text/10 disabled:opacity-60"
+            className="group w-8 h-8 z-2 absolute -bottom-2 left-0  btn-primary focus-primary flex items-center justify-center translate-y-full bg-primary/90 hover:bg-text/10 disabled:opacity-60"
             disabled={isPending}
           >
             {!isPending ? (
               <TbChecks
-                size={24}
-                className="group-hover:text-text group-hover:scale-110  text-text/80"
+                size={18}
+                className="group-hover:text-text group-hover:scale-110  text-text/90"
               />
             ) : (
               <LoadingSpinner />

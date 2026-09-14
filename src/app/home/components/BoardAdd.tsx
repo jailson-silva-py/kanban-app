@@ -1,5 +1,4 @@
 "use client";
-
 import { createBoardFromUser } from "@/actions/actions";
 import Dialog from "@/components/Dialog";
 import LoadingSpinner from "@/components/LoadingSpinner";

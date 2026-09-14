@@ -1,3 +1,4 @@
+"use client";
 import { getBoardById } from "@/actions/actions"
 import { arrayTransformToMap } from "@/app/util/arrayTransformToMap"
 import { BoardClient } from "@/types/clientDataTypes"

@@ -79,7 +79,6 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
       <p className="wrap-break-word text-ellipsis leading-7 line-clamp-4 hyphens-auto">
         {card.title}
       </p>
-      <p>{card.position}</p>
       <DropdownMenuWithDots>
         <DropdownMenuWithDots.Item>
           <form onSubmit={onChangeIsComplete} className="h-max full">

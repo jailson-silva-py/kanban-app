@@ -91,12 +91,12 @@ const Board = ({ initialData }: Iprops) => {
 
   return (
     <div style={{display:!storage.openBoard ? "none": undefined}} className="relative shadow-shadow shadow-default bg-primary overflow-hidden  w-full h-full rounded-sm flex flex-col">
-      <header className="flex items-center flex-3 basis-15 shrink-0 grow-0 px-8 w-full bg-secondary">
-        <div className="flex relative items-center justify-center gap-2 w-full h-full">
-          <TbChalkboard size={24} />
+      <header className="flex items-center flex-3 basis-15 shrink-0 grow-0 px-6 md:px-8 w-full bg-secondary">
+        <div className="flex relative items-center justify-center gap-4 w-full h-full">
           <div className="w-full flex gap-2 justify-between items-center">
+          <TbChalkboard className="size-6 shrink-0" />
           <BtnInputEditBoardTitle id={board.id} title={board.title} />
-          <DropdownMenuWithDots positionBtn="relative" className="w-40">
+          <DropdownMenuWithDots className="w-40">
             <DropdownMenuWithDots.Item>
               <BtnBoardDelete id={board.id}/>
             </DropdownMenuWithDots.Item>

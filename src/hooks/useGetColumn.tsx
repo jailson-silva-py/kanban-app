@@ -1,3 +1,4 @@
+"use client";
 import { getBoardById, getColumnById } from "@/actions/actions";
 import {  useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import {  ColumnClient, ColumnsClient } from "@/types/clientDataTypes";

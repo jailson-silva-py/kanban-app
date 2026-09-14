@@ -1,3 +1,4 @@
+"use client";
 import { BoardClient } from "@/types/clientDataTypes"
 import { ColumnSkeleton } from "@/types/dataTypes";
 import { skipToken, useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"

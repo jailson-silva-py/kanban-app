@@ -1,3 +1,4 @@
+"use client";
 import { getColumnForInBoxUser } from "@/actions/actions";
 import { arrayTransformToMap } from "@/app/util/arrayTransformToMap";
 import { inBoxCards as queryKey } from "@/constrants/queryKeys";
