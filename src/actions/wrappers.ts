@@ -11,7 +11,7 @@ function createTimeout(ms: number, settleSignal: Promise<unknown>) {
       controller.abort();
       reject(new TimeoutError());
     }, ms);
-    settleSignal.finally(() => clearTimeout(timer));
+    settleSignal.finally(() => clearTimeout(timer)).catch(() => {});
   })
   return {promise, controller}
 }
@@ -31,7 +31,7 @@ export async function protectedActions<T>(
     if (!session?.user?.id)
       throw new UnAuthentichatedError;
 
-    return withTimeout(callback(session));
+    return await withTimeout(callback(session));
   } catch (e: unknown) {
     if (e instanceof Error) {
       if (e.name === "AbortError") {

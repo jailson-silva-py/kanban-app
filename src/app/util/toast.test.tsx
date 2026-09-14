@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { toast, toastCore } from "./toast";
+import { toast, toastCore, toasts } from "./toast";
 
 function limparTodosOsToasts() {
   [...toastCore.getAll()].forEach((t) => toastCore.removeToast(t.id!));
@@ -68,6 +68,53 @@ describe("toastCore.addToast", () => {
 
     expect(toastCore.getAll()).toHaveLength(0);
   });
+
+  it("respeita título e posição customizados", () => {
+    const t = toastCore.addToast({
+      type: "success",
+      message: "m",
+      title: "Título custom",
+      position: "top-right",
+      duration: 1000,
+    });
+
+    expect(t.title).toBe("Título custom");
+    expect(t.position).toBe("top-right");
+  });
+
+  it("ignora o id passado nos argumentos e gera um próprio", () => {
+    const t = toastCore.addToast({ type: "info", message: "m", id: 999, duration: 1000 });
+
+    expect(t.id).toBeDefined();
+    expect(t.id).not.toBe(999);
+  });
+
+  it("atribui um temporizador de auto-remoção ao toast criado", () => {
+    const t = toastCore.addToast({ type: "info", message: "m", duration: 1000 });
+
+    expect(t.timer).toBeDefined();
+  });
+});
+
+describe("toastCore.getAll", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    limparTodosOsToasts();
+  });
+
+  afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
+  });
+
+  it("retorna a lista atual de toasts", () => {
+    expect(toastCore.getAll()).toEqual([]);
+
+    toastCore.addToast({ type: "info", message: "uno", duration: 1000 });
+    toastCore.addToast({ type: "error", message: "dos", duration: 1000 });
+
+    expect(toastCore.getAll().map((t) => t.message)).toEqual(["dos", "uno"]);
+  });
 });
 
 describe("toastCore.removeToast", () => {
@@ -101,6 +148,13 @@ describe("toastCore.removeToast", () => {
 
   it("não quebra ao tentar remover um id inexistente", () => {
     expect(() => toastCore.removeToast(999999)).not.toThrow();
+  });
+
+  it("não quebra ao remover um toast sem timer", () => {
+    toasts.push({ id: 1, type: "info", message: "sin timer", duration: 5000 });
+
+    expect(() => toastCore.removeToast(1)).not.toThrow();
+    expect(toastCore.getAll()).toHaveLength(0);
   });
 
   it("notifica os subscribers ao remover um toast", () => {
@@ -191,5 +245,12 @@ describe("toast (fachada success/error/info)", () => {
   it("respeita a duration customizada", () => {
     toast.success("customizado", 1500);
     expect(toast.toastObj.duration).toBe(1500);
+  });
+
+  it("adiciona o toast à lista de toasts (não apenas ao toastObj)", () => {
+    toast.success("Deu certo!");
+
+    expect(toastCore.getAll().map((t) => t.type)).toEqual(["success"]);
+    expect(toastCore.getAll()[0].message).toBe("Deu certo!");
   });
 });

@@ -48,8 +48,8 @@ export async function createToken() {
     after(async () => {
       await transport.sendMail({
         subject: "Seu código de verificação do Kanboom",
-        text: textEmail(code),
-        html: emailHtml(code),
+        text: textEmail(finalCode),
+        html: emailHtml(finalCode),
         from: process.env.SMTP_USER,
         to: session?.user?.email as string,
       });
@@ -164,8 +164,8 @@ export async function createTokenNewUser() {
     after(async () => {
       await transport.sendMail({
         subject: "Seu código de verificação do Kanboom",
-        text: textEmail(code),
-        html: emailHtml(code),
+        text: textEmail(finalCode),
+        html: emailHtml(finalCode),
         from: process.env.SMTP_USER,
         to: session?.user?.email as string,
       });
