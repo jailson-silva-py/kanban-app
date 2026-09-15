@@ -108,12 +108,11 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
           <button className="flex justify-center items-center p-1 w-full h-7 btn-ghost rounded-sm" onClick={handleOpenDialog}>
             Mover
           </button>
-          <Dialog state={openDialog} setState={setOpenDialog}>
-            <PainelMoveCardFor card={card} cardsKey={cardsKey}/>
-          </Dialog>
         </DropdownMenuWithDots.Item>
       </DropdownMenuWithDots>
-
+    <Dialog state={openDialog} setState={setOpenDialog}>
+      <PainelMoveCardFor card={card} cardsKey={cardsKey}/>
+    </Dialog>
     </li>
   );
 };
