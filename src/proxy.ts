@@ -22,10 +22,14 @@ export async function proxy(request: NextRequest) {
     return
   }
 
-  if (isOnPublicRoutes) {
+  else if (isOnPublicRoutes) {
     if (isLogged && isVerified) {
       return NextResponse.redirect(new URL("/home", request.url))
-    };
+    }
+    else if (isLogged && !isVerified) {
+      if (request.nextUrl.pathname.startsWith("/signin/verify")) return;
+      return NextResponse.redirect(new URL("/signin/verify", request.url))
+    }
     return
   }
 }
