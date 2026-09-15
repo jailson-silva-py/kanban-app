@@ -76,7 +76,7 @@ const Card: React.FC<CardProps> = ({ card, cardsKey, ...props }) => {
           {completed && <TbCheck size={16} role="img" aria-label="completed-svg"/>}
         </div>
       </form>
-      <p className="wrap-break-word text-ellipsis leading-7 line-clamp-4 hyphens-auto">
+      <p lang="pt-BR" className="text-xs leading-5 line-clamp-4  text-pretty text-justify break-all hyphens-auto">
         {card.title}
       </p>
       <DropdownMenuWithDots>
