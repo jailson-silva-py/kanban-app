@@ -10,7 +10,7 @@ const Menu = async () => {
       <ul className="flex justify-between  gap-4 w-full h-full">
         <li className="flex-2 hidden items-center gap-4 sm:flex grow-0">
           <Link href="/" className="text-2xl font-marck-script bg-linear-270 from-text/60 to-text/80 bg-clip-text text-transparent text-shadow-xl text-shadow-primary ">
-            Kanboom
+            Krux
           </Link>
         </li>
 

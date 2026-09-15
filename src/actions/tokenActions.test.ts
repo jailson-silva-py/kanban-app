@@ -112,7 +112,7 @@ describe("createToken", () => {
       auth: { user: undefined, pass: undefined },
     });
     expect(sendMail).toHaveBeenCalledWith({
-      subject: "Seu código de verificação do Kanboom",
+      subject: "Seu código de verificação do Krux",
       text: expect.stringContaining("00042"),
       html: expect.stringContaining("00042"),
       from: undefined,
@@ -216,7 +216,7 @@ describe("createTokenNewUser", () => {
 
     expect(sendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        subject: "Seu código de verificação do Kanboom",
+        subject: "Seu código de verificação do Krux",
         text: expect.stringContaining("00042"),
         html: expect.stringContaining("00042"),
         to: "test@example.com",

@@ -47,7 +47,7 @@ export async function createToken() {
 
     after(async () => {
       await transport.sendMail({
-        subject: "Seu código de verificação do Kanboom",
+        subject: "Seu código de verificação do Krux",
         text: textEmail(finalCode),
         html: emailHtml(finalCode),
         from: process.env.SMTP_USER,
@@ -163,7 +163,7 @@ export async function createTokenNewUser() {
 
     after(async () => {
       await transport.sendMail({
-        subject: "Seu código de verificação do Kanboom",
+        subject: "Seu código de verificação do Krux",
         text: textEmail(finalCode),
         html: emailHtml(finalCode),
         from: process.env.SMTP_USER,

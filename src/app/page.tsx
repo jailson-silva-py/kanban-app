@@ -7,7 +7,7 @@ export default function Home() {
       <main className="h-full w-full flex items-center justify-center flex-col gap-4 tracking-widest font-rethink">
         <div className="flex flex-col gap-6 items-center justify-center">
         <h1 className="font-marck-script text-7xl tracking-[8px] bg-linear-to-r to-text from-secondary bg-clip-text text-transparent">
-          Kanboom
+          Krux
         </h1>
         <div className="flex flex-col items-center justify-center gap-4">
         <h2 className="font-medium text-center text-lg">Organize suas tarefas com agilidade</h2>
