@@ -45,7 +45,7 @@ export default function FormConfirmCode({ user }: { user: User }) {
       <p className="text-sm hyphens-auto break-all">Nós enviamos um código para o email: { censuredEmail(user.email)}.</p>
       <label className="mt-4 flex flex-col gap-4 group">
         <span className="font-medium text-sm">Insira o código abaixo:</span>
-        <div className="relative w-max h-8">
+        <div className="relative w-max h-max">
         <input maxLength={5} inputMode="numeric" {...register("code", {
           minLength: { value: 5, message: "Precisa ter 5 dígitos" },
           maxLength: { value: 5, message: "Precisa ter 5 dígitos." },
@@ -57,12 +57,12 @@ export default function FormConfirmCode({ user }: { user: User }) {
           }
         })} className="w-full h-full absolute opacity-0" />
         <div className="flex gap-2 [&_span]:border-b w-full h-full">
-          <span className={`w-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 0 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[0] || ""}</span>
-          <span className={`w-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 1 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[1] || ""}</span>
-          <span className={`w-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 2 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[2] || ""}</span>
-          <span className={`w-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 3 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[3] || ""}</span>
-          <span className={`w-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 4 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[4] || ""}</span>
-          </div>
+          <span className={`w-12 h-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 0 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[0] || ""}</span>
+          <span className={`w-12 h-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 1 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[1] || ""}</span>
+          <span className={`w-12 h-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 2 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[2] || ""}</span>
+          <span className={`w-12 h-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 3 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[3] || ""}</span>
+          <span className={`w-12 h-12 text-2xl text-center group-focus-within:border-info ${codeValue?.length === 4 ? "group-focus-within:border-b-2":""}`}>{codeValue?.[4] || ""}</span>
+        </div>
         </div>
         {errors.code?.message && <small className=" text-error text-[10px] hyphens-auto break-all text-justify">* {errors.code?.message}</small>}
         <button type="button" className="cursor-pointer ml-auto hover:underline text-xs hover:font-medium disabled:opacity-50" onClick={handleResendCode} disabled={isPending}>
