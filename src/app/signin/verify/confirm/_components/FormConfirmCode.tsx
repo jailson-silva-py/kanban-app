@@ -19,17 +19,18 @@ export default function FormConfirmCode({ user }: { user: User }) {
   const [isPending, startTransition] = useTransition();
   const { update } = useSession();
   const onVerifyCode: SubmitHandler<IFormType> = async (data) => {
-    await verifyNewUser(data.code).catch(err => {
-      if (err?.name === "InvalidTokenError") {
+    try {
+      await verifyNewUser(data.code);
+      await update({ emailVerified: new Date() });
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "InvalidTokenError") {
         toast.error(err.message);
         return
       }
       toast.error("Ocorreu um erro inesperado, tente novamente");
       return
-    }).then(async () => {
-      await update({emailVerified:new Date()});
-      redirect("/home");
-    });
+    }
+    redirect("/home");
   }
 
   const handleResendCode = async (e: MouseEvent) => {
