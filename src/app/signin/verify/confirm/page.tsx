@@ -6,11 +6,11 @@ import { redirect } from "next/navigation";
 
 export default async function PageConfirmCode() {
   const user = await getUser();
-  if (!user) redirect("/signin")
+  if (!user) redirect("/signin");
   const cookiesStorage = await cookies();
   const validCookieToken = cookiesStorage.get({ name: "verification_new_user", value: user.id });
   if (!validCookieToken) redirect("/signin/verify");
   return (
-    <FormConfirmCode user={user}/>
+    <FormConfirmCode user={user} />
   )
 }
