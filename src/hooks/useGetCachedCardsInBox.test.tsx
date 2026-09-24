@@ -59,10 +59,10 @@ describe("useGetCachedCardsInBox", () => {
     expect(getColumnForInBoxUser).toHaveBeenCalledTimes(1);
   });
 
-  it("transforma os cards em cardsMap e retorna o resultado completo", async () => {
+  it("transforma os cards em cardIds e retorna o resultado completo", async () => {
     const cardA = createCard({ id: "a" });
     const cardB = createCard({ id: "b", position: 200 });
-    vi.mocked(getColumnForInBoxUser).mockResolvedValue({ id: "inbox-1", cards: [cardA, cardB] });
+    vi.mocked(getColumnForInBoxUser).mockResolvedValue({ id: "inbox-1", cards: [cardA, cardB], order: 100, title: "inBox" });
 
     const { result } = renderInBoxHook(queryClient, { queryKey: inBoxCards, enabled: true });
 
@@ -72,13 +72,11 @@ describe("useGetCachedCardsInBox", () => {
 
     const data = result.current.data;
     expect(data?.id).toBe("inbox-1");
-    expect(data?.cards).toEqual([cardA, cardB]);
-    expect(data?.cardsMap.get("a")).toEqual(cardA);
-    expect(data?.cardsMap.get("b")).toEqual(cardB);
+    expect(data?.cardIds).toEqual(["a", "b"]);
   });
 
   it("queryOptions podem sobrescrever o queryKey", async () => {
-    vi.mocked(getColumnForInBoxUser).mockResolvedValue({ id: "inbox-1", cards: [] });
+    vi.mocked(getColumnForInBoxUser).mockResolvedValue({ id: "inbox-1", cards: [], order: 100, title: "inBox" });
 
     const customKey = ["custom-inbox"];
     renderInBoxHook(queryClient, { queryKey: customKey, enabled: true });
@@ -92,7 +90,7 @@ describe("useGetCachedCardsInBox", () => {
   });
 
   it("queryOptions podem sobrescrever o queryFn", async () => {
-    const customData: InBoxClient = { id: "custom", cards: [], cardsMap: new Map() };
+    const customData: InBoxClient = { id: "custom", cardIds: [], order: 100, title: "inBox" };
 
     const { result } = renderInBoxHook(queryClient, {
       queryKey: inBoxCards,

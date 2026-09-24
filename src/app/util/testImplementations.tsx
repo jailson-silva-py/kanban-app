@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, RenderOptions, screen, waitFor  } from "@testing-library/react";
+import { render, RenderOptions, screen, waitFor } from "@testing-library/react";
 import { UserEvent } from "@testing-library/user-event";
-import { board, column, inBoxCards } from "@/constrants/queryKeys";
-import { BoardClient, ColumnClient, InBoxClient } from "@/types/clientDataTypes";
-import { Card as CardType, ColumnSkeleton } from "@/types/dataTypes";
+import { board, card as cardKey, column, columnsBoard, inBoxCards } from "@/constrants/queryKeys";
+import { ColumnClient, InBoxClient } from "@/types/clientDataTypes";
+import { BoardFull, BoardSimple, Card as CardType, ColumnSkeleton } from "@/types/dataTypes";
 
 
 const createQueryClient = (): QueryClient => {
@@ -15,12 +15,12 @@ const createQueryClient = (): QueryClient => {
   });
 };
 
-export const renderWithProviders = (children: React.ReactElement, queryClient?: QueryClient, options?:RenderOptions) => {
+export const renderWithProviders = (children: React.ReactElement, queryClient?: QueryClient, options?: RenderOptions) => {
   return render(
     <QueryClientProvider client={queryClient ?? createQueryClient()}>
       {children}
-    </QueryClientProvider>, {...options}
-    );
+    </QueryClientProvider>, { ...options }
+  );
 };
 
 export const createCard = (overrides: Partial<CardType> = {}): CardType => ({
@@ -37,20 +37,13 @@ export const createColumnClient = ({
   title,
   order = 100,
   boardId = "board-123",
-  cards = [],
-}: {
-  id: string;
-  title: string;
-  order?: number;
-  boardId?: string;
-  cards?: CardType[];
-}): ColumnClient => ({
+  cardIds = []
+}: Omit<ColumnClient, "order"> & { order?: number }): ColumnClient => ({
   id,
   title,
   order,
   boardId,
-  cards,
-  cardsMap: new Map(cards.map((c) => [c.id, c])),
+  cardIds,
 });
 
 export const seedBoard = (
@@ -59,26 +52,86 @@ export const seedBoard = (
   title: string,
   columns: ColumnSkeleton[],
 ) => {
-  queryClient.setQueryData<BoardClient<ColumnSkeleton>>(board(id), {
+  queryClient.setQueryData<BoardFull>(board(id), {
     id,
     title,
-    columns: new Map(columns.map((c) => [c.id, c])),
+    columns,
   });
 };
 
+/**
+ * Popula o cache como o Board faz ao montar: skeleton do board, lista
+ * `columns-board` e o card individual de cada `cardIds`.
+ */
+export const seedBoardColumns = (
+  queryClient: QueryClient,
+  boardId: string,
+  boardTitle: string,
+  columns: ColumnClient[],
+) => {
+  seedBoard(
+    queryClient,
+    boardId,
+    boardTitle,
+    columns.map(({ id, title, order }) => ({ id, title, order })),
+  );
+  queryClient.setQueryData<ColumnClient[]>(columnsBoard(boardId), columns.map((column) => ({ ...column })));
+  for (let i = 0; i < columns.length; i++) {
+    const columnData = columns[i];
+    queryClient.setQueryData<ColumnClient>(column(columnData.id), { ...columnData });
+    for (let j = 0; j < columnData.cardIds.length; j++) {
+      const card = queryClient.getQueryData<CardType>(cardKey(columnData.cardIds[j]));
+      if (card) continue;
+      queryClient.setQueryData<CardType>(cardKey(columnData.cardIds[j]), {
+        id: columnData.cardIds[j],
+        columnId: columnData.id,
+        completed: false,
+        position: (j + 1) * 100,
+        title: columnData.cardIds[j],
+      });
+    }
+  }
+};
+
 export const seedColumn = (queryClient: QueryClient, columnData: ColumnClient) => {
-  queryClient.setQueryData<ColumnClient>(column(columnData.id), columnData);
+  seedColumnCardIds(queryClient, columnData);
+  queryClient.setQueryData<ColumnClient>(column(columnData.id), { ...columnData });
+};
+
+/**
+ * Garante que todo id de `cardIds` tenha um card individual no cache,
+ * permitindo que hooks como `getCardsFromColumn` funcionem nos testes.
+ */
+export const seedColumnCardIds = (queryClient: QueryClient, columnData: ColumnClient) => {
+  const boardId = columnData.boardId;
+  const columns = queryClient.getQueryData<ColumnClient[]>(columnsBoard(boardId));
+  if (columns) {
+    queryClient.setQueryData<ColumnClient[]>(columnsBoard(boardId), (old) => {
+      if (!old) return old;
+      return old.map((thisColumn) => thisColumn.id === columnData.id
+        ? { ...thisColumn, cardIds: [...columnData.cardIds] }
+        : thisColumn);
+    });
+  }
+  for (let i = 0; i < columnData.cardIds.length; i++) {
+    const cardId = columnData.cardIds[i];
+    const existingCard = queryClient.getQueryData<CardType>(cardKey(cardId));
+    if (existingCard) continue;
+    queryClient.setQueryData<CardType>(cardKey(cardId), {
+      id: cardId,
+      columnId: columnData.id,
+      completed: false,
+      position: (i + 1) * 100,
+      title: cardId,
+    });
+  }
 };
 
 export const seedInBox = (
   queryClient: QueryClient,
-  data: { id: string; cards: CardType[] },
+  data: InBoxClient,
 ) => {
-  queryClient.setQueryData<InBoxClient>(inBoxCards, {
-    id: data.id,
-    cards: data.cards,
-    cardsMap: new Map(data.cards.map((c) => [c.id, c])),
-  });
+  queryClient.setQueryData<InBoxClient>(inBoxCards, { ...data });
 };
 
 export const selectBoardOption = async (user: UserEvent, label: string) => {

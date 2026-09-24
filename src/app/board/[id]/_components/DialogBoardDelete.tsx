@@ -1,16 +1,24 @@
 "use client";
 import { deleteBoard } from "@/actions/actions";
 import { toast } from "@/app/util/toast";
+import { ButtonGhost } from "@/components/ButtonGhost";
 import Dialog from "@/components/Dialog";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { boards } from "@/constrants/queryKeys";
 import { BoardSimple } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
 import { redirect } from "next/navigation";
-import { MouseEvent, useState } from "react";
+import { MouseEvent, SetStateAction } from "react";
 
-export default function BtnBoardDelete({ id }: { id: string }) {
-  const [openDialog, setOpenDialog] = useState(false);
+
+type DialogBoardDelete = {
+  id: string,
+  openDialog: boolean,
+  setOpenDialog: React.Dispatch<SetStateAction<boolean>>
+}
+
+export default function DialogBoardDelete({ id, openDialog, setOpenDialog }: DialogBoardDelete) {
+
   const { mutate, isPending } = useMutation({
     mutationFn: deleteBoard, mutationKey: ["board", "delete"],
     onSuccess: async (data, variables, result, context) => {
@@ -24,7 +32,7 @@ export default function BtnBoardDelete({ id }: { id: string }) {
 
   })
 
-  const handleDeleteBoard = (e:React.SubmitEvent) => {
+  const handleDeleteBoard = (e: React.SubmitEvent) => {
     e.preventDefault();
     mutate({ id }, {
       onSuccess: () => {
@@ -39,31 +47,25 @@ export default function BtnBoardDelete({ id }: { id: string }) {
     e.preventDefault();
     setOpenDialog(false);
   }
-  const handleOpenDialog = (e: MouseEvent) => {
-    e.preventDefault();
-    setOpenDialog(true);
-  }
 
   return (
-      <>
-      <button onClick={handleOpenDialog} className="w-full btn-sm btn-ghost items-center justify-center hover:bg-error/20" disabled={ isPending }>
-      {isPending ? <span>Processando ...</span> : <span className="text-xs">Deletar board</span>}
-      </button>
-      <Dialog state={openDialog} setState={setOpenDialog}>
-        <p className="text-sm/relaxed tracking-widest hyphens-auto text-justify">
+    <Dialog state={openDialog} setState={setOpenDialog}>
+      <div className="p-2 flex min-h-30 max-sm:min-h-40 flex-col gap-2">
+        <p className="text-sm/tight tracking-widest hyphens-auto text-justify break-after-all ">
           Ao excluir o quadro, todas as colunas e cartões também serão <b>excluídos permanentemente</b>, deseja excluí-los?
         </p>
-        <form onSubmit={handleDeleteBoard} className="my-auto ml-auto flex gap-2 items-center justify-center">
+        <form onSubmit={handleDeleteBoard} className="mt-auto self-end flex gap-2 items-center justify-center">
           <button type="submit" className="flex btn-sm w-24 btn-secondary focus-primary items-center justify-center">
-            {isPending ? <LoadingSpinner className="text-primary"/> : <span>Confirmar</span>}
+            {isPending ? <LoadingSpinner className="text-primary" /> : <span>Confirmar</span>}
           </button>
           <button className="btn-sm w-24 btn-primary focus-secondary items-center justify-center" onClick={handleCloseDialog}>
             Cancelar
           </button>
         </form>
-      </Dialog>
-      </>
-    )
+      </div>
+    </Dialog>
+
+  )
 
 
 }

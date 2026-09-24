@@ -9,13 +9,20 @@ import {
   deleteBoard,
 } from "./boardActions";
 
+
+vi.mock("@/actions/boardActions", async () => {
+  const actual = await vi.importActual("./boardActions");
+  return {...actual}
+})
+
+
 vi.mock("prisma", () => ({
   prisma: {
     board: { create: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), delete: vi.fn() },
   },
 }));
 
-const session = { user: { id: "123", email: "test@example.com" } };
+const session = { user: { id: "test-user", email: "test@example.com" } };
 
 beforeEach(() => {
   vi.mocked(auth).mockResolvedValue(session as never);
@@ -36,8 +43,8 @@ describe("createBoardFromUser", () => {
     await expect(createBoardFromUser({ title: "Projeto", id: "board-1" })).resolves.toEqual(board);
 
     expect(prisma.board.create).toHaveBeenCalledWith({
-      data: { id: "board-1", title: "Projeto", ownerId: "123" },
-      select: { id: true, title: true },
+      data: { id: "board-1", title: "Projeto", ownerId: "test-user" },
+      select: { id: true, title: true, gradient:true },
     });
   });
 
@@ -47,8 +54,8 @@ describe("createBoardFromUser", () => {
     await createBoardFromUser({ title: "X" });
 
     expect(prisma.board.create).toHaveBeenCalledWith({
-      data: { id: undefined, title: "X", ownerId: "123" },
-      select: { id: true, title: true },
+      data: { id: undefined, title: "X", ownerId: "test-user" },
+      select: { id: true, title: true, gradient:true },
     });
   });
 
@@ -107,7 +114,7 @@ describe("getAllBoardFromUser", () => {
 
     expect(prisma.board.findMany).toHaveBeenCalledWith({
       where: { ownerId: "test-user", isInbox: false },
-      select: { id: true, title: true },
+      select: { id: true, title: true, gradient:true },
       orderBy: { updatedAt: "desc" },
     });
   });

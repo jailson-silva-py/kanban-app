@@ -1,39 +1,23 @@
 "use client";
 import { getBoardById } from "@/actions/actions"
-import { arrayTransformToMap } from "@/app/util/arrayTransformToMap"
-import { BoardClient } from "@/types/clientDataTypes"
-import { BoardFull, ColumnSkeleton } from "@/types/dataTypes"
+import { BoardClient } from "@/types/clientDataTypes";
+import { BoardFull } from "@/types/dataTypes";
 import { useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
+import { useQueryBoard } from "./useQueryBoard";
 
-export const useGetInitialBoard = (initialData: BoardFull, queryOptions?: Omit<UseQueryOptions<BoardClient<ColumnSkeleton> | null>, 'queryKey' | 'queryFn'>): UseQueryResult<BoardClient<ColumnSkeleton> | null, Error> => {
-
-  const getConvertedData = () => {
-    const length = initialData.columns.length
-    const map = new Map();
-    for (let i = 0; i < length; ++i) {
-      const column = initialData.columns[i]
-      map.set(column.id, column)
-
-    }
-    return { id:initialData.id, title:initialData.title, columns:map } satisfies BoardClient<ColumnSkeleton>
-  }
-
-  const result = useQuery<BoardClient<ColumnSkeleton> | null>({
-    initialData:getConvertedData(),
+export const useGetInitialBoard = (initialData: BoardFull, queryOptions?: Omit<UseQueryOptions<BoardClient | null>, 'queryKey' | 'queryFn'>): UseQueryResult<BoardClient | null, Error> => {
+  const { createBoardClient } = useQueryBoard();
+  const result = useQuery<BoardClient | null>({
+    initialData: createBoardClient(initialData),
     queryKey: ['board', initialData.id],
     queryFn: async () => {
       const boardData = await getBoardById(initialData.id)
       if (!boardData) return null;
-
-      const boardClient:BoardClient<ColumnSkeleton> = {id:boardData.id, title:boardData.title, columns:arrayTransformToMap<ColumnSkeleton>(boardData.columns) as  Map<string, ColumnSkeleton>}
-
-
-      return boardClient satisfies  BoardClient<ColumnSkeleton>|null
+      const boardClient = createBoardClient(boardData);
+      return boardClient satisfies BoardClient | null
     },
     ...queryOptions
-
   })
-
 
   return result
 

@@ -2,6 +2,7 @@
 import { createBoardFromUser } from "@/actions/actions";
 import Dialog from "@/components/Dialog";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { getRandomGradient } from "@/constrants/boardGradients";
 import { BoardSimple } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
 import { MouseEvent, SubmitEvent, TouchEvent, useState } from "react";
@@ -37,28 +38,29 @@ const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
     const formData = new FormData(e.currentTarget);
     const title = (formData.get("title_board") as string).trim();
     const id = crypto.randomUUID();
-    mutate({ id, title }, { onSuccess: () => setOpenDialog(false) });
+    const gradient = getRandomGradient();
+    mutate({ id, title, gradient }, { onSuccess: () => setOpenDialog(false) });
   };
 
   return (
     <>
-      <li className="flex flex-col rounded-sm w-full h-37.5 tracking-widest" {...props}>
+      <li className="flex flex-col rounded-sm w-full h-30 tracking-widest font-rethink" {...props}>
         <button
           type="submit"
-          className="bg-secondary/60 z-1 h-8/10 w-full flex flex-col text-xs gap-2 items-center justify-center shadow-bottom shadow-shadow rounded-sm hover:brightness-150 cursor-pointer"
+          className="h-full bg-linear-to-br from-primary to-accent z-1 w-full flex flex-col text-xs gap-2 items-center justify-center border border-l-6 border-b-6 border-shadow shadow-shadow rounded-sm hover:brightness-125 hover:border-text-secondary hover:-translate-y-0.5 cursor-pointer"
           onClick={handleOpenDialog}
         >
           <TbPlus size={32} />
 
-          <span>Criar um novo quadro</span>
+          <span className="font-medium text-sm">Criar novo quadro</span>
         </button>
       </li>
       <Dialog state={openDialog} setState={setOpenDialog}>
         <form
           onSubmit={onCreateBoard}
-          className="w-full flex-9 flex flex-col items-center justify-center"
+          className="py-2 pt-4 sm:py-4 sm:px-4 w-full flex-9 flex flex-col items-center justify-start"
         >
-          <label className="my-auto w-full flex flex-col gap-2">
+          <label className="w-full flex flex-col gap-2">
             <input
               className="default-input text-sm focus-primary"
               name="title_board"
@@ -69,10 +71,10 @@ const BoardAdd: React.FC<PropsType> = ({ ...props }) => {
 
           <button
             type="submit"
-            className="ml-auto w-24 flex items-center justify-center btn-sm btn-secondary focus-primary"
+            className="self-end mt-auto w-24 flex items-center justify-center btn-sm btn-secondary focus-primary"
             disabled={isPending}
           >
-            {isPending ? <LoadingSpinner size={24} className="text-primary"/> : <span>Criar</span>}
+            {isPending ? <LoadingSpinner size={24} className="text-primary" /> : <span>Criar</span>}
           </button>
         </form>
       </Dialog>

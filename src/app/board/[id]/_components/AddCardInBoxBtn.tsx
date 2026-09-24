@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Card } from "@/types/dataTypes";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { onMutateFunction } from "@/app/util/mutations";
 import { InBoxClient } from "@/types/clientDataTypes";
+import { useQueryCard } from "@/hooks/useQueryCard";
+import { useQueryInBox } from "@/hooks/useQueryInBox";
+import { toast } from "@/app/util/toast";
 
 
 type Props = {
@@ -14,43 +16,38 @@ type Props = {
 };
 
 export const AddCartInBox = ({ children, textForArea }: Props) => {
-  const cardsKey = ["inBoxCards"]
+  const inBoxKey = ["inBoxCards"]
+  const { setCard } = useQueryCard();
+  const { createCardInBox, setInBox, getInBox, removeCardInBox } = useQueryInBox();
   const [edition, setEdition] = useState(false);
   const { mutate, isPending } = useMutation({
     mutationKey: ["card", "create", "inbox"],
     mutationFn: ({ title, id }: { title: string; id: string }) =>
       createCartForColumnInBox({ title, id }),
-    onMutate: (variables, context) => {
-
-      return onMutateFunction<InBoxClient>(context, cardsKey, (old) => {
-
-        const card: Card = { ...variables, columnId:old.id, completed: false, position: Infinity }
-        const cards = [card, ...old.cards]
-        const cardsMap = old.cardsMap.set(variables.id, card)
-        return {...old, cards, cardsMap}
-
-      })
+    onMutate: async (variables, context) => {
+      await context.client.cancelQueries({ queryKey: inBoxKey });
+      const queryData = getInBox();
+      if (!queryData) return
+      const card: Card = { columnId: queryData.id, completed: false, position: Infinity, ...variables }
+      createCardInBox(card);
+      return { previousState: queryData }
     },
 
     onSuccess: async (data, variables, result, context) => {
-      const queryData = context.client.getQueryData<InBoxClient>(cardsKey);
+      const queryData = context.client.getQueryData<InBoxClient>(inBoxKey);
       if (!data || !queryData) {
         if (!queryData?.id) {
-          await context.client.invalidateQueries({queryKey:cardsKey})
+          await context.client.invalidateQueries({ queryKey: inBoxKey })
         }
         return
       };
-      const cards = [...queryData.cards];
-      const targetIndex = cards.findIndex((target) => target.id == data.id);
-      cards[targetIndex] = data
-      const cardsMap = new Map(queryData.cardsMap);
-      cardsMap.set(data.id, data);
-      context.client.setQueryData<InBoxClient>(cardsKey, {...queryData, cardsMap, cards});
+      setCard(data.id, data);
     },
-
-    onError: (_err, _title, result, context) => {
+    onError: (_err, variables, result) => {
       if (!result?.previousState) return;
-      context.client.setQueryData(cardsKey, result?.previousState);
+      setInBox(result.previousState);
+      removeCardInBox(variables.id)
+      toast.error("Não foi possível criar o card.");
     },
   });
 
@@ -63,7 +60,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
   };
 
   const handleClose = () => { setEdition(false) }
-  const handleOpen = () => {setEdition(true)}
+  const handleOpen = () => { setEdition(true) }
 
   return (
     <div className="w-full flex-3 p-4 grow-0 shrink-0" aria-label="content-add-card-inbox">
@@ -85,10 +82,10 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
           />
           <div className="w-full flex justify-end gap-2">
             <button
-                aria-label="create-card-inbox"
-                type="submit"
-                className="flex items-center justify-center btn-secondary btn-default focus-primary w-20"
-                disabled={ isPending }
+              aria-label="create-card-inbox"
+              type="submit"
+              className="flex items-center justify-center btn-secondary btn-default focus-primary w-20"
+              disabled={isPending}
             >
               {!isPending ? (
                 <span>Adicionar</span>

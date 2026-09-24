@@ -4,10 +4,10 @@ import { Column } from "@/types/dataTypes";
 import { prisma } from "prisma";
 import { protectedActions } from "./wrappers";
 
-export async function getColumnById(id: string): Promise<Column | null> {
-  return protectedActions(() =>
+export async function getColumnById(id: string, boardId:string): Promise<Column | null> {
+  return protectedActions((session) =>
     prisma.column.findUnique({
-      where: { id },
+      where: { id, board:{id:boardId, ownerId:session.user.id} },
       select: {
         id: true,
         boardId: true,
@@ -28,6 +28,38 @@ export async function getColumnById(id: string): Promise<Column | null> {
   );
 }
 
+export async function getAllColumnsById(columnIds:string[], boardId:string):Promise<Column[]> {
+  return await protectedActions(async ({user:{id:userId}}) => {
+    
+    const result = await prisma.column.findMany({
+      where:{
+        board:{ id:boardId, ownerId:userId },
+        id:{ in:columnIds }
+      },
+      select:{
+        boardId:true,
+        id:true,
+        cards:{
+          select: {
+            id:true,
+            title:true,
+            completed:true,
+            position:true,
+            description:true,
+            columnId:true,
+          },
+          orderBy:{position:"desc"},
+        },
+        title:true,
+        order:true
+      },
+    })
+
+    return result
+
+  })
+}
+
 export async function createColumnFromBoard({
   boardId,
   idColumn: id,
@@ -41,7 +73,7 @@ export async function createColumnFromBoard({
     const maxPositionColumn = await prisma.column.findFirst({
       where: {
         boardId,
-        board: { ownerId: session?.user?.id },
+        board: { ownerId: session.user.id },
       },
       orderBy: { order: "desc" },
       select: { order: true },
@@ -75,10 +107,11 @@ export const ChangeColumnTitle = async ({
   );
 };
 
-export const DeleteColumn = async ({ id }: { id: string }) => {
+export const deleteColumnById = async ({ id }: { id: string }) => {
   return protectedActions(async (session) =>
     prisma.column.delete({
-      where: { id, board: { ownerId: session.user.id } },
+      where: { id, board: { ownerId: session.user.id }
+    }
     }),
   );
 };

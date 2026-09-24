@@ -3,9 +3,10 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import useOutClick from "@/hooks/useOutClick";
 import { BoardFull, Column } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
-import { Activity, useLayoutEffect, useRef, useState } from "react";
+import { Activity, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { TbChecks } from "react-icons/tb";
 import { column } from "@/constrants/queryKeys";
+import { useMutationColumns } from "@/hooks/useMutationColumns";
 
 interface Iprops {
   children: React.ReactNode;
@@ -19,33 +20,11 @@ const BtnInputEditColumnTitle = ({
   columnTitle,
   columnId,
 }: Iprops) => {
-  const queryKey = column(columnId)
   const [editMode, setEditMode] = useState(false);
-  const [title, setTitle] = useState(columnTitle);
+
   const ref = useOutClick<HTMLFormElement>(() => setEditMode(false));
-  const { data, isPending, mutate } = useMutation({
-    mutationKey: ["column", "change-title"],
-    mutationFn: ChangeColumnTitle,
-    onMutate: async (variables, context) => {
-      await context.client.cancelQueries({queryKey})
-      context.client.setQueryData<Column>(queryKey, (previusColumn) => {
-        if (!previusColumn) return;
-
-        return { ...previusColumn, title: variables.title };
-      });
-    },
-
-    onError: (error, varibles, onMutateResult, context) => {
-      context.client.setQueryData<BoardFull>(
-        queryKey,
-        (previusColumn) => {
-          if (!previusColumn) return;
-
-          return { ...previusColumn, title };
-        },
-      );
-    },
-  });
+  const { data, isPending, mutate } = useMutationColumns()
+  const [title, setTitle] = useState(columnTitle);
 
   const refTextAreaTitle = useRef<HTMLTextAreaElement>(null);
 
@@ -55,8 +34,13 @@ const BtnInputEditColumnTitle = ({
     const end = title.length;
     refTextAreaTitle.current.setSelectionRange(end, end);
     refTextAreaTitle.current.focus();
-    //eslint-disable-next-line
+
   }, [editMode]);
+
+  useEffect(() => {
+    if (!columnTitle) return;
+    setTitle(columnTitle);
+  }, [columnTitle])
 
   const handleShowInput = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -79,7 +63,7 @@ const BtnInputEditColumnTitle = ({
     setEditMode(false);
     if (!title || title === columnTitle) return;
 
-    mutate({ id: columnId, title });
+    mutate({ columnId, operation: "edit-title", title });
   };
 
   return (

@@ -14,7 +14,7 @@ describe("ColumnInBox Component Testing", () => {
   test("Quando não há nenhum cartão ou não há data aparece um parágrafo avisando que n tem cartão", async () => {
     const mockAction = vi.mocked(getColumnForInBoxUser);
     //quando a lista for vazia aparece o parágrafo
-    mockAction.mockResolvedValue({ id: "col-1", cards: [] });
+    mockAction.mockResolvedValue({ id: "col-1", cards: [], order: 100, title: "inBox" });
     renderWithProviders(<ColumnInBox></ColumnInBox>);
     const paragraph = await screen.findByRole("paragraph", { name: "no-cards" });
     expect(paragraph).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("ColumnInBox Component Testing", () => {
 
   test("Possui um CardsContent caso não der erro ou não esteja carregando", async () => {
     const mockAction = vi.mocked(getColumnForInBoxUser);
-    mockAction.mockResolvedValue({id:"col-1", cards:[{columnId:"col-1", completed:false, id:"card", position:100, title:"Oi"}]})
+    mockAction.mockResolvedValue({ id: "col-1", cards: [{ columnId: "col-1", completed: false, id: "card", position: 100, title: "Oi" }], title: "inBox", order: 100 })
     renderWithProviders(<ColumnInBox></ColumnInBox>);
     const cardsContent = await screen.findByRole("list", { name: "cards-content" });
     expect(cardsContent).toBeInTheDocument();

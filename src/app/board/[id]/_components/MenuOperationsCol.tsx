@@ -1,47 +1,24 @@
 "use client";
-import { DeleteColumn } from "@/actions/actions";
-import { onMutateFunction } from "@/app/util/mutations";
-import { toast } from "@/app/util/toast";
 import DropdownMenuWithDots from "@/components/DropdownMenuWithDots";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { board } from "@/constrants/queryKeys";
-import { BoardClient, ColumnClient } from "@/types/clientDataTypes";
-import { useMutation } from "@tanstack/react-query";
+import { useMutationColumns } from "@/hooks/useMutationColumns";
 import { useParams } from "next/navigation";
 
 type BtnDeleteColumnProps = {
   columnId: string;
+  boardId: string,
 };
 
-const MenuOperationsCol = ({ columnId }: BtnDeleteColumnProps) => {
+const MenuOperationsCol = ({ columnId, boardId }: BtnDeleteColumnProps) => {
   const params = useParams();
   const queryKey = board(params.id as string);
-  const { isPending, mutate } = useMutation({
-    mutationKey: ["column", "delete"],
-    mutationFn: DeleteColumn,
-    onMutate: async (variables, context) => {
-      return await onMutateFunction<BoardClient<ColumnClient>>(context, queryKey, (old) => {
 
-        const oldColumns = old.columns
-        oldColumns.delete(variables.id)
-        const columns = new Map(oldColumns);
-        return {...old, columns}
-
-      })
-    },
-
-    onError: (error, variables, result, context) => {
-      if (!result?.previousState) return;
-      context.client.setQueryData(queryKey, result?.previousState);
-    },
-    onSuccess: () => {
-      toast.success("Coluna deletada com sucesso!");
-    },
-  });
+  const { mutate, isPending } = useMutationColumns();
 
   const onDeleteColumn = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    mutate({ id: columnId });
+    mutate({ operation: "delete", columnId, boardId });
   };
 
   return (

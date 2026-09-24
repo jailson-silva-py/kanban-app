@@ -1,146 +1,141 @@
 "use client";
 import { useMutation } from "@tanstack/react-query";
-import  { Card as CardType } from "@/types/dataTypes";
 import { ChangeCompletedCard, DeleteCard, reOrderCardsFromColumns } from "@/actions/cardActions";
-import { onMutateFunction } from "@/app/util/mutations";
-import { ColumnClient } from "@/types/clientDataTypes";
+import { ColumnClient, InBoxClient } from "@/types/clientDataTypes";
 import { useState } from "react";
-import { column } from "@/constrants/queryKeys";
+import { column, inBoxCards, card as cardKey } from "@/constrants/queryKeys";
+import { useQueryCard } from "./useQueryCard";
+import { useQueryInBox } from "./useQueryInBox";
+import { useQueryColumn } from "./useQueryColumn";
+import { toast } from "@/app/util/toast";
+import { logger } from "@/app/util/logger";
 type MutationOperationProperty = "move" | "delete" | "change-completed";
 
 type MutationProperties = {
-    operation: "move";
-    cardId: string;
-    columnTargetId: string;
-    positionCard: number;
-    prevCardId: string | undefined;
-    nextCardId: string | undefined;
-  }
+  operation: "move";
+  cardId: string;
+  columnTargetId: string;
+  positionCard: number;
+  prevCardId: string | undefined;
+  nextCardId: string | undefined;
+  targetIndex: number;
+  inBoxKey?: typeof inBoxCards,
+  targetInBoxKey?: typeof inBoxCards,
+}
   |
-  {
-    operation: Exclude<MutationOperationProperty, "move">;
-    cardId?: string;
-    columnTargetId?: string;
-    positionCard?: number;
-    prevCardId?: string;
-    nextCardId?: string;
-  };
+{
+  operation: Exclude<MutationOperationProperty, "move">;
+  cardId: string;
+  columnTargetId?: string;
+  positionCard?: number;
+  prevCardId?: string;
+  nextCardId?: string;
+  targetIndex?: number;
+  inBoxKey?: typeof inBoxCards,
+  targetInBoxKey?: typeof inBoxCards,
+};
 
 
-export function useMutationCards({ targetColMoveCardKey, card, cardsKey }: { targetColMoveCardKey?: string[], card: CardType, cardsKey?:string[] }) {
-
-  const [completed, setCompleted] = useState(card.completed)
+/**
+ * Executa mutations de cards e mantém o cache otimista sincronizado.
+ * Recebe os dados da operação em `mutate` e retorna a API de `useMutation`,
+ * além do estado do diálogo usado para mover um card.
+ */
+export function useMutationCards() {
+  const { getCard, setCard } = useQueryCard()
+  const { getInBox, removeCardInBox } = useQueryInBox()
+  const { computePositionCard, getMovedPositionCard, getColumn, removeCard } = useQueryColumn()
   const [openDialog, setOpenDialog] = useState(false);
   const props = useMutation({
-    mutationFn: async ({operation, cardId, columnTargetId, nextCardId, positionCard, prevCardId}:MutationProperties) => {
+    mutationFn: async ({ operation, cardId, columnTargetId, positionCard, prevCardId, nextCardId }: MutationProperties) => {
       switch (operation) {
         case "change-completed":
-          return ChangeCompletedCard({ id: card.id })
+          return ChangeCompletedCard({ id: cardId })
         case "delete":
-          return DeleteCard({ id: card.id })
+          return DeleteCard({ id: cardId })
         case "move":
-          return reOrderCardsFromColumns({cardId, columnTargetId, positionCard, nextCardId, prevCardId});
+          return reOrderCardsFromColumns({ cardId, columnTargetId, positionCard, nextCardId, prevCardId });
       }
     },
-    onMutate: async (variables, context) => {
+    onMutate: async ({ columnTargetId, inBoxKey, cardId, targetInBoxKey, ...variables }, context) => {
+      const targetColMoveCardKey = targetInBoxKey || column(columnTargetId as string)
+      const card = getCard(cardId);
+      if (!card) return;
+
+      // Retorna os backups para o React Query poder usar no onError
+      const previousSourceState = inBoxKey ? getInBox() : getColumn(card.columnId);
+      const previousTargetState = context.client.getQueryData<ColumnClient | InBoxClient>(targetColMoveCardKey);
       if (variables.operation === "move") {
-        if (!targetColMoveCardKey) return;
-        const actualCardColumnKey = cardsKey ?? column(card.columnId);
-        // 1.1 Cancela as requisições ativas para não sobrescrever o cache otimista
+        if (!targetColMoveCardKey) {
+          const prefix = "useMutationCards -> onMutate"
+          logger.print(prefix, "error", "Coluna alvo não encontrada")
+          return
+        };
+
+        // Cancela as requisições ativas para não sobrescrever o cache optimistic
         await context.client.cancelQueries({ queryKey: targetColMoveCardKey });
-        await context.client.cancelQueries({ queryKey: targetColMoveCardKey });
+        await context.client.cancelQueries({ queryKey: inBoxKey ? inBoxCards : column(card.id) });
+        computePositionCard(targetColMoveCardKey, inBoxKey || column(card.columnId), variables.targetIndex, variables.positionCard, cardId);
 
-        // 1.2 Salva o backup dos dois estados para o onError
-        const previousSourceState = context.client.getQueryData<ColumnClient>(actualCardColumnKey);
-        const previousTargetState = context.client.getQueryData<ColumnClient>(targetColMoveCardKey);
 
-        if (targetColMoveCardKey?.[0] === actualCardColumnKey?.[0] && targetColMoveCardKey?.[1] === actualCardColumnKey?.[1]) {
-          context.client.setQueryData<ColumnClient|undefined>(actualCardColumnKey, (old) => {
-            if (!old || old.cards.length === 0) return
-            const indexCardNewPosition = old.cards.findIndex((actual) => card.id === actual.id);
-            const cards = [...old.cards];
-            cards[indexCardNewPosition].position = variables.positionCard;
-            cards.sort((a, b) => b.position - a.position);
-            const cardTarget = old.cardsMap.get(card.id);
-            const cardsMap = new Map().set(card.id, {...cardTarget, position:variables.positionCard});
-            return { ...old, cards, cardsMap } satisfies ColumnClient;
-            })
-        } else {
-          // 1.3 Altera a coluna DESTINO
-          context.client.setQueryData<ColumnClient>(targetColMoveCardKey, (old) => {
-            if (!old) return old;
-            const targetCard = previousSourceState?.cardsMap.get(variables.cardId) || previousTargetState?.cardsMap.get(variables.cardId);
-            if (!targetCard) return old;
+        return { previousSourceState, previousTargetState };
 
-            const movedCard = { ...targetCard, position: variables.positionCard, columnId: variables.columnTargetId };
-            const filteredCards = old.cards.filter((c) => c.id !== variables.cardId);
+      }
+      //Caso for só em uma coluna
+      switch (variables.operation) {
+        case "delete":
+          if (!inBoxKey) {
+            removeCard(cardId, card.columnId);
+            break;
+          }
+          removeCardInBox(card.id)
+          break;
 
-            // Ordenação decrescente
-            const cardsMove = [...filteredCards, movedCard].sort((a, b) => b.position - a.position);
+        case "change-completed":
+          setCard(card.id, { completed: !card.completed });
+          break;
+      }
 
-            const cardsMap = new Map(old.cardsMap);
-            cardsMap.set(movedCard.id, movedCard);
-            return { ...old, cards: cardsMove, cardsMap };
-          });
-
-          // 1.4 Altera a coluna de origem
-          context.client.setQueryData<ColumnClient>(actualCardColumnKey, (old) => {
-            if (!old) return old;
-            const cardsMap = new Map(old.cardsMap);
-            cardsMap.delete(variables.cardId);
-
-            const cardsMoveOriginalColumn = old.cards.filter((c) => c.id !== variables.cardId);
-            return { ...old, cards: cardsMoveOriginalColumn, cardsMap };
-          });
-        }
-
-          // 1.5 Retorna os backups para o React Query poder usar no onError
-          return { previousSourceState, previousTargetState, targetQueryKey: targetColMoveCardKey };
-        }
-
-        // =======================================================
-        // 2. OUTROS CASOS: AFETAM SÓ UMA COLUNA (Usa onMutateFunction, SEM async)
-        // =======================================================
-      return await onMutateFunction<ColumnClient>(context, cardsKey ?? column(card.columnId), (old) => {
-        const cardsMap = new Map(old.cardsMap);
-        const oldCards = [...old.cards];
-
-        switch (variables.operation) {
-          case "delete":
-            cardsMap.delete(card.id);
-            const cardsDelete = oldCards.filter((target) => target.id !== card.id);
-            return { ...old, cardsMap, cards: cardsDelete };
-
-          case "change-completed":
-            const oldCard = cardsMap.get(card.id) as CardType;
-            const newCard = { ...oldCard, completed: !oldCard?.completed };
-            const index = oldCards.findIndex((target) => target.id === card.id);
-            oldCards[index] = newCard;
-            cardsMap.set(card.id, newCard);
-            return { ...old, cardsMap, cards: oldCards };
-
-          default:
-            return { ...old, cardsMap, cards: oldCards };
-        }
-      })
+      console.log("Posição correta do card é: ");
+      return { previousState: card }
     },
-    onSuccess: (data, variables, result, context) => {
-      if (variables.operation === "move" || variables.operation === "delete" || !result || !data) return;
-      if (!("previousState" in result!)) return;
-      if (("reindexed" in data) || !data.id) return;
-      const cards = [...result.previousState.cards]
-      cards.forEach(((actual) => {
-        if (actual.id === data.id) return { ...actual }
-      }));
-      const cardsMap = new Map(result.previousState.cardsMap).set(data.id, data);
 
-  context.client.setQueryData<ColumnClient>(cardsKey ?? column(card.columnId), { ...result.previousState, cards, cardsMap });
+    onSuccess: async (data, { inBoxKey, cardId, columnTargetId, targetInBoxKey, ...variables }, result, context) => {
+      const targetColMoveCardKey = inBoxKey || column(columnTargetId as string);
+      const card = getCard(cardId);
+      if (!card) return;
+      if (data && "reindexed" in data && data.reindexed === true) {
+        await context.client.invalidateQueries({ queryKey: targetColMoveCardKey });
+        return
+      };
 
+      if (variables.operation === "delete" || !data) return;
+      if (variables.operation === "move") {
+        const targetColumn = targetInBoxKey ? getInBox() : getColumn(columnTargetId as string);
+        const sourceColumn = inBoxKey ? getInBox() : getColumn(card.columnId);
+        const cardInTargetColumn = targetColumn?.cardIds.includes(cardId);
+        const cardNotInSourceColumn = !sourceColumn?.cardIds.includes(cardId);
+        const isCorrectPosition = card.position === variables.positionCard;
+
+        //Apenas logando possíveis erros pra ajudar no debug
+        logger.wrapperFn(() => {
+          const prefix = "useMutationCard -> onSucess: Mutation Check";
+          if (!cardInTargetColumn) logger.print(prefix, "warning", "Card não está na coluna de destino");
+          if (cardNotInSourceColumn) logger.print(prefix, "warning", "Card não está na coluna de origem");
+          if (!isCorrectPosition) logger.print(prefix, "warning", "Card não está com a posição correta");
+        })
+
+      }
     },
-    onError: (error, variables, result, context) => {
+    onError: (error, { inBoxKey, cardId, columnTargetId, ...variables }, result, context) => {
+      const targetColMoveCardKey = inBoxKey || column(columnTargetId as string)
+      const card = getCard(cardId);
+      if (!card) return;
+      if (!result?.previousSourceState && !result?.previousState && !result?.previousTargetState) return;
       // 1. Reverte o estado local (UI) se foi uma tentativa de completar/descompletar
       if (variables.operation === "change-completed") {
-        setCompleted(!completed);
+        toast.error("Ocorreu um erro ao completar/descompletar o card.");
+        return;
       }
 
       // Se não houver resultado de backup, não há o que reverter
@@ -149,23 +144,31 @@ export function useMutationCards({ targetColMoveCardKey, card, cardsKey }: { tar
       // 2. Faz o Rollback do Cache do React Query
       if (variables.operation === "move") {
         // A. Reverte a coluna de origem
-        if ("previousSourceState" in result) {
-          context.client.setQueryData(cardsKey ?? column(card.columnId), result.previousSourceState);
+        if (result.previousSourceState) {
+          const sourceColumnKey = inBoxKey || column(result.previousSourceState.id);
+          context.client.setQueryData<ColumnClient | InBoxClient>(sourceColumnKey, { ...result.previousSourceState });
         }
 
         // B. Reverte a coluna de destino
-        if ("previousTargetState" in result) {
-          context.client.setQueryData(result.targetQueryKey, result.previousTargetState);
+        if (result.previousTargetState) {
+          context.client.setQueryData<ColumnClient | InBoxClient>(targetColMoveCardKey!, result.previousTargetState);
         }
+        toast.error("Não foi possível mover o card");
+        return
       } else {
         // C. Reverte as operações de uma única coluna (delete, change-completed)
         // O seu onMutateFunction retorna o backup dentro da propriedade "previousState"
-        if ("previousState" in result) {
-          context.client.setQueryData(cardsKey ?? column(card.columnId), result.previousState);
+        if (variables.operation === "delete") {
+          toast.error("Houve um erro ao deletar card.");
         }
+
+        if (result.previousState) {
+          setCard(cardId, card);
+        }
+
       }
     },
   });
 
-  return { ...props, completed, setCompleted, openDialog, setOpenDialog }
+  return { ...props, openDialog, setOpenDialog }
 }

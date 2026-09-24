@@ -3,6 +3,25 @@ import { Card } from "@/types/dataTypes";
 import { prisma } from "prisma";
 import { protectedActions } from "./wrappers";
 
+export async function getCardById(cardId:string):Promise<Card|null> {
+  return await protectedActions(async ({user:{id:ownerId}}) => {
+
+    const result = prisma.card.findUnique({
+      where:{
+        id:cardId, 
+        column:{
+          board:{ ownerId }
+        }
+      },
+      select:{ id:true, columnId:true, title:true, position:true, completed:true }
+    },
+    
+    
+  )
+  return result
+  })
+}
+
 export async function createCartForColumn({
   id,
   columnId,
@@ -103,8 +122,11 @@ export async function getColumnForInBoxUser() {
                 completed: true,
                 columnId: true,
               },
+
               orderBy: { position: "desc" },
             },
+            order: true,
+            title:true
           },
         },
       },
@@ -208,6 +230,7 @@ export const reOrderCardsFromColumns = async ({
     ]);
 
     const card = objCard.status === "fulfilled" ? objCard.value : null;
+    if (!card) return null;
     const prevCard =
       objPrevCard.status == "fulfilled"
         ? objPrevCard.value || { position: 0, id: null }
@@ -232,7 +255,7 @@ export const reOrderCardsFromColumns = async ({
         select: { id: true },
       });
 
-      if (!cards) return { reindexed: false, card: null };
+      if (!cards) return null;
 
       let caseLines = "";
       cards.forEach((value, index) => {

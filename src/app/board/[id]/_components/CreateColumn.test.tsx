@@ -2,7 +2,13 @@ import { renderWithProviders } from "@/app/util/testImplementations"
 import CreateColumnItemBtn from "./CreateColumn"
 import { screen, waitFor } from "@testing-library/dom"
 import userEvent from "@testing-library/user-event"
-import { createColumnFromBoard } from "@/actions/actions"
+import { createColumnFromBoard } from "@/actions/columnActions"
+
+vi.mock("@/actions/columnActions", () => ({
+  createColumnFromBoard: vi.fn(),
+  deleteColumnById: vi.fn(),
+  ChangeColumnTitle: vi.fn(),
+}));
 
 describe("CreateColumn Component testing", () => {
   beforeAll(() => {
@@ -29,6 +35,8 @@ describe("CreateColumn Component testing", () => {
 
   test("Os dados são enviados com os valores corretos", async () => {
 
+    const serverAction = vi.mocked(createColumnFromBoard);
+    serverAction.mockResolvedValueOnce({ id: "col-nova", title: "Uma coluna legal", order: 100 });
     const user = userEvent.setup();
     renderWithProviders(<CreateColumnItemBtn></CreateColumnItemBtn>);
     const btnNewColumn = screen.getByRole("button", { name: "create-new-column" });
@@ -39,12 +47,14 @@ describe("CreateColumn Component testing", () => {
     expect(titleColumn).toBeInTheDocument();
     expect(submitForm).toBeInTheDocument();
 
-    const serverAction = vi.mocked(createColumnFromBoard);
     await user.type(titleColumn, "Uma coluna legal")
     await user.click(submitForm);
-    await waitFor(async () => {
-      expect(serverAction).toHaveBeenCalledWith({ boardId: "board-123", idColumn: expect.any(String), titleColumn: "Uma coluna legal" },
-      expect.objectContaining({mutationKey:["column", "create"]}))
+    await waitFor(() => {
+      expect(serverAction).toHaveBeenCalledWith({
+        boardId: "board-123",
+        idColumn: expect.any(String),
+        titleColumn: "Uma coluna legal",
+      })
     })
   })
 

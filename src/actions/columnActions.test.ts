@@ -2,15 +2,24 @@ import { prisma } from "prisma";
 import { protectedActions } from "@/actions/wrappers";
 import {
   getColumnById,
+  getAllColumnsById,
   createColumnFromBoard,
   ChangeColumnTitle,
-  DeleteColumn,
+  deleteColumnById,
 } from "./columnActions";
+
+
+vi.mock("@/actions/columnActions", async () => {
+  const actual = await vi.importActual("./columnActions");
+  return {...actual}
+})
+
 
 vi.mock("prisma", () => ({
   prisma: {
     column: {
       findUnique: vi.fn(),
+      findMany: vi.fn(),
       findFirst: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
@@ -35,29 +44,47 @@ const selectColumn = {
     orderBy: { position: "desc" },
   },
 };
-
 describe("getColumnById", () => {
   it("busca a coluna com os cards ordenados por posição", async () => {
     const column = {
-      id: "col-1",
-      boardId: "board-1",
-      title: "A Fazer",
-      order: 100,
-      cards: [{ id: "card-1", title: "Tarefa", position: 200, completed: false, columnId: "col-1" }],
+      title: "Coluna Bacana!", id: "col-1", order: 100, boardId:"board-123",
+      cards: [{ id: "card-1", title: "legal", completed:false, columnId:"col-1", position:100 }]
     };
     vi.mocked(prisma.column.findUnique).mockResolvedValueOnce(column as never);
-
-    await expect(getColumnById("col-1")).resolves.toEqual(column);
+  
+    await expect(getColumnById("col-1", "board-123")).resolves.toEqual(column);
     expect(prisma.column.findUnique).toHaveBeenCalledWith({
-      where: { id: "col-1" },
+      where: { id: "col-1", board: { id: "board-123", ownerId: "test-user" } },
       select: selectColumn,
     });
   });
 
   it("é executada por meio do protectedActions", async () => {
     vi.mocked(prisma.column.findUnique).mockResolvedValueOnce(null as never);
-    await getColumnById("col-1");
+    await getColumnById("col-1","board-123");
     expect(protectedActions).toHaveBeenCalled();
+  });
+});
+
+describe("getAllColumnsById", () => {
+  it("retorna somente as colunas solicitadas do board do usuário", async () => {
+    const columns = [{ id: "col-1", boardId: "board-1", title: "A Fazer", order: 100, cards: [] }];
+    vi.mocked(prisma.column.findMany).mockResolvedValueOnce(columns as never);
+
+    await expect(getAllColumnsById(["col-1"], "board-1")).resolves.toEqual(columns);
+    expect(prisma.column.findMany).toHaveBeenCalledWith({
+      where: { board: { id: "board-1", ownerId: "test-user" }, id: { in: ["col-1"] } },
+      select: {
+        boardId: true,
+        id: true,
+        cards: {
+          select: { id: true, title: true, completed: true, position: true, description: true, columnId: true },
+          orderBy: { position: "desc" },
+        },
+        title: true,
+        order: true,
+      },
+    });
   });
 });
 
@@ -128,7 +155,7 @@ describe("DeleteColumn", () => {
   it("deleta a coluna apenas se pertencer ao board do usuário", async () => {
     vi.mocked(prisma.column.delete).mockResolvedValueOnce({ id: "col-1" } as never);
 
-    await DeleteColumn({ id: "col-1" });
+    await deleteColumnById({ id: "col-1" });
 
     expect(prisma.column.delete).toHaveBeenCalledWith({
       where: { id: "col-1", board: { ownerId: "test-user" } },

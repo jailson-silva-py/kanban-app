@@ -8,9 +8,11 @@ import { protectedActions } from "./wrappers";
 export async function createBoardFromUser({
   title,
   id,
+  gradient,
 }: {
   title: string;
   id?: string;
+  gradient?:string,
 }): Promise<BoardSimple | undefined> {
   const ownerId = (await auth())?.user?.id;
 
@@ -18,8 +20,8 @@ export async function createBoardFromUser({
 
   try {
     const board = await prisma.board.create({
-      data: { id, title, ownerId },
-      select: { id: true, title: true },
+      data: { id, title, ownerId, gradient },
+      select: { id: true, title: true, gradient:true },
     });
 
     return board;
@@ -48,8 +50,8 @@ export async function getBoardById(id: string): Promise<BoardFull | null> {
 export async function getAllBoardFromUser() {
   return protectedActions<BoardSimple[]>((session) =>
     prisma.board.findMany({
-      where: { ownerId: session.user?.id, isInbox: false },
-      select: { id: true, title: true },
+      where: { ownerId: session.user.id, isInbox: false },
+      select: { id: true, title: true, gradient:true },
       orderBy: { updatedAt: "desc" },
     }),
   );

@@ -1,6 +1,6 @@
 "use client";
 import { screen, waitFor } from "@testing-library/react"
-import InBox from "./InBox."
+import InBox from "./InBox"
 import { renderWithProviders } from "@/app/util/testImplementations"
 
 describe("Inbox component testing", () => {

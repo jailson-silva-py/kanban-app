@@ -3,20 +3,18 @@ import { Card, Column, ColumnSkeleton } from "./dataTypes";
 export type CardsClient = Map<string, Card>
 export type ColumnsClient<T = Column|ColumnSkeleton> = Map<string, T>
 
-export type BoardClient<T extends Column | ColumnSkeleton> = {
+export type BoardClient = {
   id: string,
   title: string,
-  columns: ColumnsClient<T>,
+  columnIds: string[],
 }
 
 export type ColumnClient = {
   id: string,
   title: string,
   order: number,
-  cards: Card[],
-  cardsMap:CardsClient,
-  boardId:string,
-
+  cardIds: string[],
+  boardId: string,
 }
 
-export type InBoxClient = {id:string, cards:Card[], cardsMap:CardsClient}
+export type InBoxClient = {id: string, order:number, title:string, cardIds: string[]}

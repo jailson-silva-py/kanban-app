@@ -1,6 +1,7 @@
 import { prisma } from "prisma";
 import { protectedActions } from "@/actions/wrappers";
 import {
+  getCardById,
   createCartForColumn,
   createCartForColumnInBox,
   getColumnForInBoxUser,
@@ -8,6 +9,11 @@ import {
   DeleteCard,
   reOrderCardsFromColumns,
 } from "./cardActions";
+
+vi.mock("@/actions/cardActions", async () => {
+  const actual = await vi.importActual("./cardActions");
+  return {...actual}
+})
 
 vi.mock("prisma", () => ({
   prisma: {
@@ -33,6 +39,19 @@ const selectCard = {
   completed: true,
   columnId: true,
 };
+
+describe("getCardById", () => {
+  it("retorna o card somente quando ele pertence ao board do usuário", async () => {
+    const card = { id: "card-1", columnId: "col-1", title: "Tarefa", position: 100, completed: false };
+    vi.mocked(prisma.card.findUnique).mockResolvedValueOnce(card as never);
+
+    await expect(getCardById("card-1")).resolves.toEqual(card);
+    expect(prisma.card.findUnique).toHaveBeenCalledWith({
+      where: { id: "card-1", column: { board: { ownerId: "test-user" } } },
+      select: selectCard,
+    });
+  });
+});
 
 describe("createCartForColumn", () => {
   it("cria o card com position 100 quando não há cards na coluna", async () => {
@@ -193,6 +212,8 @@ describe("getColumnForInBoxUser", () => {
   it("retorna a primeira coluna do board inbox com os cards", async () => {
     const columnData = {
       id: "col-inbox",
+      order:100,
+      title:"inBox",
       cards: [{ id: "card-1", position: 100, title: "Anotação", completed: false, columnId: "col-inbox" }],
     };
     vi.mocked(prisma.board.findFirst).mockResolvedValueOnce({ columns: [columnData] } as never);
@@ -206,6 +227,8 @@ describe("getColumnForInBoxUser", () => {
           take: 1,
           select: {
             id: true,
+            order:true,
+            title:true,
             cards: {
               select: { position: true, title: true, id: true, completed: true, columnId: true },
               orderBy: { position: "desc" },
@@ -353,7 +376,7 @@ describe("reOrderCardsFromColumns", () => {
     expect(rawQuery).toContain("'col-1'");
   });
 
-  it("retorna card null quando a atualização do card falha", async () => {
+  it("retorna null quando a atualização do card falha", async () => {
     vi.mocked(prisma.card.update).mockRejectedValueOnce(new Error("falha"));
 
     const result = await reOrderCardsFromColumns({
@@ -362,7 +385,7 @@ describe("reOrderCardsFromColumns", () => {
       positionCard: 150,
     });
 
-    expect(result).toEqual({ reindexed: false, card: null });
+    expect(result).toEqual(null);
   });
 
   it("trata falhas na busca dos vizinhos como posição 0 sem quebrar", async () => {
@@ -406,7 +429,7 @@ describe("reOrderCardsFromColumns", () => {
       nextCardId: "next-1",
     });
 
-    expect(result).toEqual({ reindexed: false, card: null });
+    expect(result).toEqual(null);
     expect(prisma.$executeRawUnsafe).not.toHaveBeenCalled();
   });
 
