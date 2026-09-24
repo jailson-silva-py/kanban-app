@@ -1,66 +1,52 @@
 "use client";
 import BtnInputEditColumnTitle from "./BtnInputEditColumnTitle";
 import CardsColumn from "./CardsColumn";
-import { useDroppable } from "@dnd-kit/react";
-import { CollisionPriority } from "@dnd-kit/abstract";
 import CardsLoading from "@/components/CardsLoading";
 import { useGetColumn } from "@/hooks/useGetColumn";
 import { AddCartColumn } from "./AddCardColumnBtn";
-import { CardsContent } from "@/components/CardsContent";
-import Card from "@/components/Card";
+import { CardsContainer } from "@/app/board/[id]/_components/CardsContainer";
 import BtnDeleteColumn from "./MenuOperationsCol";
-
+import { useParams } from "next/navigation";
 
 type Iprops = {
   id: string;
-  boardId: string;
 } & React.ComponentProps<"li">;
 
-function ColumnBoard({ id, boardId,  ...props }: Iprops) {
+function ColumnBoard({ id, ...props }: Iprops) {
 
-  const { isPending, data, isPlaceholderData } = useGetColumn(id, boardId as string)
+  const { id: boardId } = useParams<{ id: string }>();
+  const { isLoading, data, isPlaceholderData } = useGetColumn(
+    id,
+    boardId,
+  );
 
-  const { ref } = useDroppable({
-    id: `column-${id}`,
-    type: "column",
-    accept: "card",
-    collisionPriority: CollisionPriority.Low,
-  });
   return (
-
     <li
       {...props}
-      ref={ref}
       className={`flex flex-col shadow-shadow shadow-default bg-primary/30 rounded-sm w-65 shrink-0 grow-0 max-h-[75vh]`}
     >
       <BtnInputEditColumnTitle
         columnTitle={data?.title || ""}
         columnId={id}
         boardId={data?.boardId as string}
-          >
-          <BtnDeleteColumn columnId={id} />
+      >
+        <BtnDeleteColumn boardId={boardId} columnId={id} />
       </BtnInputEditColumnTitle>
 
-          <CardsColumn>
-          <AddCartColumn columnId={data?.id as string} textForArea="Adicione um cartão gostosinho">
-              Adicionar um cartão
-          </AddCartColumn>
-            {!isPending && data && !isPlaceholderData && (
-              <CardsContent
-                columnId={data.id}
-                id={`column-${data.id}`}
-                style={{overflowX:"visible"}}
-                className="p-4 flex-8 overflow-y-auto shrink-0 basis-96 duration-2000 ease-in-out"
-              >
-                {data.cards.map((card) => {
-                  return <Card key={card.id} card={card} />;
-                })}
-              </CardsContent>
-            )}
-            {(isPending || isPlaceholderData) && <CardsLoading />}
-          </CardsColumn>
+      <CardsColumn>
+        <AddCartColumn
+          columnId={data?.id as string}
+          textForArea="Adicione um cartão gostosinho"
+        >
+          Adicionar um cartão
+        </AddCartColumn>
+        {!isLoading && data && !isPlaceholderData ? (
+          <CardsContainer cardIds={data.cardIds} columnId={data.id} />
+        ) :
+          <CardsLoading />
+        }
+      </CardsColumn>
     </li>
-
   );
 }
 

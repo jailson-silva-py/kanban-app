@@ -1,37 +1,29 @@
 "use client";
-import { getBoardById, getColumnById } from "@/actions/actions";
-import {  useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import {  ColumnClient, ColumnsClient } from "@/types/clientDataTypes";
-import { Card } from "@/generated/client";
-import { arrayTransformToMap } from "@/app/util/arrayTransformToMap";
-import { Column } from "@/types/dataTypes";
+import { getColumnById } from "@/actions/actions";
+import { useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
+import { ColumnClient } from "@/types/clientDataTypes";
+import { column } from "@/constrants/queryKeys";
+import { useQueryColumn } from "./useQueryColumn";
 
-export const useGetColumn = (columnId: string, boardId: string, queryOptions?:Omit<UseQueryOptions<ColumnClient | null>, 'queryKey' | 'queryFn'>): UseQueryResult<ColumnClient|null> => {
+/** Busca uma coluna, hidrata seus cards individuais e salva a versão reduzida no cache. */
+export const useGetColumn = (columnId: string, boardId: string, queryOptions?: Omit<UseQueryOptions<ColumnClient | null>, 'queryKey' | 'queryFn'>): UseQueryResult<ColumnClient | null> => {
 
-  const { data: board, isLoading } = useQuery({ queryKey: ["board", boardId], queryFn: async () => getBoardById(boardId), enabled: false, gcTime: Infinity, staleTime: Infinity });
-
-
-  const column = (board?.columns as ColumnsClient<Column> | undefined)?.get(columnId)
-
+  const { getColumn, setColumn, createColumnClient, createCardsInitialData } = useQueryColumn();
+  const initialData = getColumn(columnId);
   const result = useQuery({
-    placeholderData: {
-      ...column, cardsMap: new Map<string, Card>()
-    } as ColumnClient,
-    queryKey:['column', columnId],
+    initialData,
+    queryKey: column(columnId),
     queryFn: async () => {
-      const columnData = await getColumnById(columnId);
+      const columnData = await getColumnById(columnId, boardId);
       if (!columnData) {
         return null;
       }
+      createCardsInitialData(columnData);
+      const columnClient = createColumnClient(columnData);
+      setColumn(columnId, columnClient);
 
-      const result: ColumnClient = {
-        ...columnData,
-        cardsMap: arrayTransformToMap(columnData.cards),
-      }
-
-      return result
+      return columnClient
     },
-    enabled: !isLoading,
     ...queryOptions,
   });
 

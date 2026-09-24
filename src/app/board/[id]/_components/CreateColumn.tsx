@@ -1,11 +1,11 @@
 "use client";
 import { createColumnFromBoard } from "@/actions/actions";
-import { onMutateFunction } from "@/app/util/mutations";
+
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { board } from "@/constrants/queryKeys";
+import { useMutationColumns } from "@/hooks/useMutationColumns";
 import useOutClick from "@/hooks/useOutClick";
-import { BoardClient } from "@/types/clientDataTypes";
-import { ColumnSkeleton } from "@/types/dataTypes";
+import { BoardFull } from "@/types/dataTypes";
 import { useMutation } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 
@@ -20,45 +20,12 @@ import {
 import { TbPlus } from "react-icons/tb";
 
 const CreateColumnItemBtn = () => {
-  const params = useParams();
 
+  const params = useParams();
   const [createMode, setCreateMode] = useState(false);
-  const queryKey = board(params.id as string);
   const ref = useOutClick<HTMLFormElement>(() => setCreateMode(false));
   const refInput = useRef<HTMLInputElement>(null);
-
-  const { mutate, isPending } = useMutation({
-    mutationKey:["column", "create"],
-    mutationFn: createColumnFromBoard,
-    onMutate: async (variables, context) => {
-      return await onMutateFunction<BoardClient<ColumnSkeleton>>(
-        context,
-        queryKey,
-        (old) => {
-          const { idColumn: id, titleColumn: title } = variables;
-          if (!id) throw new Error("ID não atribuído");
-          const columns = new Map(old.columns);
-          columns.set(id, { id, title, order: Infinity });
-          return { ...old, columns };
-        },
-      );
-    },
-    onError: (error, variables, result, context) => {
-      if (!result?.previousState) return;
-      context.client.setQueryData(queryKey, result.previousState);
-    },
-
-    onSuccess: (data, variables, result, context) => {
-      const { idColumn: id } = variables;
-      if (!result?.previousState || !id) return;
-      const columns = new Map(result.previousState.columns);
-      columns.set(id, data);
-      context.client.setQueryData(queryKey, {
-        ...result.previousState,
-        columns,
-      });
-    },
-  });
+  const { mutate, isPending } = useMutationColumns();
 
   const handleChangeCreateMode = (e: MouseEvent) => {
     e.preventDefault();
@@ -68,11 +35,11 @@ const CreateColumnItemBtn = () => {
   const onCreateColumn = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const titleColumn = formData.get("title_column") as string;
-    const idColumn = crypto.randomUUID();
+    const title = formData.get("title_column") as string;
+    const columnId = crypto.randomUUID();
 
     mutate(
-      { boardId: params.id as string, idColumn, titleColumn },
+      { operation: "create", boardId: params.id as string, columnId, title },
       {
         onSuccess: () => {
           setCreateMode(false);

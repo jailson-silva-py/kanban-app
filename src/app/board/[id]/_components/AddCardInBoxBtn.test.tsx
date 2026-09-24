@@ -55,7 +55,7 @@ describe("AddCartInBoxBtn Component testing", () => {
     const textoTitleCart = "Meu cart legal!";
     await user.type(textArea, textoTitleCart)
     await user.click(btnCreateCart);
-    expect(createCartForColumnInBox).toHaveBeenCalledWith({id:expect.any(String), title:textoTitleCart})
+    expect(createCartForColumnInBox).toHaveBeenCalledWith({ id: expect.any(String), title: textoTitleCart })
 
   })
 });

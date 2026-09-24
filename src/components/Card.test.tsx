@@ -1,139 +1,119 @@
-import { renderWithProviders } from "@/app/util/testImplementations";
-import Card from "./Card";
-import { Card as CardType } from "@/types/dataTypes";
-import { screen, waitFor } from "@testing-library/dom";
-import userEvent from "@testing-library/user-event";
-import * as cardActions from "@/actions/cardActions";
 import { QueryClient } from "@tanstack/react-query";
-import { column } from "@/constrants/queryKeys";
+import { act } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { card as cardKey, column } from "@/constrants/queryKeys";
+import { renderWithProviders } from "@/app/util/testImplementations";
+import { Card as CardType } from "@/types/dataTypes";
 import { ColumnClient } from "@/types/clientDataTypes";
+import * as cardActions from "@/actions/cardActions";
+import Card from "../app/board/[id]/_components/Card";
+
+const draggableConfigs: Array<Record<string, unknown>> = [];
+
+vi.mock("@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter", () => ({
+  draggable: vi.fn((config) => {
+    draggableConfigs.push(config);
+    return vi.fn();
+  }),
+}));
 
 vi.mock("@/actions/cardActions", async () => {
   const actual = await vi.importActual<typeof import("@/actions/cardActions")>("@/actions/cardActions");
-  return {
-    ...actual,
-    ChangeCompletedCard: vi.fn().mockResolvedValue({ id: "card", columnId: "col-1", completed: true, position: 100, title: "Cartão maneiro" }),
-    DeleteCard: vi.fn().mockResolvedValue({ id: "card", columnId: "col-1", completed: false, position: 100, title: "Cartão maneiro" }),
-    reOrderCardsFromColumns: vi.fn(),
-  };
+  return { ...actual, ChangeCompletedCard: vi.fn(), DeleteCard: vi.fn(), reOrderCardsFromColumns: vi.fn() };
 });
 
-
-let queryClient: QueryClient;
-
 const card: CardType = {
-  id: "card",
+  id: "card-1",
   columnId: "col-1",
   completed: false,
-  position: 100,
+  position: 300,
   title: "Cartão maneiro",
 };
 
-beforeEach(() => {
-  queryClient = new QueryClient({
-    defaultOptions: {
-      mutations: { retry: false },
-      queries: { retry: false },
-    },
-  });
+const createQueryClient = () => new QueryClient({
+  defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { retry: false } },
+});
 
-  queryClient.setQueryData<ColumnClient>(column(card.columnId), () => {
-    return {
-      boardId: "board123",
-      cardsMap: new Map().set(card.id, { ...card }),
-      cards: [{ ...card }],
-      id: "card",
-      order: 100,
-      title:"Coluna Bacana"
-    } satisfies ColumnClient
+const createColumn = (cardIds = [card.id]): ColumnClient => ({
+  id: "col-1", title: "Coluna Bacana", order: 100, boardId: "board-123", cardIds,
+});
 
-  })
-})
+const seedCard = (queryClient: QueryClient, cardIds = [card.id]) => {
+  queryClient.setQueryData(cardKey(card.id), card);
+  queryClient.setQueryData(column(card.columnId), createColumn(cardIds));
+};
 
+const createCardList = (queryClient: QueryClient, cardIds = [card.id]) => {
+  queryClient.setQueryData(column(card.columnId), createColumn(cardIds));
+};
+
+const renderCard = (queryClient: QueryClient) => {
+  seedCard(queryClient);
+  renderWithProviders(<Card id={card.id} index={0} />, queryClient);
+};
 
 describe("Card Component testing", () => {
-
-  test("Card possui o Menu Flutuante com deletar e completar card junto com o checkbox completar", async () => {
-    const user = userEvent.setup();
-    renderWithProviders(<Card card={card}></Card>, queryClient);
-    const btnMenuDots = screen.getByRole("button", { name: "more-options" });
-    const checkBoxCompleted = screen.getByRole("checkbox", {
-      name: "checkbox-completed-card",
-    });
-    expect(btnMenuDots).toBeInTheDocument();
-    expect(checkBoxCompleted).toBeInTheDocument();
-    await user.click(btnMenuDots);
-    const btnDeleteCard = screen.getByRole("button", {
-      name: "delete-card-btn",
-    });
-    const btnCompletedCard = screen.getByRole("button", {
-      name: "completed-card-btn",
-    });
-    expect(btnDeleteCard).toBeInTheDocument();
-    expect(btnCompletedCard).toBeInTheDocument();
+  beforeEach(() => {
+    draggableConfigs.length = 0;
+    vi.mocked(cardActions.ChangeCompletedCard).mockResolvedValue({ ...card, completed: true });
+    vi.mocked(cardActions.DeleteCard).mockResolvedValue(card);
+    vi.mocked(cardActions.reOrderCardsFromColumns).mockResolvedValue({ reindexed: false, card });
   });
 
-  test("Ao clickar no checkbox, é chamado a server action pra mudar o estado do completed com os dados corretos", async () => {
-    const mockChangeCompletedAction = vi.spyOn(cardActions, "ChangeCompletedCard");
-    const user = userEvent.setup();
-    renderWithProviders(<Card card={card}></Card>, queryClient);
-    const btnMenuDots = screen.getByRole("button", { name: "more-options" });
-    await user.click(btnMenuDots);
-    const completedBtn = screen.getByRole("button", { name: "completed-card-btn" });
-    await user.click(completedBtn);
-    await waitFor(() => {
-      expect(mockChangeCompletedAction).toHaveBeenCalledWith({ id: card.id });
-      expect(screen.getByRole("img", { name: "completed-svg" })).toBeInTheDocument();
-    });
+  it("renderiza o card salvo no cache e seus controles", async () => {
+    const queryClient = createQueryClient();
+    renderCard(queryClient);
+
+    expect(screen.getByRole("listitem", { name: "card" })).toBeInTheDocument();
+    expect(screen.getByText(card.title)).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("button", { name: "more-options" }));
+    expect(screen.getByRole("button", { name: "delete-card-btn" })).toBeInTheDocument();
   });
 
-  test("Ao clickar no checkbox, é mutado optimisticamente o card correto tanto no cardsMap quando em cards", async () => {
+  it("completa o card e altera o card individual no cache", async () => {
+    const queryClient = createQueryClient();
+    renderCard(queryClient);
     const user = userEvent.setup();
-    renderWithProviders(<Card card={card}></Card>, queryClient);
-    const menuDots = screen.getByRole("button", { name: "more-options" });
-    await user.click(menuDots);
-    const completedBtn = screen.getByRole("button", { name: "completed-card-btn" });
-    await user.click(completedBtn);
-    await waitFor(() => {
-      const columnData = queryClient.getQueryData<ColumnClient>(column(card.columnId));
-      const mutateCard = columnData?.cards.find((target) => target.id === card.id)
-      const mutateCardFromMap = columnData?.cardsMap.get(card.id)
-      expect(mutateCard?.completed).toBe(true);
-      expect(mutateCardFromMap?.completed).toBe(true);
-    });
+    await user.click(screen.getByRole("button", { name: "more-options" }));
+    await user.click(screen.getByRole("button", { name: "completed-card-btn" }));
+
+    await waitFor(() => expect(cardActions.ChangeCompletedCard).toHaveBeenCalledWith({ id: card.id }));
+    expect(queryClient.getQueryData<CardType>(cardKey(card.id))?.completed).toBe(true);
   });
 
-  test("Ao mutar (pode ser marcar como completo ou deletar) e der erro, o estado atual do card é restaurado", async () => {
-    const mockChangeCompletedCardAction = vi.spyOn(cardActions, "ChangeCompletedCard");
-    mockChangeCompletedCardAction.mockRejectedValueOnce(new Error());
+  it("remove o card do cache ao executar a exclusão", async () => {
+    const queryClient = createQueryClient();
+    renderCard(queryClient);
     const user = userEvent.setup();
-    renderWithProviders(<Card card={card}></Card>, queryClient);
-    const menuDots = screen.getByRole("button", { name: "more-options" });
-    await user.click(menuDots);
-    const completedBtn = screen.getByRole("button", { name: "completed-card-btn" });
-    await user.click(completedBtn);
-    await waitFor(() => {
-      const columnData = queryClient.getQueryData<ColumnClient>(column(card.columnId));
-      const mutateCard = columnData?.cards.find((target) => target.id === card.id);
-      const mutateCardFromMap = columnData?.cardsMap.get(card.id);
-      expect(mutateCard?.completed).toBe(false);
-      expect(mutateCardFromMap?.completed).toBe(false);
-    });
+    await user.click(screen.getByRole("button", { name: "more-options" }));
+    await user.click(screen.getByRole("button", { name: "delete-card-btn" }));
+
+    await waitFor(() => expect(cardActions.DeleteCard).toHaveBeenCalledWith({ id: card.id }));
+    expect(queryClient.getQueryData<CardType>(cardKey(card.id))).toBeUndefined();
   });
 
-  test("Ao clickar em deletar, é atualizado os dados da coluna correta optimisticamente tanto no map quanto no array", async () => {
-    const user = userEvent.setup();
-    renderWithProviders(<Card card={card}></Card>, queryClient)
-    const menuDots = screen.getByRole("button", { name: "more-options" });
-    await user.click(menuDots);
-    const deleteBtn = screen.getByRole("button", { name: "delete-card-btn" });
-    await user.click(deleteBtn);
+  it("registra no draggable os dados do card e do índice atual", async () => {
+    const queryClient = createQueryClient();
+    const nextCard = { ...card, id: "card-2", position: 100 };
+    queryClient.setQueryData(cardKey(card.id), card);
+    queryClient.setQueryData(cardKey(nextCard.id), nextCard);
+    createCardList(queryClient, [nextCard.id, card.id]);
+    renderWithProviders(<Card id={card.id} index={0} />, queryClient);
 
-    const columnData = queryClient.getQueryData<ColumnClient>(column(card.columnId));
-    expect(columnData).toBeDefined();
+    await waitFor(() => expect(draggableConfigs).toHaveLength(1));
+    const getInitialData = draggableConfigs.at(-1)?.getInitialData as () => Record<string, unknown>;
+    expect(getInitialData()).toEqual({ index: 0, cardId: card.id, columnId: card.columnId });
+    expect(queryClient.getQueryData<CardType>(cardKey(card.id))?.position).toBe(card.position);
+  });
 
-    //o card tem que sumir do cards e cardsMap da coluna em que está
-    expect(columnData?.cards.some((target) => target.id === card.id)).toBe(false);
-    expect(columnData?.cardsMap.has(card.id)).toBe(false);
+  it("não chama a mutation quando o drop não possui alvo", async () => {
+    const queryClient = createQueryClient();
+    renderCard(queryClient);
+    await waitFor(() => expect(draggableConfigs).toHaveLength(1));
+    (draggableConfigs.at(-1)?.onDrop as (args: { location: { current: { dropTargets: [] } } }) => void)({
+      location: { current: { dropTargets: [] } },
+    });
+    expect(cardActions.reOrderCardsFromColumns).not.toHaveBeenCalled();
   });
 });

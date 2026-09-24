@@ -1128,7 +1128,8 @@ export const BoardScalarFieldEnum = {
   isInbox: 'isInbox',
   ownerId: 'ownerId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  gradient: 'gradient'
 } as const
 
 export type BoardScalarFieldEnum = (typeof BoardScalarFieldEnum)[keyof typeof BoardScalarFieldEnum]

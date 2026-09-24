@@ -63,5 +63,5 @@ export type BoardFull = BoardGetPayload<{
 }>;
 
 export type BoardSimple = BoardGetPayload<{
-  select: { id: true; title: true };
+  select: { id: true; title: true, gradient:true };
 }>;

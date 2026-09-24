@@ -10,6 +10,14 @@ import {
   changeUsername,
 } from "./userActions";
 
+
+vi.mock("@/actions/cardActions", async(importOriginal) => {
+  const actual = await vi.importActual("./cardActions");
+  return {...actual}
+})
+
+
+
 vi.mock("prisma", () => ({
   prisma: {
     user: { findFirst: vi.fn(), count: vi.fn(), update: vi.fn() },
@@ -21,7 +29,7 @@ vi.mock("@/libs/cloudinary", () => ({
   cloudinary: { uploader: { upload: vi.fn() } },
 }));
 
-const session = { user: { id: "123", email: "test@example.com" } };
+const session = { user: { id: "test-user", email: "test@example.com" } };
 const selectUser = {
   name: true,
   image: true,
@@ -54,7 +62,7 @@ describe("getUser", () => {
 
     await expect(getUser()).resolves.toEqual(user);
     expect(prisma.user.findFirst).toHaveBeenCalledWith({
-      where: { id: "123" },
+      where: { id: "test-user" },
       select: selectUser,
     });
   });

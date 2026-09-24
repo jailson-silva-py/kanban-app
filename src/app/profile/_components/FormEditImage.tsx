@@ -1,6 +1,6 @@
 "use client";
 import { updateImageUser } from "@/actions/actions";
-import { onMutateFunction } from "@/app/util/mutations";
+import { logger } from "@/app/util/logger";
 import { toast } from "@/app/util/toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { profile } from "@/constrants/queryKeys";
@@ -10,24 +10,40 @@ import Image from "next/image";
 import { ChangeEvent } from "react";
 import { TbPhotoEdit } from "react-icons/tb";
 
-type mutationArgs = {url:string,imagePrevUrl:string}
+type mutationArgs = { url: string, imagePrevUrl: string }
 
 export default function FormEditImage({ user }: { user: User }) {
-  const { variables, mutate, isPending,  } = useMutation({
-    mutationKey: ["profile", "update", "image"], mutationFn: async({url, imagePrevUrl}:mutationArgs) => updateImageUser({url}),
-    onMutate: (variables, context) => {
-      return onMutateFunction<User>(context, profile, (old) => {
-        return {...old, image:variables.imagePrevUrl as string}
+  const { variables, mutate, isPending, } = useMutation({
+    mutationKey: ["profile", "update", "image"], mutationFn: async ({ url, imagePrevUrl }: mutationArgs) => updateImageUser({ url }),
+    onMutate: async (variables, context) => {
+      await context.client.cancelQueries({ queryKey: profile })
+      const previousState = context.client.getQueryData(profile);
+      if (!previousState) return;
+      context.client.setQueryData<User>(profile, (old) => {
+
+        if (!old) return;
+        return { ...old, image: variables.imagePrevUrl }
+
       })
+      return { previousState }
     },
     onError: (error, variables, result, context) => {
       toast.error("Ocorreu um erro ao salvar a imagem.");
-      context.client.setQueryData(profile, {...result?.previousState})
+      if (!result?.previousState) {
+        logger.print("ProfilePage -> FormEditImage -> onError", "error", "Não foi possível fazer o rollback dos dados");
+        return
+      };
+      context.client.setQueryData(profile, { ...result.previousState });
     },
     onSuccess: async (data, variables, result, context) => {
-      if (!result?.previousState) return
-      await context.client.invalidateQueries({ queryKey:profile })
-      context.client.setQueryData<User>(profile, {...result?.previousState, image:data})
+      if (!result?.previousState) {
+        logger.print("ProfilePage -> FormEditImage -> onSuccess", "warning", "Não foi possível atualizar os dados com o objeto data")
+        return
+      }
+      context.client.setQueryData<User>(profile, (old) => {
+        if (!old) return;
+        return { ...old, image: data }
+      })
     }
   })
 
@@ -36,7 +52,7 @@ export default function FormEditImage({ user }: { user: User }) {
     fileReader.onload = (e) => {
       const base64String = e?.target?.result;
       if (!base64String) return;
-      mutate({ imagePrevUrl:base64String as string,url: base64String as string })
+      mutate({ imagePrevUrl: base64String as string, url: base64String as string })
     }
     e.preventDefault();
     const arquivo = e.currentTarget.files?.[0]
@@ -67,7 +83,7 @@ export default function FormEditImage({ user }: { user: User }) {
           ></Image>
         </div>
         <div className="shadow-shadow shadow-medium flex items-center justify-center size-8 absolute -bottom-2 right-0 -translate-y-1/2  backdrop-blur-2xl -translate-x-1 bg-text/20 rounded-full">
-          {isPending ? <LoadingSpinner/> : <TbPhotoEdit size={24} />}
+          {isPending ? <LoadingSpinner /> : <TbPhotoEdit size={24} />}
         </div>
       </button>
     </label>

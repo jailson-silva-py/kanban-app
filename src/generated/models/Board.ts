@@ -31,6 +31,7 @@ export type BoardMinAggregateOutputType = {
   ownerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  gradient: string | null
 }
 
 export type BoardMaxAggregateOutputType = {
@@ -40,6 +41,7 @@ export type BoardMaxAggregateOutputType = {
   ownerId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  gradient: string | null
 }
 
 export type BoardCountAggregateOutputType = {
@@ -49,6 +51,7 @@ export type BoardCountAggregateOutputType = {
   ownerId: number
   createdAt: number
   updatedAt: number
+  gradient: number
   _all: number
 }
 
@@ -60,6 +63,7 @@ export type BoardMinAggregateInputType = {
   ownerId?: true
   createdAt?: true
   updatedAt?: true
+  gradient?: true
 }
 
 export type BoardMaxAggregateInputType = {
@@ -69,6 +73,7 @@ export type BoardMaxAggregateInputType = {
   ownerId?: true
   createdAt?: true
   updatedAt?: true
+  gradient?: true
 }
 
 export type BoardCountAggregateInputType = {
@@ -78,6 +83,7 @@ export type BoardCountAggregateInputType = {
   ownerId?: true
   createdAt?: true
   updatedAt?: true
+  gradient?: true
   _all?: true
 }
 
@@ -160,6 +166,7 @@ export type BoardGroupByOutputType = {
   ownerId: string
   createdAt: Date
   updatedAt: Date
+  gradient: string
   _count: BoardCountAggregateOutputType | null
   _min: BoardMinAggregateOutputType | null
   _max: BoardMaxAggregateOutputType | null
@@ -190,6 +197,7 @@ export type BoardWhereInput = {
   ownerId?: Prisma.StringFilter<"Board"> | string
   createdAt?: Prisma.DateTimeFilter<"Board"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Board"> | Date | string
+  gradient?: Prisma.StringFilter<"Board"> | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   columns?: Prisma.ColumnListRelationFilter
 }
@@ -201,6 +209,7 @@ export type BoardOrderByWithRelationInput = {
   ownerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  gradient?: Prisma.SortOrder
   owner?: Prisma.UserOrderByWithRelationInput
   columns?: Prisma.ColumnOrderByRelationAggregateInput
 }
@@ -215,6 +224,7 @@ export type BoardWhereUniqueInput = Prisma.AtLeast<{
   ownerId?: Prisma.StringFilter<"Board"> | string
   createdAt?: Prisma.DateTimeFilter<"Board"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Board"> | Date | string
+  gradient?: Prisma.StringFilter<"Board"> | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   columns?: Prisma.ColumnListRelationFilter
 }, "id">
@@ -226,6 +236,7 @@ export type BoardOrderByWithAggregationInput = {
   ownerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  gradient?: Prisma.SortOrder
   _count?: Prisma.BoardCountOrderByAggregateInput
   _max?: Prisma.BoardMaxOrderByAggregateInput
   _min?: Prisma.BoardMinOrderByAggregateInput
@@ -241,6 +252,7 @@ export type BoardScalarWhereWithAggregatesInput = {
   ownerId?: Prisma.StringWithAggregatesFilter<"Board"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Board"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Board"> | Date | string
+  gradient?: Prisma.StringWithAggregatesFilter<"Board"> | string
 }
 
 export type BoardCreateInput = {
@@ -249,6 +261,7 @@ export type BoardCreateInput = {
   isInbox?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  gradient?: string
   owner: Prisma.UserCreateNestedOneWithoutBoardsInput
   columns?: Prisma.ColumnCreateNestedManyWithoutBoardInput
 }
@@ -260,6 +273,7 @@ export type BoardUncheckedCreateInput = {
   ownerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  gradient?: string
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutBoardInput
 }
 
@@ -269,6 +283,7 @@ export type BoardUpdateInput = {
   isInbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradient?: Prisma.StringFieldUpdateOperationsInput | string
   owner?: Prisma.UserUpdateOneRequiredWithoutBoardsNestedInput
   columns?: Prisma.ColumnUpdateManyWithoutBoardNestedInput
 }
@@ -280,6 +295,7 @@ export type BoardUncheckedUpdateInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradient?: Prisma.StringFieldUpdateOperationsInput | string
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutBoardNestedInput
 }
 
@@ -290,6 +306,7 @@ export type BoardCreateManyInput = {
   ownerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  gradient?: string
 }
 
 export type BoardUpdateManyMutationInput = {
@@ -298,6 +315,7 @@ export type BoardUpdateManyMutationInput = {
   isInbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradient?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BoardUncheckedUpdateManyInput = {
@@ -307,6 +325,7 @@ export type BoardUncheckedUpdateManyInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradient?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BoardListRelationFilter = {
@@ -326,6 +345,7 @@ export type BoardCountOrderByAggregateInput = {
   ownerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  gradient?: Prisma.SortOrder
 }
 
 export type BoardMaxOrderByAggregateInput = {
@@ -335,6 +355,7 @@ export type BoardMaxOrderByAggregateInput = {
   ownerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  gradient?: Prisma.SortOrder
 }
 
 export type BoardMinOrderByAggregateInput = {
@@ -344,6 +365,7 @@ export type BoardMinOrderByAggregateInput = {
   ownerId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  gradient?: Prisma.SortOrder
 }
 
 export type BoardScalarRelationFilter = {
@@ -413,6 +435,7 @@ export type BoardCreateWithoutOwnerInput = {
   isInbox?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  gradient?: string
   columns?: Prisma.ColumnCreateNestedManyWithoutBoardInput
 }
 
@@ -422,6 +445,7 @@ export type BoardUncheckedCreateWithoutOwnerInput = {
   isInbox?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  gradient?: string
   columns?: Prisma.ColumnUncheckedCreateNestedManyWithoutBoardInput
 }
 
@@ -461,6 +485,7 @@ export type BoardScalarWhereInput = {
   ownerId?: Prisma.StringFilter<"Board"> | string
   createdAt?: Prisma.DateTimeFilter<"Board"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Board"> | Date | string
+  gradient?: Prisma.StringFilter<"Board"> | string
 }
 
 export type BoardCreateWithoutColumnsInput = {
@@ -469,6 +494,7 @@ export type BoardCreateWithoutColumnsInput = {
   isInbox?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  gradient?: string
   owner: Prisma.UserCreateNestedOneWithoutBoardsInput
 }
 
@@ -479,6 +505,7 @@ export type BoardUncheckedCreateWithoutColumnsInput = {
   ownerId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  gradient?: string
 }
 
 export type BoardCreateOrConnectWithoutColumnsInput = {
@@ -503,6 +530,7 @@ export type BoardUpdateWithoutColumnsInput = {
   isInbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradient?: Prisma.StringFieldUpdateOperationsInput | string
   owner?: Prisma.UserUpdateOneRequiredWithoutBoardsNestedInput
 }
 
@@ -513,6 +541,7 @@ export type BoardUncheckedUpdateWithoutColumnsInput = {
   ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradient?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BoardCreateManyOwnerInput = {
@@ -521,6 +550,7 @@ export type BoardCreateManyOwnerInput = {
   isInbox?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  gradient?: string
 }
 
 export type BoardUpdateWithoutOwnerInput = {
@@ -529,6 +559,7 @@ export type BoardUpdateWithoutOwnerInput = {
   isInbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradient?: Prisma.StringFieldUpdateOperationsInput | string
   columns?: Prisma.ColumnUpdateManyWithoutBoardNestedInput
 }
 
@@ -538,6 +569,7 @@ export type BoardUncheckedUpdateWithoutOwnerInput = {
   isInbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradient?: Prisma.StringFieldUpdateOperationsInput | string
   columns?: Prisma.ColumnUncheckedUpdateManyWithoutBoardNestedInput
 }
 
@@ -547,6 +579,7 @@ export type BoardUncheckedUpdateManyWithoutOwnerInput = {
   isInbox?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradient?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -587,6 +620,7 @@ export type BoardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   ownerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  gradient?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   columns?: boolean | Prisma.Board$columnsArgs<ExtArgs>
   _count?: boolean | Prisma.BoardCountOutputTypeDefaultArgs<ExtArgs>
@@ -599,6 +633,7 @@ export type BoardSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   ownerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  gradient?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["board"]>
 
@@ -609,6 +644,7 @@ export type BoardSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   ownerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  gradient?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["board"]>
 
@@ -619,9 +655,10 @@ export type BoardSelectScalar = {
   ownerId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  gradient?: boolean
 }
 
-export type BoardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "isInbox" | "ownerId" | "createdAt" | "updatedAt", ExtArgs["result"]["board"]>
+export type BoardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "isInbox" | "ownerId" | "createdAt" | "updatedAt" | "gradient", ExtArgs["result"]["board"]>
 export type BoardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   columns?: boolean | Prisma.Board$columnsArgs<ExtArgs>
@@ -647,6 +684,7 @@ export type $BoardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     ownerId: string
     createdAt: Date
     updatedAt: Date
+    gradient: string
   }, ExtArgs["result"]["board"]>
   composites: {}
 }
@@ -1078,6 +1116,7 @@ export interface BoardFieldRefs {
   readonly ownerId: Prisma.FieldRef<"Board", 'String'>
   readonly createdAt: Prisma.FieldRef<"Board", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Board", 'DateTime'>
+  readonly gradient: Prisma.FieldRef<"Board", 'String'>
 }
     
 

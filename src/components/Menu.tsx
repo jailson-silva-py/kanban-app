@@ -19,7 +19,9 @@ const Menu = async () => {
         </li>}
 
         <li className="flex-1 basis-10 flex items-center grow-0">
+
           <ProfileButton />
+
         </li>
       </ul>
     </nav>

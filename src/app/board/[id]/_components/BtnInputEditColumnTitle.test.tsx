@@ -2,7 +2,13 @@ import { renderWithProviders } from "@/app/util/testImplementations";
 import { screen, waitFor } from "@testing-library/dom";
 import BtnInputEditColumnTitle from "./BtnInputEditColumnTitle";
 import userEvent from "@testing-library/user-event";
-import { ChangeColumnTitle } from "@/actions/actions";
+import { ChangeColumnTitle } from "@/actions/columnActions";
+
+vi.mock("@/actions/columnActions", () => ({
+  createColumnFromBoard: vi.fn(),
+  deleteColumnById: vi.fn(),
+  ChangeColumnTitle: vi.fn(),
+}));
 
 describe("BtnInputColumnTitle Component testing", () => {
 
@@ -40,6 +46,7 @@ describe("BtnInputColumnTitle Component testing", () => {
   });
 
   test("Os dados são passados corretamente para a Server Action", async () => {
+
     const mockChangeTitleAction = vi.mocked(ChangeColumnTitle);
     const user = userEvent.setup();
     renderWithProviders(
@@ -60,17 +67,13 @@ describe("BtnInputColumnTitle Component testing", () => {
     });
     const title = "Uma coluna legalzinha";
 
+    mockChangeTitleAction.mockResolvedValueOnce({ title });
     await user.clear(textAreaTitle);
     await user.type(textAreaTitle, title);
     await user.click(submitChangeTitle);
 
     await waitFor(async () =>
-      expect(mockChangeTitleAction).toHaveBeenCalledWith(
-        { id: "col-1", title },
-        expect.objectContaining({
-          mutationKey: ["column", "change-title"],
-        }),
-      ),
+      expect(mockChangeTitleAction).toHaveBeenCalledWith({ id: "col-1", title })
     );
   });
 

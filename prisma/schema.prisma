@@ -104,6 +104,7 @@ model Board {
   columns     Column[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  gradient    String   @default("bg-linear-to-br from-black via-30% from-40% to-60% via-gray-900 to-black")
 
   @@index([ownerId]) // Index para busca rápida de boards do usuário
 }

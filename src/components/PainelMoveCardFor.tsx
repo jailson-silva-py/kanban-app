@@ -1,59 +1,66 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { CustomSelect } from "./CustomSelect";
-import { boards, column, inBoxCards } from "@/constrants/queryKeys";
-import {  Card } from "@/types/dataTypes";
+import { allColumnsKeyType, boards, column, inBoxCards } from "@/constrants/queryKeys";
 import { ChangeEvent, useMemo, useReducer } from "react";
 import { getAllBoardFromUser } from "@/actions/boardActions";
 import LoadingSpinner from "./LoadingSpinner";
 import { useMutationCards } from "@/hooks/useMutationCards";
 import { toast } from "@/app/util/toast";
-import { useGetCachedBoard } from "@/hooks/useGetCachedBoard";
 import { useGetColumn } from "@/hooks/useGetColumn";
 import { useGetCachedCardsInBox } from "@/hooks/useGetCachedCardsInBox";
+import { useQueryCard } from "@/hooks/useQueryCard"
+import { useQueryColumn } from "@/hooks/useQueryColumn";
+import { useQueryBoard } from "@/hooks/useQueryBoard";
+import { useQueryInBox } from "@/hooks/useQueryInBox";
+import { logger } from "@/app/util/logger";
 
-type ActionsTypes =  "select_board"|"select_column"|"select_card"|"select_column_inbox"
+type ActionsTypes = "select_board" | "select_column" | "select_card" | "select_column_inbox"
 type Action = {
-type:ActionsTypes, payload:{id:string, idx:number}
-}
+  type: ActionsTypes, payload: { id: string, idx: number }
+} | { type: "reset" }
 type InitialState = {
-  board:{boardId:string|null, index:number|null},
-  column:{columnId:string|null, index:number|null, isInBox:boolean},
-  card:{cardId:string|null, index:number|null},
+  board: { boardId: string | null, index: number | null },
+  column: { columnId: string | null, index: number | null, isInBox: boolean },
+  card: { cardId: string | null, index: number | null },
 }
 const initialState = {
-  board:{boardId:null, index:null},
-  column:{columnId:null, index:null, isInBox:false},
-  card: {cardId:null, index:null},
+  board: { boardId: null, index: null },
+  column: { columnId: null, index: null, isInBox: false },
+  card: { cardId: null, index: null },
 } satisfies InitialState
 
 function reducer(state: InitialState, action: Action): InitialState {
 
   switch (action.type) {
     case "select_board":
-      return { ...state, board: { boardId:action.payload.id, index:action.payload.idx } }
+      return { ...state, board: { boardId: action.payload.id, index: action.payload.idx } }
     case "select_column":
-      return { ...state, column: { columnId:action.payload.id, index:action.payload.idx, isInBox:false}}
+      return { ...state, column: { columnId: action.payload.id, index: action.payload.idx, isInBox: false } }
     case "select_column_inbox":
-      return {...state, column: { columnId:action.payload.id, index:action.payload.idx, isInBox:true}}
+      return { ...state, column: { columnId: action.payload.id, index: action.payload.idx, isInBox: true } }
     case "select_card":
-      return { ...state, card: { cardId:action.payload.id, index:action.payload.idx} }
-
+      return { ...state, card: { cardId: action.payload.id, index: action.payload.idx } }
+    case "reset":
+      return { ...initialState };
     default:
-      return {...state}
+      return { ...state }
   }
 }
 
 
-export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:string[]|undefined}) {
+export function PainelMoveCardFor({ cardId, inBoxKey }: { cardId: string, inBoxKey: allColumnsKeyType | undefined }) {
+  const { getCard } = useQueryCard();
+  const { getAllColumnsBoard } = useQueryBoard();
+  const { getCardsFromColumn, getMovedPositionCard } = useQueryColumn();
+  const { getCardsFromInBox } = useQueryInBox();
+
+  const card = getCard(cardId)!;
   const [state, dispatch] = useReducer(reducer, initialState)
   const queryKey = state.column.isInBox ? inBoxCards : column(state?.column.columnId as string);
-  const {isPending, mutate} = useMutationCards({card, targetColMoveCardKey:queryKey, cardsKey})
+  const { isPending, mutate } = useMutationCards();
   const { data } = useQuery({ queryKey: boards, queryFn: getAllBoardFromUser });
-  const { data: columnInbox } = useGetCachedCardsInBox({queryKey:inBoxCards as unknown as string[], enabled: state.column.isInBox && !!state.board.boardId });
-
-  const { data: boardData } = useGetCachedBoard(state.board.boardId as string, { enabled: !!state.board.boardId });
-
+  const { data: columnInbox, isSuccess: isInBoxSuccess } = useGetCachedCardsInBox({ queryKey: inBoxCards as unknown as string[], enabled: !!state.board.boardId });
   const { data: columnData } = useGetColumn(state.column.columnId as string, state.board.boardId as string, { enabled: !!state.column.columnId && !state.column.isInBox });
 
   const boardsOptions = useMemo(() => {
@@ -61,13 +68,13 @@ export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:strin
   }, [data]);
 
   const columnsArray = useMemo(() => {
-
     if (!state.board.boardId) return null;
-    const inboxItem = columnInbox ? [{ id: columnInbox.id, title: "InBox", order: 100 }] : [];
-    const boardColumns = boardData?.columns ? Array.from(boardData.columns.values()) : [];
-    return inboxItem.concat(boardColumns);
+    const inBoxItem = isInBoxSuccess && columnInbox ? [{ id: columnInbox.id, title: "InBox", order: 100 }] : [];
+    const boardColumns = getAllColumnsBoard(state.board.boardId);
+    const result = boardColumns ? inBoxItem.concat(boardColumns) : inBoxItem
+    return result;
 
-  }, [state.board.boardId, columnInbox, boardData]);
+  }, [state.board.boardId, columnInbox, isInBoxSuccess, getAllColumnsBoard, columnData]);
 
   const columnsOptions = useMemo(() => {
     return columnsArray ? columnsArray.map(({ id: value, title: label }) => ({ value, label })) : null;
@@ -75,21 +82,24 @@ export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:strin
 
   const cardsArray = useMemo(() => {
     if (!state.column.columnId) return null;
-    return state.column.isInBox ? columnInbox : columnData;
-  }, [state.column.columnId, state.column.isInBox, columnInbox, columnData]);
+    const finalColumn = state.column.isInBox ? columnInbox : columnData
+    if (!finalColumn) return null;
+    const cards = state.column.isInBox ? getCardsFromInBox() : getCardsFromColumn(finalColumn.id);
+    return cards;
+  }, [state.column.columnId, state.column.isInBox, columnInbox, columnData, getCardsFromColumn, getCardsFromInBox]);
 
   const cardsOptions = useMemo(() => {
-    if (!cardsArray || !cardsArray.cards || cardsArray.cards.length === 0) {
+    if (!cardsArray || cardsArray.length === 0) {
       return [{ label: "0", value: "null" }];
     }
-    return cardsArray.cards.map(({ id: value }, idx) => ({ label: idx.toString(), value }));
+    return cardsArray.map(({ id: value }, idx) => ({ label: idx.toString(), value }));
   }, [cardsArray]);
 
-  const handleBoardSelect = ({ id, idx }:{id:string, idx:number}, ) => {
-    dispatch({type: "select_board", payload:{id, idx}})
+  const handleBoardSelect = ({ id, idx }: { id: string, idx: number },) => {
+    dispatch({ type: "select_board", payload: { id, idx } })
   }
 
-  const handleColumnSelect = ({ id, idx }: { id: string, idx:number }, ) => {
+  const handleColumnSelect = ({ id, idx }: { id: string, idx: number },) => {
 
     if (columnsOptions && columnsOptions.length > 0 && columnsOptions?.[idx].label === "InBox") {
       dispatch({ type: "select_column_inbox", payload: { id, idx } });
@@ -101,8 +111,8 @@ export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:strin
     e.preventDefault();
     const id = e.target.value;
     const idx = e.target.selectedIndex - 1;
-    dispatch({type:"select_card", payload:{id, idx}})
-   }
+    dispatch({ type: "select_card", payload: { id, idx } })
+  }
 
   const onSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -119,38 +129,32 @@ export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:strin
     // Portanto, o card atual está na posição `currentIndex` e o anterior está em `currentIndex - 1`
     const currentIndex = state.card.index as number;
     const isEqualColumns = state.column.columnId === card.columnId;
-    const isPositionCardGiantTo = cardsArray && cardsArray.cards.length > 0 && card.position > cardsArray?.cards?.[currentIndex]?.position;
+    const isPositionCardGiantTo = cardsArray && cardsArray.length > 0 && card.position > cardsArray?.[currentIndex]?.position;
     const targetIndex = isEqualColumns && isPositionCardGiantTo ? currentIndex + 1 : currentIndex;
-    const targetCard = cardsArray?.cards?.[targetIndex];
-    const tryPrevCard = cardsArray?.cards?.[targetIndex - 1];
-    const prevCard = tryPrevCard?.id && tryPrevCard.id !== card.id ? tryPrevCard : cardsArray?.cards?.[targetIndex + 1];
-
-    const isFirst = currentIndex === 0;
-    const isLast = cardsArray?.cards && currentIndex === cardsArray?.cards?.length - 1;
-
-    let positionCard = 100;
-
-    if (isFirst) {
-      // No topo: precisa ser maior que o próximo (que agora está logo abaixo)
-      positionCard = targetCard ? targetCard.position + 100 : 100;
-    } else if (isLast) {
-      // No fundo: precisa ser menor que o anterior (que está logo acima)
-      const lastCard = cardsArray?.cards?.[currentIndex];
-      positionCard = cardsArray?.cards?.[currentIndex] ? lastCard.position - 100 : 100;
-    } else if (prevCard && targetCard) {
-      // No meio: tira a média entre o card de cima e o de baixo
-      positionCard = (prevCard.position + targetCard.position) / 2;
+    const targetCard = cardsArray?.[targetIndex];
+    const movedPosition = getMovedPositionCard(state.column.isInBox ? inBoxCards : column(columnTarget.id), targetIndex)
+    const tryPrevCard = cardsArray?.[targetIndex - 1];
+    const prevCard = tryPrevCard?.id && tryPrevCard.id !== card.id ? tryPrevCard : cardsArray?.[targetIndex + 1];
+    if (!movedPosition) {
+      logger.print("PainelMoveCardFor > onSubmit", "error", "A posição do card está undefined");
+      return
     }
     mutate({
       operation: "move", cardId: card.id, columnTargetId: columnTarget.id,
-      nextCardId: targetCard?.id, positionCard: positionCard, prevCardId: prevCard?.id
+      nextCardId: targetCard?.id, positionCard: movedPosition.position, prevCardId: prevCard?.id,
+      targetIndex: currentIndex, inBoxKey: state.column.isInBox ? inBoxCards : undefined,
+    }, {
+      onSettled: () => {
+        dispatch({ type: "reset" });
+
+      }
     })
   }
   return (
     <div className="relative z-1  h-max w-full">
       <form className="h-full w-full flex flex-col gap-4" onSubmit={onSubmit}>
         {boardsOptions && boardsOptions?.length > 0 && <CustomSelect handleSelect={handleBoardSelect} options={boardsOptions} placeholder="Pesquise um board..." />}
-        {columnsOptions && columnsOptions.length > 0 &&  state.board.boardId ?
+        {columnsOptions && columnsOptions.length > 0 && state.board.boardId ?
           <CustomSelect handleSelect={handleColumnSelect} options={columnsOptions} placeholder="Pesquise uma coluna..." />
           :
           <div className="default-input opacity-20 h-8 flex items-center">Pesquise uma coluna...</div>
@@ -168,7 +172,7 @@ export function PainelMoveCardFor({ card, cardsKey }: {card:Card, cardsKey:strin
           <div className="default-input opacity-20 h-8 flex items-center">Selecione a posição:</div>
         }
         <button type="submit" className="btn-secondary btn-sm focus-primary flex items-center justify-center" disabled={isPending || !state.board.boardId || !state.column.columnId || !state.card.cardId}>
-          {isPending ? <LoadingSpinner></LoadingSpinner>:<span>Mover Card</span>}
+          {isPending ? <LoadingSpinner></LoadingSpinner> : <span>Mover Card</span>}
         </button>
       </form>
     </div>

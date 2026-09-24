@@ -6,8 +6,10 @@ import LoadingSpinner from "@/components/LoadingSpinner"
 import useOutClick from "@/hooks/useOutClick";
 import { column } from "@/constrants/queryKeys";
 import { ColumnClient } from "@/types/clientDataTypes";
-import { onMutateFunction } from "@/app/util/mutations";
 import { Card } from "@/types/dataTypes";
+import { useQueryColumn } from "@/hooks/useQueryColumn";
+import { useQueryCard } from "@/hooks/useQueryCard";
+import { toast } from "@/app/util/toast";
 
 type Props = {
   children: React.ReactNode;
@@ -17,6 +19,8 @@ type Props = {
 
 export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
 
+  const { removeCard, createCard, getColumn } = useQueryColumn();
+  const { setCard } = useQueryCard();
   const queryKey = column(columnId)
   const [edition, setEdition] = useState(false);
   const refForm = useOutClick<HTMLFormElement>(() => setEdition(false));
@@ -27,26 +31,22 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
     mutationFn: ({ title, id }: { title: string; id: string }) =>
       createCartForColumn({ columnId, title, id }),
     onMutate: async (variables, context) => {
-      //Set Data da Query é feita no onMutateFunci
-      return onMutateFunction<ColumnClient>(context, queryKey, (old) => {
-        const card: Card = { ...variables, columnId: old.id, completed: false, position: Infinity }
-        const cards = [card, ...old.cards];
-        const cardsMap = new Map(old.cardsMap).set(variables.id, card);
-        return { ...old, cards, cardsMap }
-
-      })
+      await context.client.cancelQueries();
+      const queryData = getColumn(columnId);
+      if (!queryData) return
+      const card: Card = { ...variables, columnId, completed: false, position: Infinity }
+      createCard(columnId, card);
+      return {previousState:queryData}
     },
     onSuccess: (data, variables, result, context) => {
       const queryData = context.client.getQueryData<ColumnClient>(queryKey);
-      if (!queryData|| !data) return
-      const cards = [...queryData.cards];
-      const cardsMap = new Map(queryData.cardsMap).set(variables.id, data);
-      const indexTarget = cards.findIndex((target) => target.id === data.id);
-      cards[indexTarget] = data
-      context.client.setQueryData<ColumnClient>(queryKey, {...queryData, cards, cardsMap});
+      if (!queryData || !data) return
+      setCard(data.id, data);
     },
-    onError: (_err, _title, result, context) => {
-      context.client.setQueryData(queryKey, result?.previousState);
+    onError: (_err, variables, result) => {
+      if (!result?.previousState) return;
+      removeCard(variables.id, columnId);
+      toast.error("Não foi possível criar o card.");
     },
   });
 

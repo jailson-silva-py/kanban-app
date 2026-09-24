@@ -1,6 +1,5 @@
 "use client";
 import { changeUsername } from "@/actions/actions";
-import { onMutateFunction } from "@/app/util/mutations";
 import { toast } from "@/app/util/toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { profile } from "@/constrants/queryKeys";
@@ -12,10 +11,20 @@ export default function FormEditUserData({ user }: { user: User }) {
 
   const { data, isPending, mutate } = useMutation({
     mutationKey: ["profile", "update", "name"], mutationFn: changeUsername,
-    onMutate: (variables, context) => {
-      return onMutateFunction<User>(context, profile, (old) => {
-        return {...old, name:variables.newName}
-      })
+    onMutate: async (variables, context) => {
+
+      await context.client.cancelQueries({ queryKey: profile });
+
+      const previousState = context.client.getQueryData(profile);
+      if (!previousState) return;
+      context.client.setQueryData<User>(profile, (old) => {
+
+        if (!old) return;
+        return { ...old, name: variables.newName }
+
+      });
+      return { previousState };
+
     },
     onError: (error, variables, result, context) => {
       toast.error("Ocorreu um erro ao atualizar o nome do usuário.")
@@ -28,7 +37,7 @@ export default function FormEditUserData({ user }: { user: User }) {
     const formData = new FormData(e.currentTarget);
     const newName = formData.get("profile-username")?.toString().trim()
     if (!newName || newName === data?.name) return
-    mutate({newName})
+    mutate({ newName })
   }
   return <form className="w-full flex flex-col gap-4" onSubmit={onChangeUsername}>
     <label className="flex flex-col gap-2">
@@ -53,7 +62,7 @@ export default function FormEditUserData({ user }: { user: User }) {
       />
     </label>
     <button type="submit" className="flex items-center justify-center ml-auto btn-sm btn-secondary focus-primary w-24 font-medium disabled:opacity-50" disabled={isPending}>
-      { isPending ? <LoadingSpinner className="text-primary"/> : <span>Salvar</span> }
+      {isPending ? <LoadingSpinner className="text-primary" /> : <span>Salvar</span>}
     </button>
   </form>
 

@@ -6,6 +6,7 @@ import { ComponentProps } from "react";
 import BoardLink from "./BoardLink";
 import { TbChalkboard } from "react-icons/tb";
 import { Separator } from "@/components/Separator";
+import { getRandomGradient } from "@/constrants/boardGradients";
 
 type PropsType = {
   type?: "recent" | undefined;
@@ -31,26 +32,23 @@ export const BoardList: React.FC<PropsType> = ({
 
   return (
     <ul
-      className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4"
+      className="grid max-sm:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] w-full gap-4"
       {...props}
     >
       {children}
 
-      {displayBoards.map((value, idx) => (
-        <BoardLink href={`/board/${value.id}`} key={idx} className="relative">
-          <div className="relative flex flex-col justify-end bg-secondary/20 h-full w-full rounded-sm shadow-bottom shadow-shadow overflow-hidden">
-            <TbChalkboard
-              size={32}
-              className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-text/30 animate-bounce"
-            />
-            <Separator/>
-            <p className="relative z-1 p-2 text-xs font-geist font-light bg-secondary tracking-wider truncate">
-              {value.title}
+      {displayBoards.map((board, idx) => (
+        <BoardLink href={`/board/${board.id}`} key={idx} className="relative">
+          <div className={`relative flex flex-col justify-end ${board.gradient} h-full w-full rounded-sm shadow-bottom shadow-shadow overflow-hidden`}>
+            <Separator />
+            <p className="relative z-1 p-2 text-xs font-geist font-light bg-accent tracking-wider truncate">
+              {board.title}
             </p>
           </div>
         </BoardLink>
-      ))}
-    </ul>
+      ))
+      }
+    </ul >
   );
 };
 
