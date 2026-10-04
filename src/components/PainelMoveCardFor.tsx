@@ -160,7 +160,9 @@ export function PainelMoveCardFor({ cardId, inBoxKey }: { cardId: string, inBoxK
           <select name="new_position_card" defaultValue={state.card.cardId || ""} className="bg-accent h-8 shadow-shadow default-shadow focus-primary *:text-inherit font-geist text-sm font-medium text-center rounded-sm" onChange={handleCardSelect} required>
             <option value="">--Selecione uma opção--</option>
             {cardsOptions.length > 0 ?
+
               cardsOptions.map(({ value: id, label: text }) => (<option value={id} key={id}>{text}</option>))
+
               :
               <p className="btn-sm btn-primary focus-secondary">Selecione a posição:</p>
             }
