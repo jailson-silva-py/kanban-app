@@ -59,7 +59,7 @@ function reducer(prevState: StateFormType, action: ActionType): StateFormType {
     case "next_step":
       const newStep =
         prevState.step >= 0 &&
-        prevState.step < fieldsFormLength - prevState.decrement
+          prevState.step < fieldsFormLength - prevState.decrement
           ? prevState.step + 1
           : prevState.step;
 
@@ -69,7 +69,7 @@ function reducer(prevState: StateFormType, action: ActionType): StateFormType {
       const objEmailVerify = emailType.safeParse(action.payload);
       const state_email: StateFormType = {
         ...prevState,
-        emailExists:false,
+        emailExists: false,
         email: action.payload,
         errors: [],
       };
@@ -122,7 +122,7 @@ interface AuthenticationFormProps {
   isSignIn: boolean;
 
 }
-const LoginForm: React.FC<AuthenticationFormProps> = ({isSignIn=false}) => {
+const LoginForm: React.FC<AuthenticationFormProps> = ({ isSignIn = false }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [pending, startTransition] = useTransition();
   const queryClient = useQueryClient();
@@ -198,11 +198,12 @@ const LoginForm: React.FC<AuthenticationFormProps> = ({isSignIn=false}) => {
             toast.error("Método de acesso inválido, tente outro método.")
             break
         }
+
         if (result.ok) {
           queryClient.invalidateQueries({ queryKey: profile })
-          redirect("/home")
+          redirect("/home");
         };
-    });
+      });
 
       return;
     }
@@ -271,10 +272,10 @@ const LoginForm: React.FC<AuthenticationFormProps> = ({isSignIn=false}) => {
         className="default-btn w-full btn-md btn-primary"
         disabled={pending || state.errors.length > 0}
       >
-        {state.step < fieldsFormLength - (isSignIn ? 1:2) ?
-          !pending ? <span>Continuar</span> : <LoadingSpinner/>
-         :
-        !pending ? isSignIn ? <span>Criar</span>: <span>Entrar</span> : <LoadingSpinner/>
+        {state.step < fieldsFormLength - (isSignIn ? 1 : 2) ?
+          !pending ? <span>Continuar</span> : <LoadingSpinner />
+          :
+          !pending ? isSignIn ? <span>Criar</span> : <span>Entrar</span> : <LoadingSpinner />
         }
       </button>
     </form>

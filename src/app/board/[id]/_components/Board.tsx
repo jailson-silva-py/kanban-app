@@ -87,7 +87,7 @@ const Board = ({ initialData }: Iprops) => {
   useEffect(() => {
 
     const el = refListColumnsBoard.current;
-    if (!el) return;
+    if (!el) return
     return autoScrollForElements({
       element: el,
     })

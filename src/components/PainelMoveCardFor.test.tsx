@@ -83,7 +83,7 @@ beforeEach(() => {
 
 describe("PainelMoveCardFor Component testing", () => {
   test("Renderiza o select de boards e os placeholders de coluna e posição", async () => {
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     const inputBoard = await screen.findByPlaceholderText("Pesquise um board...");
     expect(inputBoard).toBeInTheDocument();
@@ -94,7 +94,7 @@ describe("PainelMoveCardFor Component testing", () => {
 
   test("O botão Mover Card se habilita só quando board, coluna e card estão selecionados", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     await selectBoardOption(user, "Board Legal");
     expect(screen.getByRole("button", { name: "Mover Card" })).toBeDisabled();
@@ -112,7 +112,7 @@ describe("PainelMoveCardFor Component testing", () => {
       { id: "board-1", title: "Board Legal", gradient: "gradient" },
       { id: "board-2", title: "Proyecto Kanban", gradient: "gradient" },
     ]);
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     const inputBoard = await screen.findByPlaceholderText("Pesquise um board...");
     await user.click(inputBoard);
@@ -123,7 +123,7 @@ describe("PainelMoveCardFor Component testing", () => {
 
   test("Mover o card ao topo de outra coluna (positionCard = target.position + 100)", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     await selectBoardOption(user, "Board Legal");
     await selectColumnOption(user, "Coluna Chida");
@@ -143,7 +143,7 @@ describe("PainelMoveCardFor Component testing", () => {
 
   test("Move o card ao fundo de outra coluna (positionCard = média com o último card)", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     await selectBoardOption(user, "Board Legal");
     await selectColumnOption(user, "Coluna Chida");
@@ -163,7 +163,7 @@ describe("PainelMoveCardFor Component testing", () => {
 
   test("Move o card ao meio de outra coluna (positionCard = média entre prev e target)", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     await selectBoardOption(user, "Board Legal");
     await selectColumnOption(user, "Coluna Chida");
@@ -183,7 +183,7 @@ describe("PainelMoveCardFor Component testing", () => {
 
   test("Move o card dentro da mesma coluna (abaixo do card atual)", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     await selectBoardOption(user, "Board Legal");
     await selectColumnOption(user, "Coluna Bacana");
@@ -203,7 +203,7 @@ describe("PainelMoveCardFor Component testing", () => {
 
   test("Mostra um toast de erro quando se seleciona a mesma posição do card", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     await selectBoardOption(user, "Board Legal");
     await selectColumnOption(user, "Coluna Bacana");
@@ -220,7 +220,7 @@ describe("PainelMoveCardFor Component testing", () => {
     mockGetColumnForInBoxUser.mockResolvedValue({ id: "inbox-col", cards: [inboxCard] } as never);
     seedInBox(queryClient, { id: "inbox-col", order: 100, title: "InBox", cardIds: [inboxCard.id] });
     queryClient.setQueryData(cardKey(inboxCard.id), inboxCard);
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     await selectBoardOption(user, "Board Legal");
     await selectColumnOption(user, "InBox");
@@ -240,7 +240,7 @@ describe("PainelMoveCardFor Component testing", () => {
 
   test("Atualiza o cache de forma otimista ao mover o card", async () => {
     const user = userEvent.setup();
-    renderWithProviders(<PainelMoveCardFor cardId={card.id} inBoxKey={column("col-1")} />, queryClient);
+    renderWithProviders(<PainelMoveCardFor cardId={card.id} />, queryClient);
 
     await selectBoardOption(user, "Board Legal");
     await selectColumnOption(user, "Coluna Chida");
