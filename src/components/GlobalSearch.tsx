@@ -9,6 +9,7 @@ import { Url } from "next/dist/shared/lib/router/router";
 import { PromiseReturnType } from "@prisma/client/extension";
 import { useRouter } from "next/navigation";
 import { globalSearch } from "@/constrants/queryKeys";
+import { storage } from "@/app/util/cardsColumnsStorage";
 
 interface FormSearchProps {
   refInput: React.RefObject<HTMLInputElement | null>;
@@ -18,6 +19,7 @@ interface FormSearchProps {
 type Result = PromiseReturnType<typeof globalSearchWithText>;
 
 type ListItemProps = {
+  type: "column" | "card" | "board";
   valor: Result[keyof Result][number];
   children: React.ReactNode;
   href: Url;
@@ -67,15 +69,24 @@ const ListItem = ({
   href,
   children,
   valor: value,
+  type,
   onClose,
   ...props
 }: ListItemProps) => {
   const router = useRouter();
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClickLink = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     onClose();
     router.push(e.currentTarget.href);
   };
+
+  const handleClickButton = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    storage.setTarget(type as "card" | "column", value.id);
+
+    router.push(href.toString());
+    onClose();
+  }
 
   return (
     <li
@@ -83,14 +94,20 @@ const ListItem = ({
       className="px-4 py-1 h-15 w-full text-xs tracking-widest font-geist overflow-y-auto not-last:border-b border-shadow/50 hover:pl-6 transition-[padding] duration-300"
       {...props}
     >
-      <Link
-        onClick={handleClick}
-        href={href}
-        className={`w-full h-full flex flex-col justify-center`}
-      >
-        {children}
-        <p className="text-sm font-medium truncate">{value.title}</p>
-      </Link>
+      {type !== "board" ?
+        <button onClick={handleClickButton} className="w-full h-full flex flex-col  items-start justify-center">
+          {children}
+          <p className="text-sm font-medium truncate">{value.title}</p>
+        </button>
+        :
+        <Link
+          onClick={handleClickLink}
+          href={href}
+          className={`w-full h-full flex flex-col justify-center`}
+        >
+          {children}
+          <p className="text-sm font-medium truncate">{value.title}</p>
+        </Link>}
     </li>
   );
 };
@@ -156,6 +173,7 @@ const ListResultSearch = ({
       <ListResultSearchContent>
         {data?.boards.map((value) => (
           <ListItem
+            type="board"
             key={value.id}
             href={`/board/${value.id}`}
             valor={value}
@@ -169,8 +187,9 @@ const ListResultSearch = ({
         ))}
         {data?.columns.map((value) => (
           <ListItem
+            type="column"
             key={value.id}
-            href={`/board/${value.boardId}#column-${value.id}`}
+            href={`/board/${value.boardId}`}
             valor={value}
             onClose={onClose}
           >
@@ -182,8 +201,9 @@ const ListResultSearch = ({
         ))}
         {data?.cards.map((value) => (
           <ListItem
+            type="card"
             key={value.id}
-            href={`/board/${value.column.boardId}#card-${value.id}`}
+            href={`/board/${value.column.boardId}`}
             valor={value}
             onClose={onClose}
           >

@@ -5,6 +5,7 @@ import { Fragment } from "react/jsx-runtime";
 import { Card } from "./Card";
 import { useEffect, useRef } from "react";
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element"
+import { storage } from "@/app/util/cardsColumnsStorage";
 type CardsContentProps = {
   cardIds: string[],
   columnId: string;
@@ -24,6 +25,7 @@ export const CardsContainer: React.FC<CardsContentProps> = ({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    storage.setColumnRef(columnId, ref);
     return autoScrollForElements({
       element: el
     })

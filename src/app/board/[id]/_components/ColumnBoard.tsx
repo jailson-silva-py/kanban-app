@@ -22,6 +22,7 @@ function ColumnBoard({ id, ...props }: Iprops) {
 
   return (
     <li
+      id={`column-${id}`}
       {...props}
       className={`flex flex-col shadow-shadow shadow-default bg-primary/30 rounded-sm w-65 shrink-0 grow-0 max-h-[75vh]`}
     >

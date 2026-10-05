@@ -6,7 +6,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/setupTests.ts"],
     globals: true,
-    coverage: { enabled: true, exclude:["src/types/*"] },
+    coverage: { enabled: true, exclude:["src/types/*", "src/generated/*"],},
   },
   resolve: {
     tsconfigPaths: true,

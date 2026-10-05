@@ -15,6 +15,8 @@ import { useGetAllColumnsBoard } from "@/hooks/useGetAllColumnsBoard";
 import { useQueryBoard } from "@/hooks/useQueryBoard"
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { ButtonGhost } from "@/components/ButtonGhost";
+import useCardsColumnsStorage from "@/hooks/useCardsColumnsStorage";
+import { storage as mainStorageCardsColumns } from "@/app/util/cardsColumnsStorage";
 
 interface Iprops {
   initialData: BoardFull;
@@ -25,6 +27,7 @@ const Board = ({ initialData }: Iprops) => {
 
   const router = useRouter();
   const pathname = usePathname();
+  const cardsColumnsStorage = useCardsColumnsStorage();
   const [openDialog, setOpenDialog] = useState(false);
   const { createColumnsPlaceholder, getAllColumnsBoard } = useQueryBoard();
   const refListColumnsBoard = useRef<HTMLUListElement>(null);
@@ -37,7 +40,6 @@ const Board = ({ initialData }: Iprops) => {
     e.preventDefault();
     setOpenDialog(true);
   }
-
   useEffect(() => {
 
     const columnsBoard = getAllColumnsBoard(initialData.id)
@@ -46,12 +48,23 @@ const Board = ({ initialData }: Iprops) => {
 
   }, [initialData])
 
+
   if (!board) redirect("/home");
 
-  useEffect(() => {
-    const hash = window.location.hash;
 
-    if (!hash || isLoading || !board) return;
+  useEffect(() => {
+
+    const objTarget = mainStorageCardsColumns.getTarget();
+
+    if (!objTarget) return;
+
+
+    const elementCard = cardsColumnsStorage.cards.get(objTarget.id);
+    const elementColumn = cardsColumnsStorage.columns.get(objTarget.id);
+    const el = objTarget.type === "card" ? elementCard : elementColumn;
+
+
+    if (!el?.current) return
 
     const executeScroll = (el: Element) => {
       el.scrollIntoView({
@@ -59,30 +72,13 @@ const Board = ({ initialData }: Iprops) => {
         block: "center",
         inline: "center",
       });
-      router.replace(pathname);
     };
 
-    const elementoImediato = document.querySelector(hash);
+    executeScroll(el.current)
+    el.current.animate([{ border: "1px solid var(--color-text)" }, { border: "1px solid var(--color-shadow)" }], { easing: "ease", duration: 800, iterations: 4 });
+    mainStorageCardsColumns.resetTarget();
 
-
-    if (elementoImediato) {
-      executeScroll(elementoImediato);
-      return;
-    }
-
-    const callback = (mutations: MutationRecord[], obs: MutationObserver) => {
-      const elemento = document.querySelector(hash);
-      if (!elemento) return;
-      executeScroll(elemento);
-      obs.disconnect();
-    };
-
-    const observer = new MutationObserver(callback);
-
-    observer.observe(document.body, { subtree: true, childList: true });
-
-    return () => observer.disconnect();
-  }, [isLoading, pathname, router, board]);
+  }, [cardsColumnsStorage.cards, cardsColumnsStorage.columns]);
 
   useEffect(() => {
 

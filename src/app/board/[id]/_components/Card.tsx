@@ -12,6 +12,7 @@ import { draggable } from "@atlaskit/pragmatic-drag-and-drop/adapter/element-ada
 import { useQueryColumn } from "@/hooks/useQueryColumn";
 import { logger } from "@/app/util/logger";
 import { ButtonGhost } from "@/components/ButtonGhost";
+import { storage } from "@/app/util/cardsColumnsStorage";
 
 type CardProps = {
   id: string;
@@ -56,7 +57,9 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
 
     const el = ref.current;
 
-    if (!el) return
+    if (!el) return;
+    //Setando referência no storage para possíveis alteraçõs no dom;
+    storage.setCardRef(card.id, ref);
 
     return draggable({
       element: el,
@@ -96,6 +99,7 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
 
   return (
     <li
+      id={`card-${card.id}`}
       {...props}
       style={{ opacity: dragging ? "50%" : undefined }}
       ref={ref}

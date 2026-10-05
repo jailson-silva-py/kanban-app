@@ -96,7 +96,6 @@ export function useMutationCards() {
           break;
       }
 
-      console.log("Posição correta do card é: ");
       return { previousState: card }
     },
 
