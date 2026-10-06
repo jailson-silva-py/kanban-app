@@ -104,11 +104,11 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
       style={{ opacity: dragging ? "50%" : undefined }}
       ref={ref}
       aria-label="card"
-      className="relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-secondary shadow-shadow shadow-default px-4 py-2 rounded-sm text-xs font-light font-geist cursor-pointer hover:-top-0.5 ease-out"
+      className="group relative shrink-0 group w-full flex items-center gap-2 min-h-4 bg-secondary shadow-shadow shadow-default px-4 py-2 rounded-sm text-xs font-light font-geist cursor-pointer hover:-top-0.5 ease-out"
     >
       <form onSubmit={onChangeIsComplete}>
         <div
-          className={`${completed ? "flex" : "hidden"} relative group-hover:flex p-1 items-center justify-center rounded-full w-5 h-5 shadow-shadow shadow-default has-[*:hover]:scale-105 transition-all duration-300`}
+          className={`${completed ? "flex" : "hidden group-hover:animate-grow"} w-5 h-5 starting:scale-0 group-hover:flex relative p-1 items-center justify-center rounded-full shadow-shadow shadow-default has-[*:hover]:scale-105`}
           style={{
             backgroundColor: completed
               ? "oklch(from var(--color-success) l c h / 0.3)"

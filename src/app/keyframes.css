@@ -56,7 +56,15 @@
 
   }
 
-  @keyframes hiddenElement {
+  @keyframes grow {
 
-      to {opacity:0; display:none}
+    from {
+        transform: scale(0);
+        width: 0;
+        height: 0;
+    }
+    to {
+        transform: scale(100%);
+    }
+
   }

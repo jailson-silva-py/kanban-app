@@ -106,7 +106,7 @@ const BtnInputEditBoardTitle = ({ id, title, ...props }: Iprops) => {
               ref={refTextAreaTitle}
               onChange={handleEditTitle}
               value={titleBoard}
-              className={`default-input px-4 py-2 max-h-full w-full max-w-209 text-nowrap overflow-hidden resize-none`}
+              className={`default-input px-4 py-2 max-h-full w-full max-w-209 text-nowrap overflow-hidden focus-primary resize-none`}
               name="title_board"
               id="title_board"
               required

@@ -36,6 +36,8 @@
     --animate-to-custom-spin: customSpin 1s infinite ease-in-out;
     --animate-draw: reDraw 1s ease-in-out infinite alternate-reverse;
     --animate-draw-spin: var(--animate-draw), var(--animate-to-custom-spin);
+    --animate-grow: grow 200ms ease-in-out both;
+    --animate-shrink: grow 200ms ease-in-out reverse both;
 
 }
 
