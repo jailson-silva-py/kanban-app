@@ -17,6 +17,7 @@ import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-sc
 import { ButtonGhost } from "@/components/ButtonGhost";
 import useCardsColumnsStorage from "@/hooks/useCardsColumnsStorage";
 import { storage as mainStorageCardsColumns } from "@/app/util/cardsColumnsStorage";
+import Link from "next/link";
 
 interface Iprops {
   initialData: BoardFull;
@@ -25,14 +26,13 @@ interface Iprops {
 
 const Board = ({ initialData }: Iprops) => {
 
-  const router = useRouter();
-  const pathname = usePathname();
+  const refButtonEditBoardTitle = useRef<HTMLButtonElement>(null);
   const cardsColumnsStorage = useCardsColumnsStorage();
   const [openDialog, setOpenDialog] = useState(false);
   const { createColumnsPlaceholder, getAllColumnsBoard } = useQueryBoard();
   const refListColumnsBoard = useRef<HTMLUListElement>(null);
   const storage = useFloatMenuStorage()
-  const { data: board, isLoading } = useGetInitialBoard(initialData);
+  const { data: board } = useGetInitialBoard(initialData);
 
   const { data } = useGetAllColumnsBoard(board?.id!, board?.columnIds!);
 
@@ -40,6 +40,7 @@ const Board = ({ initialData }: Iprops) => {
     e.preventDefault();
     setOpenDialog(true);
   }
+
   useEffect(() => {
 
     const columnsBoard = getAllColumnsBoard(initialData.id)
@@ -97,8 +98,13 @@ const Board = ({ initialData }: Iprops) => {
         <div className="flex relative items-center justify-center gap-4 w-full h-full">
           <div className="w-full flex gap-2 justify-between items-center">
             <TbChalkboard className="size-6 shrink-0" />
-            <BtnInputEditBoardTitle id={board.id} title={board.title} />
+            <BtnInputEditBoardTitle id={board.id} title={board.title} ref={refButtonEditBoardTitle} />
             <DropdownMenuWithDots className="w-25">
+              <DropdownMenuWithDots.Item>
+                <Link href="/home" className="flex items-center justify-center btn-xs btn-ghost w-full p-1">
+                  <span>Voltar</span>
+                </Link>
+              </DropdownMenuWithDots.Item>
               <DropdownMenuWithDots.Item>
                 <ButtonGhost mode="delete" onClick={handleOpenDialogDelete}>
                   <span>Deletar</span>

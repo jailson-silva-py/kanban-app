@@ -17,12 +17,12 @@ import {
 } from "react";
 import { TbChecks } from "react-icons/tb";
 
-interface Iprops {
+type Iprops = {
   id: string;
   title: string;
-}
+} & React.ComponentProps<"button">
 
-const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
+const BtnInputEditBoardTitle = ({ id, title, ...props }: Iprops) => {
   const [editMode, setEditMode] = useState(false);
   const [titleBoard, setTitleBoard] = useState(title);
   const refTextAreaTitle = useRef<HTMLTextAreaElement>(null);
@@ -32,8 +32,8 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
     mutationKey: ["board", "change-title"],
     mutationFn: changeBoardTitle,
     onMutate: async (variables, context) => {
-      await context.client.cancelQueries({queryKey})
-      context.client.setQueryData<BoardFull>( queryKey , (previusBoard) => {
+      await context.client.cancelQueries({ queryKey })
+      context.client.setQueryData<BoardFull>(queryKey, (previusBoard) => {
         if (!previusBoard) return;
 
         return { ...previusBoard, title: variables.title };
@@ -41,7 +41,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
     },
 
     onError: (error, varibles, onMutateResult, context) => {
-      context.client.setQueryData<BoardFull>( queryKey , (previusBoard) => {
+      context.client.setQueryData<BoardFull>(queryKey, (previusBoard) => {
         if (!previusBoard) return;
 
         return { ...previusBoard, title };
@@ -85,6 +85,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
     <>
       <Activity mode={!editMode ? "visible" : "hidden"}>
         <button
+          {...props}
           aria-label="edit-title-board"
           className="hover:shadow-default hover:shadow-shadow rounded-sm max-h-full w-full max-w-209 text-xs py-2 h-10 px-4 text-nowrap truncate text-start"
           onClick={handleChangeEditMode}
@@ -120,7 +121,7 @@ const BtnInputEditBoardTitle = ({ id, title }: Iprops) => {
             {!isPending ? (
               <TbChecks size={18} />
             ) : (
-              <LoadingSpinner/>
+              <LoadingSpinner />
             )}
           </button>
         </form>
