@@ -131,7 +131,6 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
       <p lang="pt-BR" className="text-xs leading-5 line-clamp-4  text-pretty text-justify break-all hyphens-auto" draggable={false}>
         {card?.title}
       </p>
-      <p>{card?.position}</p>
       <DropdownMenuWithDots>
         <DropdownMenuWithDots.Item>
           <form onSubmit={onChangeIsComplete} className="h-max full">

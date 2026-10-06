@@ -36,7 +36,7 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
       if (!queryData) return
       const card: Card = { ...variables, columnId, completed: false, position: Infinity }
       createCard(columnId, card);
-      return {previousState:queryData}
+      return { previousState: queryData }
     },
     onSuccess: (data, variables, result, context) => {
       const queryData = context.client.getQueryData<ColumnClient>(queryKey);
@@ -73,7 +73,7 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
   }, [edition]);
 
   return (
-    <div className="w-full flex-2 p-4 grow-0">
+    <div className="w-full p-4">
       {!edition ? (
         <button
           aria-label="add-card"
@@ -94,7 +94,7 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
             required
           />
           <div className="w-full flex justify-end gap-2" aria-label="add-card">
-              <button
+            <button
               aria-label="create-card"
               type="submit"
               className="flex items-center justify-center btn-secondary btn-default focus-primary w-20"

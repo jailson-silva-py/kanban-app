@@ -67,7 +67,7 @@ const BtnInputEditColumnTitle = ({
   };
 
   return (
-    <div className="relative flex items-center justify-center gap-1 p-2 bg-primary/20 w-full h-12 ">
+    <div className="relative flex items-center justify-center flex-1 gap-1 p-2 bg-primary/20 w-full h-12 ">
       <Activity mode={!editMode ? "visible" : "hidden"}>
         <button
           aria-label="edit-title-column"
