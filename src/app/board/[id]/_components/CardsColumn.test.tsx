@@ -9,11 +9,11 @@ describe("Cards Column testing Component", () => {
     expect(comp).toBeInTheDocument();
   })
 
-  test("Tem display flex em coluna e altura e largura de 100% do content", () => {
+  test("Tem display grid e duas linhas, uma com auto e outra com 1fr (pra não bugar o overflow do cardsContent)", () => {
     render(<CardsColumn><Component /></CardsColumn>)
     const container = screen.getByRole("generic", { name: "cards-column" })
 
-    expect(container).toHaveClass("flex", "flex-col", "w-full", "h-full")
+    expect(container).toHaveClass("grid", "grid-rows-[auto_1fr]", "w-full", "h-full")
 
   })
 
