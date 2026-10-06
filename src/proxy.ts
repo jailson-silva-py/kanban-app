@@ -2,10 +2,13 @@ import { auth } from "auth";
 import { NextRequest, NextResponse } from "next/server"
 
 export async function proxy(request: NextRequest) {
+  
   const isLogged = await auth();
-  const isVerified = isLogged?.user.emailVerified || !isLogged?.user.provider?.includes("credentials");
+  const isCredential = isLogged?.user.provider?.includes("credentials");
+  const isVerified = isLogged?.user.emailVerified || !isCredential;
   const privateRoutes = ["/home", "/profile", "/board"];
   const publicRoutes = ["/login", "/signin"]
+  const credentialsRoutes = ["/profile/change_password", "/signin/verify"];
 
   const isOnPrivateRoutes = privateRoutes.some((route) => {
     return request.nextUrl.pathname.startsWith(route)
@@ -13,11 +16,18 @@ export async function proxy(request: NextRequest) {
   const isOnPublicRoutes = publicRoutes.some((route) => {
     return request.nextUrl.pathname.startsWith(route)
   })
+
+  const isOnCredentialsRoutes = credentialsRoutes.some((route) => {
+    return request.nextUrl.pathname.startsWith(route);
+  })
+
   if (isOnPrivateRoutes) {
     if (!isLogged) {
       return NextResponse.redirect(new URL("/login", request.url))
     } else if (isLogged && !isVerified) {
       return NextResponse.redirect(new URL("/signin/verify", request.url))
+    } else if (isLogged && isOnCredentialsRoutes && !isCredential) {
+      return NextResponse.redirect(new URL("/home", request.url));
     }
     return
   }
