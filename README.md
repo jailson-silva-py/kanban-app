@@ -1,11 +1,19 @@
-# 📋 Kanban App
+# ![Krux Image](public/icons/favicon_32.png) Krux
+
 
 Um quadro Kanban **full-stack, moderno e em tempo real**, construído do zero com o que há de mais atual no ecossistema React/Next.js. Não é só mais um "to-do list" — é uma aplicação completa com autenticação robusta, banco de dados relacional, drag-and-drop fluido e uma arquitetura pensada para escalar.
 
-## ✨ Por que esse projeto se destaca
+## Prévia
+<video src="https://github.com/user-attachments/assets/11aac029-d428-4887-9fcc-d12dfd70a0a8" autoplay muted loop width="100%">
+</video>
+
+### [Ver demonstração](http:s//kanban-app-ten-beta.vercel.app)
+
+## Por que esse projeto se destaca:
 - **Cobertura de testes de mais de 70%** — Atualmente com testes de integração no núcleo da aplicação e futuramente tenho a meta de alcançar 90%, veja a cobertura atual:
 [![codecov](https://codecov.io/github/jailson-silva-py/kanban-app/graph/badge.svg?token=WUJH14TFE5)](https://codecov.io/github/jailson-silva-py/kanban-app)
 - **Arquitetura 100% Server Actions** — sem API REST intermediária redundante: o front conversa direto com o backend através de Server Actions do Next.js, com wrappers centralizados de tratamento de erro e autenticação.
+- **External Store Pattern, Sem ContextAPI** — Evita re-renderizações desnecessárias na árvore de componentes, mantendo os dados em memória Javascript pura, causando apenas  "atualizações" granulares dos componentes.
 - **Drag-and-drop de verdade, não gambiarra** — reordenação de cards e colunas usando **posições em ponto flutuante** (`Float`), o que permite reordenar itens sem precisar reindexar toda a lista a cada movimento (só reindexa quando necessário).
 - **Autenticação multi-estratégia** — login com **Google OAuth** e também **credenciais próprias** (e-mail/senha), com hashing seguro via **Argon2** (algoritmo vencedor da Password Hashing Competition, mais robusto que bcrypt).
 - **Cache inteligente no cliente** — uso de **TanStack React Query** para cache, invalidação seletiva e atualizações otimistas, evitando requisições desnecessárias e mantendo a UI sempre responsiva.
@@ -13,7 +21,7 @@ Um quadro Kanban **full-stack, moderno e em tempo real**, construído do zero co
 - **Erros tratados como cidadãos de primeira classe** — classes de erro customizadas (`UnAuthentichatedError`, `EmailAlreadyExistsError`, `InvalidCredentialsError`, entre outras) tornam o backend previsível e as mensagens para o usuário, claras.
 - **Tipagem ponta a ponta** — TypeScript do banco de dados (Prisma) até o componente React, sem contrato quebrado entre camadas.
 
-## 🚀 Tecnologias utilizadas
+## Tecnologias utilizadas
 
 ### Core
 | Tecnologia | Função no projeto |
@@ -36,20 +44,20 @@ Um quadro Kanban **full-stack, moderno e em tempo real**, construído do zero co
 | Tecnologia | Função no projeto |
 |---|---|
 | **TanStack React Query** | Gerenciamento de estado assíncrono, cache e sincronização com o servidor |
-| **@dnd-kit** | Drag-and-drop acessível e performático para cards e colunas |
+| **@atlassian-kit/pragmatic-drag-and-drop** | Drag-and-drop acessível e performático com controle total do dom para cards e colunas |
 | **Tailwind CSS 4** | Estilização utilitária moderna |
 | **React Icons** | Biblioteca de ícones consistente em toda a interface |
 
-## 🧩 Principais funcionalidades
+## Principais funcionalidades
 
 - **Boards múltiplos** — cada usuário pode criar e gerenciar vários boards próprios, incluindo um board "Inbox" padrão.
-- **Colunas dinâmicas** — criação, edição de título e reordenação de colunas dentro de um board.
+- **Colunas dinâmicas** — criação, edição de título e deleção de colunas dentro de um board.
 - **Cards completos** — título, descrição, status de conclusão e reordenação livre via drag-and-drop entre colunas.
-- **Busca global** — pesquisa unificada por boards, colunas e cards.
+- **Busca global** — pesquisa unificada por boards, colunas e cards. Navegação até o elemento e animação para destacar card ou coluna alvo.
 - **Autenticação segura** — fluxo de login e cadastro com validação de campos e proteção de rotas via Server Actions protegidas.
 - **Interface responsiva e polida** — menus flutuantes, toasts de feedback, estados de carregamento dedicados e transições suaves.
 
-## 🛠️ Como rodar o projeto
+## Como rodar o projeto
 
 ```bash
 # Instalar dependências
@@ -67,20 +75,22 @@ npm run dev
 
 Acesse [http://localhost:3000](http://localhost:3000) para ver o projeto rodando.
 
-## 📁 Estrutura do projeto
+## Estrutura do projeto
 
 ```
 src/
 ├── actions/       # Server Actions (regras de negócio + acesso ao banco)
 ├── app/           # Rotas (App Router), páginas e layouts
-├── components/    # Componentes de UI reutilizáveis
+├── components/    # Componentes de UI reutilizáveis globais.
 ├── hooks/         # Hooks customizados (cache, drag-and-drop, storage local)
 ├── providers/     # Providers globais (React Query, etc.)
 ├── types/         # Tipos e schemas compartilhados
-└── generated/     # Client do Prisma gerado automaticamente
+├── constrants/    # Constantes e variáveis globais para acesso a dados consistentemente.
+├── libs/          # Inicialização e setup de bibliotecas/pacotes/libs.
+└── */_components  # Componentes locais usados apenas na própria rota.
 ```
 
-## 📌 Roadmap
+## Roadmap
 
 - [ ] Colaboração em tempo real entre múltiplos usuários no mesmo board
 - [ ] Compartilhamento de boards por convite

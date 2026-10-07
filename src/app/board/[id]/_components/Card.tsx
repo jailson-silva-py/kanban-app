@@ -33,6 +33,7 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
   const ref = useRef<HTMLLIElement | null>(null)
   const { getMovedPositionCard } = useQueryColumn()
   const { isPending, mutate, openDialog, setOpenDialog } = useMutationCards();
+
   const onChangeIsComplete = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setCompleted((prev) => !prev);
