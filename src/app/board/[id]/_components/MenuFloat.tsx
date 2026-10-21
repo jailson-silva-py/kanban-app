@@ -1,46 +1,72 @@
 "use client";
-import { floatMenuStorage } from "@/app/util/floatMenuStorage";
 import { BorderBottomSelected } from "@/components/BorderBottomSelected";
 import useFloatMenuStorage from "@/hooks/useFloatMenuStorage";
 import useOutClick from "@/hooks/useOutClick";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { TbArrowBigUpLine, TbChalkboard, TbMessagePlus } from "react-icons/tb"
 
 const MenuFloat = () => {
-  const storage = useFloatMenuStorage()
-  const ref = useOutClick<HTMLUListElement>(floatMenuStorage.closeMenu);
-  useEffect(() => {
-    floatMenuStorage.showMenu()
+  const { storage, showMenu, closeMenu, closeBoard, openBoard, closeInBox, openInBox } = useFloatMenuStorage()
+  const ref = useOutClick<HTMLUListElement>(closeMenu);
+
+  const invertOpenBoard = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (storage.isOpenBoard) {
+      closeBoard();
+      return;
+    }
+    openBoard();
+  }
+
+  const invertOpenInBox = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (storage.isOpenInBox) {
+      closeInBox();
+      return;
+    }
+    openInBox();
+  }
+
+  useLayoutEffect(() => {
+    const isMobile = window.innerWidth <= 748;
+    console.log(window.innerWidth);
+    if (isMobile && storage.isOpenInBox) {
+      closeInBox();
+      console.log("na condicional is mobile")
+    }
+    showMenu();
+
   }, [])
+  console.log(storage)
   return (
     <div className="fixed bottom-2 left-1/2 -translate-x-1/2">
 
       {storage.isShow ?
-      <ul aria-label="menu-float" ref={ ref } className="px-2 flex justify-center  items-center  btn-md gap-2 bg-primary/10 w-fit max-w-[90vw] shadow-default shadow-shadow backdrop-blur-xs">
+        <ul aria-label="menu-float" ref={ref} className="px-2 flex justify-center  items-center  btn-md gap-2 bg-primary/10 w-fit max-w-[90vw] shadow-default shadow-shadow backdrop-blur-xs">
 
-      <li>
+          <li>
             <button aria-label="inbox"
-              style={{ color: storage.openInBox ? "var(--color-info)" : undefined, background: storage.openInBox ? "oklch(from var(--color-info) l c h / 0.05)" : undefined }} onClick={floatMenuStorage.invertOpenInbox} className="relative btn-sm btn-ghost flex items-center gap-1 text-xs">
-          <TbMessagePlus size={24} className="text-inherit"/>
-          <span>InBox</span>
-          {storage.openInBox && <BorderBottomSelected/>}
-        </button>
-      </li>
-      <li>
-          <button aria-label="board"
-          style={{ color: storage.openBoard ? "var(--color-info)" : undefined, background: storage.openBoard ? "oklch(from var(--color-info) l c h / 0.05)" : undefined }} onClick={floatMenuStorage.invertOpenBoard} className="relative btn-sm btn-ghost flex items-center gap-1 text-xs">
-          <TbChalkboard size={24} className="text-inherit"/>
-          <span>Board</span>
-          {storage.openBoard && <BorderBottomSelected/>}
-        </button>
-      </li>
+              style={{ color: storage.isOpenInBox ? "var(--color-info)" : undefined, background: storage.isOpenInBox ? "oklch(from var(--color-info) l c h / 0.05)" : undefined }} onClick={invertOpenInBox} className="relative btn-sm btn-ghost flex items-center gap-1 text-xs">
+              <TbMessagePlus size={24} className="text-inherit" />
+              <span>InBox</span>
+              {storage.isOpenInBox && <BorderBottomSelected />}
+            </button>
+          </li>
+          <li>
+            <button aria-label="board"
+              style={{ color: storage.isOpenBoard ? "var(--color-info)" : undefined, background: storage.isOpenBoard ? "oklch(from var(--color-info) l c h / 0.05)" : undefined }} onClick={invertOpenBoard} className="relative btn-sm btn-ghost flex items-center gap-1 text-xs">
+              <TbChalkboard size={24} className="text-inherit" />
+              <span>Board</span>
+              {storage.isOpenBoard && <BorderBottomSelected />}
+            </button>
+          </li>
         </ul>
         :
         <button title="Exibir painel Board/InBox" aria-label="show-menu" onClick={() => {
-          floatMenuStorage.showMenu();
+          showMenu();
         }}
           className="bg-info/5  w-12 h-12 border-text  group fixed bottom-1/2 top-1/2 -translate-1/2 default-btn btn-sm rounded-full">
-          <TbArrowBigUpLine size={24} className="animate-to-jump group-hover:text-info"/>
+          <TbArrowBigUpLine size={24} className="animate-to-jump group-hover:text-info" />
         </button>}
     </div>
   )

@@ -6,7 +6,7 @@ beforeEach(() => {
 })
 
 const INITIAL_STATE = {
-  openInBox: true, openBoard: true,
+  isOpenInBox: true, isOpenBoard: true,
   isShow: false
 };
 
@@ -25,44 +25,69 @@ describe("floatMenuStorage module testing", () => {
 
   })
 
-  test("A função invertOpenBoard inverte a propriedade openBoard dentro das restrições e chama o subscriber.", () => {
+  test("A função closeBoard define isOpenBoard para false, mas não quando isInBox já é false", () => {
     const fn = vi.fn()
     //Primeiro inverter openInBox para false e testar se openBoard muda
     floatMenuStorageCore.subscribe(fn);
-    floatMenuStorage.invertOpenInbox();
-    floatMenuStorage.invertOpenBoard();
+    floatMenuStorage.closeInBox();
+    floatMenuStorage.closeBoard();
     const storage = floatMenuStorageCore.getStorage();
 
     // Irá inverter para false apenas quando openInBox for true (pra não ficar sem nada na tela).
 
-    expect(storage.openBoard).toBe(true);
+    expect(storage.isOpenBoard).toBe(true);
 
     //Inverte openInBox pra true pra ver se o openBoard fica true
-    floatMenuStorage.invertOpenInbox();
-    floatMenuStorage.invertOpenBoard();
+    floatMenuStorage.openInBox();
+    floatMenuStorage.closeBoard();
     //Chama só 3 vezes porque uma foi impedido de chamar por conta da restrição
     expect(fn).toHaveBeenCalledTimes(3)
-    expect(floatMenuStorageCore.getStorage().openBoard).toBe(false);
+    expect(floatMenuStorageCore.getStorage().isOpenBoard).toBe(false);
+  })
+
+    test("A função openBoard define isOpenBoard para true", () => {
+
+    const fn = vi.fn()
+    floatMenuStorageCore.subscribe(fn);
+    floatMenuStorage.closeBoard();
+    const storage = floatMenuStorageCore.getStorage();
+  
+    expect(storage.isOpenBoard).toBe(false);
+    floatMenuStorage.openBoard();
+    expect(floatMenuStorageCore.getStorage().isOpenBoard).toBe(true);
   })
 
 
-  test("A função invertOpenInbox inverte a propriedade openBoard dentro das restrições e chama o subscriber.", () => {
+
+  test("A função closeInBox define isOpenInBox para false, mas não quando isOpenBoard já é false", () => {
     const fn = vi.fn()
     //Primeiro inverter openBoard para false e testar se openInBox muda
     floatMenuStorageCore.subscribe(fn);
-    floatMenuStorage.invertOpenBoard();
-    floatMenuStorage.invertOpenInbox();
+    floatMenuStorage.closeBoard();
+    floatMenuStorage.closeInBox();
     const storage = floatMenuStorageCore.getStorage();
 
     // Irá inverter para false apenas quando openBoard for true (pra não ficar sem nada na tela).
-    expect(storage.openInBox).toBe(true);
+    expect(storage.isOpenInBox).toBe(true);
 
     //Inverte openBoard pra true pra ver se o openInBox fica true
-    floatMenuStorage.invertOpenBoard();
-    floatMenuStorage.invertOpenInbox();
+    floatMenuStorage.openBoard();
+    floatMenuStorage.closeInBox();
     //Chama só 3 vezes porque uma foi impedido de chamar por conta da restrição
     expect(fn).toHaveBeenCalledTimes(3)
-    expect(floatMenuStorageCore.getStorage().openInBox).toBe(false);
+    expect(floatMenuStorageCore.getStorage().isOpenInBox).toBe(false);
+  })
+
+  test("A função openInBox define isOpenInBox para true", () => {
+
+    const fn = vi.fn()
+    floatMenuStorageCore.subscribe(fn);
+    floatMenuStorage.closeInBox();
+    const storage = floatMenuStorageCore.getStorage();
+  
+    expect(storage.isOpenInBox).toBe(false);
+    floatMenuStorage.openInBox();
+    expect(floatMenuStorageCore.getStorage().isOpenInBox).toBe(true);
   })
 
   test("A função showMenu altera o isShow para true e chama o subscriber", () => {
@@ -95,9 +120,9 @@ describe("floatMenuStorage module testing", () => {
   test("O reset restaura o storage para o initialState e chama o subscribe", () => {
     const fn = vi.fn();
     floatMenuStorageCore.subscribe(fn);
-    floatMenuStorage.invertOpenBoard();
+    floatMenuStorage.closeBoard();
     const storage = floatMenuStorageCore.getStorage();
-    expect(storage.openBoard).toBe(false);
+    expect(storage.isOpenBoard).toBe(false);
     floatMenuStorage.reset();
     expect(fn).toHaveBeenCalledTimes(2);
     expect(floatMenuStorageCore.getStorage()).toEqual(INITIAL_STATE);

@@ -1,12 +1,12 @@
 type FloatMenuStorage = {
-  openInBox: boolean
-  openBoard: boolean,
+  isOpenInBox: boolean
+  isOpenBoard: boolean,
   isShow: boolean,
   timer?:ReturnType<typeof setTimeout> | null
 };
 
 const initialStorage: FloatMenuStorage = {
-  openInBox: true, openBoard: true,
+  isOpenInBox: true, isOpenBoard: true,
   isShow: false
 };
 let storage: FloatMenuStorage = { ...initialStorage };
@@ -36,20 +36,33 @@ export const floatMenuStorage = {
     storage = { ...initialStorage }
     notifySubscribers();
   },
-  invertOpenInbox() {
-    if (!storage.openBoard && storage.openInBox) {
+
+  closeInBox() {
+
+    if (!storage.isOpenBoard && storage.isOpenInBox) {
       return
     }
-    storage = { ...storage, openInBox: !storage.openInBox }
+    storage = { ...storage, isOpenInBox: false }
     notifySubscribers();
   },
-  invertOpenBoard() {
-    if (!storage.openInBox && storage.openBoard) {
-      return
-    }
-    storage = {...storage, openBoard:!storage.openBoard}
+  openInBox() {
+
+    storage = { ...storage, isOpenInBox: true }
+    notifySubscribers();
+
+  },
+
+  openBoard() {
+    storage = {...storage, isOpenBoard:true}
     notifySubscribers();
   },
+
+  closeBoard() {
+    if (!storage.isOpenInBox && storage.isOpenBoard) return;
+    storage = {...storage, isOpenBoard:false}
+    notifySubscribers();
+  },
+
   showMenu() {
     storage = { ...storage, isShow: true }
     notifySubscribers();
