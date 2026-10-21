@@ -1,5 +1,5 @@
 "use server";
-import { Card } from "@/types/dataTypes";
+import { Card, CardComment } from "@/types/dataTypes";
 import { prisma } from "prisma";
 import { protectedActions } from "./wrappers";
 
@@ -13,7 +13,7 @@ export async function getCardById(cardId:string):Promise<Card|null> {
           board:{ ownerId }
         }
       },
-      select:{ id:true, columnId:true, title:true, position:true, completed:true }
+      select:{ id:true, columnId:true, title:true, position:true, completed:true, description:true }
     },
     
     
@@ -48,6 +48,7 @@ export async function createCartForColumn({
         position: true,
         completed: true,
         columnId: true,
+        description:true,
       },
     });
   });
@@ -105,37 +106,6 @@ export async function createCartForColumnInBox({
   });
 }
 
-export async function getColumnForInBoxUser() {
-  const column = await protectedActions((session) =>
-    prisma.board.findFirst({
-      where: { isInbox: true, ownerId: session.user?.id },
-      select: {
-        columns: {
-          take: 1,
-          select: {
-            id: true,
-            cards: {
-              select: {
-                position: true,
-                title: true,
-                id: true,
-                completed: true,
-                columnId: true,
-              },
-
-              orderBy: { position: "desc" },
-            },
-            order: true,
-            title:true
-          },
-        },
-      },
-    }),
-  );
-
-  return column?.columns[0];
-}
-
 export const ChangeCompletedCard = async ({
   id,
 }: {
@@ -162,8 +132,8 @@ export const ChangeCompletedCard = async ({
 };
 
 export const DeleteCard = async ({ id }: { id: string }): Promise<Card> => {
-  return protectedActions(async (session) => {
-    return prisma.card.delete({
+  return await protectedActions(async (session) => {
+    return await prisma.card.delete({
       where: { id, column: { board: { ownerId: session.user.id } } },
       select: {
         id: true,
@@ -171,6 +141,7 @@ export const DeleteCard = async ({ id }: { id: string }): Promise<Card> => {
         position: true,
         columnId: true,
         completed: true,
+        description:true,
       },
     });
   });
@@ -281,3 +252,125 @@ export const reOrderCardsFromColumns = async ({
 
   return result;
 };
+
+
+export async function editTitleCard({cardId, title}:{cardId:string, title:string}) {
+
+  return await protectedActions(async (session) => {
+
+    return await prisma.card.update({
+      where: {id:cardId, column:{board:{ownerId:session.user.id}}},
+      data:{title},
+      select:{title:true},
+    })
+
+  })
+
+}
+
+export async function editDescriptionCard({cardId, description}:{cardId:string, description:string}) {
+
+  return await protectedActions(async(session) => {
+
+    const result = await prisma.card.update({
+    where:{id:cardId, column:{
+      board:{ownerId:session.user.id}
+      }
+    },
+      data:{description},
+      select:{description:true}
+    })
+    return result
+  })
+
+}
+
+export async function createCommentCard({cardId, body, id}:{cardId:string, body:string, id:string}):Promise<CardComment> {
+
+  return await protectedActions(async(session) => {
+
+    const result  = await prisma.cardComment.create({
+      data:{
+        id,
+        body,
+        cardId,
+        ownerId:session.user.id,
+      },
+      select:{
+        id:true,
+        owner:{select:{id:true,image:true, name:true}},
+        body:true,
+        createdAt:true,
+      }
+    })
+
+    return result;
+
+  })
+
+}
+
+export async function editCommentCard({idComment, body}:{idComment:string, body:string}) {
+
+  return await protectedActions(async(session) => {
+   
+    const result = await prisma.cardComment.update({
+      where:{
+        id:idComment,
+        ownerId:session.user.id,
+      },
+      data: {
+        body,
+      },
+      select:{
+        id:true,
+        cardId:true,
+        body:true
+      }
+    })
+
+    return result
+  })
+}
+
+export async function deleteCommentCard({id}:{id:string}) {
+  return await protectedActions(async (session) => {
+
+    await prisma.cardComment.delete({where:{id, ownerId:session.user.id}, select:{id:true}});
+
+  })
+}
+
+export async function getCommentsByCardId({cardId, cursorId}:{cardId:string, cursorId?:string}):Promise<{comments:CardComment[], nextCursor:string|null}> {
+  const take = 10;
+  return await protectedActions(async () => {
+    
+    const result = await prisma.cardComment.findMany({
+      where:{cardId},
+      take:take+1,
+      ...(cursorId && {
+        cursor:{
+          id:cursorId,
+        }
+      }),
+      select:{
+        id:true,
+        body:true,
+        owner:{select:{id:true, image:true, name:true}},
+        createdAt:true,
+      },
+      orderBy:[{
+        createdAt:"asc",
+      }, {id:"asc"}]
+    })
+
+    let nextCursor:string|null = null;
+    if (result.length > take) {
+      const nextItem = result.pop();
+      if (nextItem) {
+        nextCursor = nextItem.id
+      }
+    }
+    return {comments:result, nextCursor}
+  })
+}

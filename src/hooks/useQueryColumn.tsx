@@ -98,6 +98,7 @@ export function useQueryColumn() {
         if (thisColumn.id !== columnId) continue;
         newColumns[i] = { ...thisColumn, cardIds: [...thisColumn.cardIds.filter((thisCardId) => thisCardId !== cardId)] }
       }
+      queryClient.removeQueries({ queryKey: cardKey(cardId) });
       return [...newColumns]
     })
 

@@ -10,14 +10,15 @@ import { appleIconsList, iconsList } from "@/constrants/icons";
 const geistSans = Geist({
   variable: "--font-geist",
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400","500", "600", "700"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
 
 const rethink_sans = Rethink_Sans({
   variable: "--font-rethink",
   subsets: ["latin"],
-  weight: ["400", "600","500", "700"],
+  weight: ["400", "600", "500", "700"],
 });
+
 
 const marck_script = Marck_Script({
   weight: ["400"],
@@ -34,12 +35,12 @@ export const metadata: Metadata = {
   },
   robots: {
     index: true,
-    follow:true,
+    follow: true,
   },
   openGraph: {
     title: "Krux | Kanban - O ápice da produtividade em equipe",
     description: "Kanban colaborativo em tempo real. Organize tarefas sem distrações. Trabalhe com seu time sincronizado.",
-    type:"website",
+    type: "website",
     images: [
       {
         url: "/open_graph.jpeg",
@@ -49,7 +50,7 @@ export const metadata: Metadata = {
     ]
 
   },
-  keywords:["kanban", "board", "produtividade", "gerenciamento", "projetos"],
+  keywords: ["kanban", "board", "produtividade", "gerenciamento", "projetos"],
   alternates: {
     canonical: process.env.NODE_ENV === "production" ? process.env.AUTH_URL : undefined,
   },

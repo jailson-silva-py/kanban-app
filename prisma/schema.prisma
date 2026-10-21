@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated"
@@ -24,7 +18,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-
+  comments      CardComment[]
 
   Authenticator Authenticator[]
 
@@ -127,6 +121,7 @@ model Card {
   id          String   @id @default(uuid())
   title       String
   description String?  @db.Text
+  comments    CardComment[]
   completed   Boolean @default(false)
   position    Float
 
@@ -137,4 +132,18 @@ model Card {
   updatedAt   DateTime @updatedAt
 
   @@index([columnId]) // Otimiza a renderização da coluna
+}
+
+
+model CardComment {
+
+  id          String     @id @default(uuid())
+  body        String
+  cardId      String
+  card        Card       @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  ownerId     String
+  owner       User       @relation(fields:[ownerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+
+  @@index([cardId])
 }

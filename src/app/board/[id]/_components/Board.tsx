@@ -4,7 +4,7 @@ import { TbChalkboard } from "react-icons/tb";
 import BtnInputEditBoardTitle from "./BtnInputEditBoardTitle";
 import ColumnBoard from "./ColumnBoard";
 import CreateColumnItemBtn from "./CreateColumn";
-import { redirect, usePathname, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import { useGetInitialBoard } from "@/hooks/useGetInitialBoard";
 import { Separator } from "@/components/Separator";
@@ -16,7 +16,6 @@ import { useQueryBoard } from "@/hooks/useQueryBoard"
 import { autoScrollForElements } from "@atlaskit/pragmatic-drag-and-drop-auto-scroll/element";
 import { ButtonGhost } from "@/components/ButtonGhost";
 import useCardsColumnsStorage from "@/hooks/useCardsColumnsStorage";
-import { storage as mainStorageCardsColumns } from "@/app/util/cardsColumnsStorage";
 import Link from "next/link";
 
 interface Iprops {
@@ -27,7 +26,7 @@ interface Iprops {
 const Board = ({ initialData }: Iprops) => {
 
   const refButtonEditBoardTitle = useRef<HTMLButtonElement>(null);
-  const cardsColumnsStorage = useCardsColumnsStorage();
+  const { storage: cardsColumnsStorage, getTarget, resetTarget } = useCardsColumnsStorage();
   const [openDialog, setOpenDialog] = useState(false);
   const { createColumnsPlaceholder, getAllColumnsBoard } = useQueryBoard();
   const refListColumnsBoard = useRef<HTMLUListElement>(null);
@@ -55,15 +54,13 @@ const Board = ({ initialData }: Iprops) => {
 
   useEffect(() => {
 
-    const objTarget = mainStorageCardsColumns.getTarget();
-
+    const objTarget = getTarget();
     if (!objTarget) return;
 
 
     const elementCard = cardsColumnsStorage.cards.get(objTarget.id);
     const elementColumn = cardsColumnsStorage.columns.get(objTarget.id);
     const el = objTarget.type === "card" ? elementCard : elementColumn;
-
 
     if (!el?.current) return
 
@@ -77,9 +74,9 @@ const Board = ({ initialData }: Iprops) => {
 
     executeScroll(el.current)
     el.current.animate([{ border: "1px solid var(--color-text)" }, { border: "1px solid var(--color-shadow)" }], { easing: "ease", duration: 800, iterations: 4 });
-    mainStorageCardsColumns.resetTarget();
+    resetTarget();
 
-  }, [cardsColumnsStorage.cards, cardsColumnsStorage.columns]);
+  }, [cardsColumnsStorage.cards, cardsColumnsStorage.columns, cardsColumnsStorage.target]);
 
   useEffect(() => {
 

@@ -29,6 +29,7 @@ const card: CardType = {
   completed: false,
   position: 300,
   title: "Cartão maneiro",
+  description: null,
 };
 
 const createQueryClient = () => new QueryClient({

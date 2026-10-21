@@ -83,7 +83,6 @@ const ListItem = ({
   const handleClickButton = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     storage.setTarget(type as "card" | "column", value.id);
-
     router.push(href.toString());
     onClose();
   }

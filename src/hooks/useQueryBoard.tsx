@@ -74,9 +74,8 @@ export function useQueryBoard() {
       if (!old) return;
       return [...old.filter(({ id: thisId }) => thisId !== columnId)]
     })
-    queryClient.removeQueries({ queryKey: columnKey(columnId), exact: true });
-
     removeAllCardsFromColumn(columnId)
+    queryClient.removeQueries({ queryKey: columnKey(columnId), exact: true });
 
   }
 
@@ -101,6 +100,5 @@ export function useQueryBoard() {
 
   };
 }
-
 
 

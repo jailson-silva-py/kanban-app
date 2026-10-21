@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { QueryClient } from "@tanstack/react-query";
 import { card as cardKey, column, inBoxCards } from "@/constrants/queryKeys";
 import { ColumnClient, InBoxClient } from "@/types/clientDataTypes";
-import { Column } from "@/types/dataTypes";
+import { Card, Column } from "@/types/dataTypes";
 import { getAllBoardFromUser } from "@/actions/boardActions";
 import { getColumnById, getColumnForInBoxUser } from "@/actions/actions";
 import { reOrderCardsFromColumns } from "@/actions/cardActions";
@@ -36,8 +36,8 @@ const mockReOrderCardsFromColumns = vi.mocked(reOrderCardsFromColumns);
 
 let queryClient: QueryClient;
 
-const card = createCard({ id: "card", columnId: "col-1", position: 300 });
-const cardBelow = createCard({ id: "c1b", columnId: "col-1", position: 200, title: "Cartão abaixo" });
+const card = createCard({ id: "card", columnId: "col-1", position: 300, description: null, completed: false });
+const cardBelow = createCard({ id: "c1b", columnId: "col-1", position: 200, title: "Cartão abaixo", description: null, completed: false });
 const sourceColumn: Column = {
   id: "col-1", boardId: "board-123", title: "Coluna Bacana", order: 100,
   cards: [card, cardBelow],
@@ -51,7 +51,7 @@ const targetColumn: Column = {
   ],
 };
 
-const seedCard = (cardData: ReturnType<typeof createCard>) =>
+const seedCard = (cardData: Card) =>
   queryClient.setQueryData(cardKey(cardData.id), cardData);
 
 beforeEach(() => {
@@ -71,6 +71,7 @@ beforeEach(() => {
 
   seedCard(card);
   seedCard(cardBelow);
+  targetColumn.cards
   targetColumn.cards.forEach(seedCard);
 
   mockGetColumnById.mockImplementation(async (columnId) =>

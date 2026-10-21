@@ -34,7 +34,7 @@ export const AddCartColumn = ({ children, textForArea, columnId }: Props) => {
       await context.client.cancelQueries();
       const queryData = getColumn(columnId);
       if (!queryData) return
-      const card: Card = { ...variables, columnId, completed: false, position: Infinity }
+      const card: Card = { ...variables, columnId, completed: false, position: Infinity, description: null }
       createCard(columnId, card);
       return { previousState: queryData }
     },

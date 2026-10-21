@@ -29,6 +29,7 @@ export const createCard = (overrides: Partial<CardType> = {}): CardType => ({
   completed: false,
   position: 300,
   title: "Cartão maneiro",
+  description: null,
   ...overrides,
 });
 
@@ -88,6 +89,7 @@ export const seedBoardColumns = (
         completed: false,
         position: (j + 1) * 100,
         title: columnData.cardIds[j],
+        description: null,
       });
     }
   }
@@ -123,6 +125,7 @@ export const seedColumnCardIds = (queryClient: QueryClient, columnData: ColumnCl
       completed: false,
       position: (i + 1) * 100,
       title: cardId,
+      description: null,
     });
   }
 };

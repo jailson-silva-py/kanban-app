@@ -30,6 +30,7 @@ const card: CardType = {
   id: "card-1",
   columnId: "col-1",
   completed: false,
+  description: null,
   position: 300,
   title: "Cartão maneiro",
 };

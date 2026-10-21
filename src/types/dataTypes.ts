@@ -4,6 +4,7 @@ import type {
   CardGetPayload,
   ColumnGetPayload,
   UserGetPayload,
+  CardCommentGetPayload
 } from "@/generated/models";
 import { PromiseReturnType } from "@prisma/client/extension";
 
@@ -27,6 +28,7 @@ export type Column = ColumnGetPayload<{
         title: true;
         completed: true;
         columnId: true;
+        description:true;
       };
     };
   };
@@ -45,8 +47,18 @@ export type Card = CardGetPayload<{
     title: true;
     completed: true;
     columnId: true;
+    description: true
   };
 }>;
+
+export type CardComment = CardCommentGetPayload<{
+  select:{
+    id:true,
+    owner:{select:{id:true, image:true, name:true}},
+    body:true,
+    createdAt:true
+  }
+}>
 
 export type User = UserGetPayload<{
   select: { id: true; email: true; name: true; image: true, emailVerified:true };

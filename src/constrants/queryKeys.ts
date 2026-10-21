@@ -2,11 +2,12 @@ export type prefixKeysType = {
   column:"column",
   board:"board",
   card:"card",
+  cardComment:"comment",
   search:"globalSearch",
   columnsBoard:"columns-board",
 }
 
-export const prefixKeysFromDynamic:prefixKeysType = { column: "column", board: "board", card:"card" as "card", search: "globalSearch", columnsBoard:"columns-board" };
+export const prefixKeysFromDynamic:prefixKeysType = { column: "column", board: "board", card:"card" as "card", cardComment:"comment", search: "globalSearch", columnsBoard:"columns-board" };
 
 export function column(id: string) {
   return [prefixKeysFromDynamic.column, id] satisfies ["column", string]
@@ -26,6 +27,10 @@ export function globalSearch(search: string) {
 
 export function card(id: string) {
   return [prefixKeysFromDynamic.card, id] satisfies ["card", string]
+}
+
+export function cardComment(cardId:string) {
+  return [...card(cardId), prefixKeysFromDynamic.cardComment]
 }
 
 export const boards:["boards"] = ["boards"];

@@ -13,6 +13,7 @@ import { useQueryColumn } from "@/hooks/useQueryColumn";
 import { logger } from "@/app/util/logger";
 import { ButtonGhost } from "@/components/ButtonGhost";
 import { storage } from "@/app/util/cardsColumnsStorage";
+import { ModalEditCard } from "./ModalEditCard";
 
 type CardProps = {
   id: string;
@@ -28,7 +29,7 @@ type CardContentProps = {
 
 const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...props }) => {
 
-  const [completed, setCompleted] = useState(card.completed);
+  const [openModalCard, setOpenModalCard] = useState(false);
   const [dragging, setDragging] = useState(false);
   const ref = useRef<HTMLLIElement | null>(null)
   const { getMovedPositionCard } = useQueryColumn()
@@ -36,13 +37,12 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
 
   const onChangeIsComplete = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setCompleted((prev) => !prev);
     mutate({ operation: "change-completed", cardId: card.id });
   };
 
   const onChangeDeleteCard = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    mutate({ operation: "delete", cardId: card.id });
+    mutate({ operation: "delete", cardId: card.id, inBoxKey });
   };
 
   const handleOpenDialog = (e: MouseEvent) => {
@@ -109,9 +109,9 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
     >
       <form onSubmit={onChangeIsComplete}>
         <div
-          className={`${completed ? "flex" : "hidden group-hover:animate-grow"} w-5 h-5 starting:scale-0 group-hover:flex relative p-1 items-center justify-center rounded-full shadow-shadow shadow-default has-[*:hover]:scale-105`}
+          className={`${card.completed ? "flex" : "hidden group-hover:animate-grow"} w-5 h-5 starting:scale-0 group-hover:flex relative p-1 items-center justify-center rounded-full shadow-shadow shadow-default has-[*:hover]:scale-105`}
           style={{
-            backgroundColor: completed
+            backgroundColor: card.completed
               ? "oklch(from var(--color-success) l c h / 0.3)"
               : "transparent",
           }}
@@ -121,17 +121,17 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
             type="checkbox"
             name="card_completed"
             id="card_completed"
-            checked={completed}
+            checked={card.completed}
             onChange={handleChangeCompleted}
             className="absolute cursor-pointer z-1 w-full h-full opacity-0"
             disabled={isPending}
           />
-          {completed && <TbCheck size={16} role="img" aria-label="completed-svg" />}
+          {card.completed && <TbCheck size={16} role="img" aria-label="completed-svg" />}
         </div>
       </form>
-      <p lang="pt-BR" className="text-xs leading-5 line-clamp-4  text-pretty text-justify break-all hyphens-auto" draggable={false}>
+      <button onClick={() => { setOpenModalCard(true) }} lang="pt-BR" className="text-xs leading-5 line-clamp-4 text-pretty text-justify break-all hyphens-auto cursor-pointer">
         {card?.title}
-      </p>
+      </button>
       <DropdownMenuWithDots>
         <DropdownMenuWithDots.Item>
           <form onSubmit={onChangeIsComplete} className="h-max full">
@@ -139,7 +139,7 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
               aria-label="completed-card-btn"
               type="submit"
             >
-              {completed ? "Retomar" : "Concluir"}
+              {card.completed ? "Retomar" : "Concluir"}
             </ButtonGhost>
           </form>
         </DropdownMenuWithDots.Item>
@@ -165,6 +165,7 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
       <Dialog state={openDialog} setState={setOpenDialog}>
         <PainelMoveCardFor cardId={card.id} inBoxKey={inBoxKey} />
       </Dialog>
+      <ModalEditCard onChangeIsComplete={onChangeIsComplete} card={card} completed={card.completed} handleChangeCompleted={handleChangeCompleted} isOpen={openModalCard} setIsOpen={setOpenModalCard} isPending={isPending} />
     </li>
   );
 };

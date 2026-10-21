@@ -58,7 +58,8 @@ export const ModelName = {
   Authenticator: 'Authenticator',
   Board: 'Board',
   Column: 'Column',
-  Card: 'Card'
+  Card: 'Card',
+  CardComment: 'CardComment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -179,6 +180,17 @@ export const CardScalarFieldEnum = {
 } as const
 
 export type CardScalarFieldEnum = (typeof CardScalarFieldEnum)[keyof typeof CardScalarFieldEnum]
+
+
+export const CardCommentScalarFieldEnum = {
+  id: 'id',
+  body: 'body',
+  cardId: 'cardId',
+  ownerId: 'ownerId',
+  createdAt: 'createdAt'
+} as const
+
+export type CardCommentScalarFieldEnum = (typeof CardCommentScalarFieldEnum)[keyof typeof CardCommentScalarFieldEnum]
 
 
 export const SortOrder = {

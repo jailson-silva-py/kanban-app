@@ -36,7 +36,7 @@ export const CardsContainer: React.FC<CardsContentProps> = ({
     <ul
       ref={ref}
       aria-label="cards-content"
-      className={`px-4 py-2 flex flex-col items-center gap-2 overflow-y-auto h-full ${props.className ?? ""}`}
+      className={`px-4 w-full py-2 flex flex-col items-center gap-2 overflow-y-auto h-full ${props.className ?? ""}`}
       {...props}
     >
       {cardIds.length > 0 ? cardIds.map((cardId, index) => {

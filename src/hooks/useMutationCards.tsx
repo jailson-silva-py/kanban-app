@@ -88,7 +88,7 @@ export function useMutationCards() {
             removeCard(cardId, card.columnId);
             break;
           }
-          removeCardInBox(card.id)
+          removeCardInBox(cardId)
           break;
 
         case "change-completed":
@@ -134,6 +134,9 @@ export function useMutationCards() {
       // 1. Reverte o estado local (UI) se foi uma tentativa de completar/descompletar
       if (variables.operation === "change-completed") {
         toast.error("Ocorreu um erro ao completar/descompletar o card.");
+        if (result.previousState) {
+          setCard(cardId, result.previousState);
+        }
         return;
       }
 

@@ -50,7 +50,7 @@ export function useQueryInBox() {
       queryClient.setQueryData<CardType>(cardKey(cardData.id), cardData);
     },
     removeCardInBox: (cardId: string) => {
-      queryClient.removeQueries({ queryKey: cardKey(cardId), exact: true });
+      queryClient.removeQueries({ queryKey: cardKey(cardId) });
       queryClient.setQueryData<InBoxClient>(inBoxCards, (old) => {
         if (!old) return;
         return {

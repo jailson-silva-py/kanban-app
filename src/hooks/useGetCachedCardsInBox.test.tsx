@@ -5,16 +5,8 @@ import { useGetCachedCardsInBox } from "./useGetCachedCardsInBox";
 import { getColumnForInBoxUser } from "@/actions/actions";
 import { inBoxCards } from "@/constrants/queryKeys";
 import { InBoxClient } from "@/types/clientDataTypes";
-import { Card as CardType } from "@/types/dataTypes";
+import { createCard } from "@/app/util/testImplementations";
 
-const createCard = (overrides: Partial<CardType> = {}): CardType => ({
-  id: "card",
-  columnId: "col-1",
-  completed: false,
-  position: 100,
-  title: "Cartão maneiro",
-  ...overrides,
-});
 
 const createQueryClient = () =>
   new QueryClient({

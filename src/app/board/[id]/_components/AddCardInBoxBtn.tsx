@@ -28,7 +28,7 @@ export const AddCartInBox = ({ children, textForArea }: Props) => {
       await context.client.cancelQueries({ queryKey: inBoxKey });
       const queryData = getInBox();
       if (!queryData) return
-      const card: Card = { columnId: queryData.id, completed: false, position: Infinity, ...variables }
+      const card: Card = { columnId: queryData.id, completed: false, position: Infinity, ...variables, description: null }
       createCardInBox(card);
       return { previousState: queryData }
     },

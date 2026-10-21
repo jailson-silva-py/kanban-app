@@ -6,6 +6,7 @@ import {
   createColumnFromBoard,
   ChangeColumnTitle,
   deleteColumnById,
+  getColumnForInBoxUser,
 } from "./columnActions";
 
 
@@ -25,6 +26,9 @@ vi.mock("prisma", () => ({
       update: vi.fn(),
       delete: vi.fn(),
     },
+    board: {
+      findFirst:vi.fn(),
+    }
   },
 }));
 
@@ -39,6 +43,7 @@ const selectColumn = {
       title: true,
       position: true,
       completed: true,
+      description:true,
       columnId: true,
     },
     orderBy: { position: "desc" },
@@ -63,6 +68,41 @@ describe("getColumnById", () => {
     vi.mocked(prisma.column.findUnique).mockResolvedValueOnce(null as never);
     await getColumnById("col-1","board-123");
     expect(protectedActions).toHaveBeenCalled();
+  });
+});
+
+
+describe("getColumnForInBoxUser", () => {
+  it("retorna a primeira coluna do board inbox com os cards", async () => {
+    const columnData = {
+      id: "col-inbox",
+      order:100,
+      title:"inBox",
+      cards: [{ id: "card-1", position: 100, title: "Anotação", completed: false, columnId: "col-inbox" }],
+    };
+    vi.mocked(prisma.board.findFirst).mockResolvedValueOnce({ columns: [columnData] } as never);
+
+    await expect(getColumnForInBoxUser()).resolves.toEqual(columnData);
+
+    const {boardId:_,...customSelectColumn} = selectColumn;
+
+    expect(prisma.board.findFirst).toHaveBeenCalledWith({
+      where: { isInbox: true, ownerId: "test-user" },
+      select: {
+        columns: {
+          take:1,
+          select:{
+             ...customSelectColumn
+          }
+        }
+      },
+    });
+  });
+
+  it("retorna undefined quando não há board inbox", async () => {
+    vi.mocked(prisma.board.findFirst).mockResolvedValueOnce(null as never);
+
+    await expect(getColumnForInBoxUser()).resolves.toBeUndefined();
   });
 });
 

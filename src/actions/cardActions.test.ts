@@ -4,10 +4,14 @@ import {
   getCardById,
   createCartForColumn,
   createCartForColumnInBox,
-  getColumnForInBoxUser,
   ChangeCompletedCard,
   DeleteCard,
   reOrderCardsFromColumns,
+  editTitleCard,
+  editDescriptionCard,
+  createCommentCard,
+  editCommentCard,
+  deleteCommentCard,
 } from "./cardActions";
 
 vi.mock("@/actions/cardActions", async () => {
@@ -27,6 +31,7 @@ vi.mock("prisma", () => ({
     },
     board: { findFirst: vi.fn(), create: vi.fn() },
     column: { create: vi.fn() },
+    cardComment:{update:vi.fn(), create:vi.fn(), findMany:vi.fn(), delete:vi.fn()},
     $queryRaw: vi.fn(),
     $executeRawUnsafe: vi.fn(),
   },
@@ -37,6 +42,7 @@ const selectCard = {
   title: true,
   position: true,
   completed: true,
+  description:true,
   columnId: true,
 };
 
@@ -205,44 +211,6 @@ describe("createCartForColumnInBox", () => {
         data: expect.objectContaining({ columnId: "col-nova" }),
       }),
     );
-  });
-});
-
-describe("getColumnForInBoxUser", () => {
-  it("retorna a primeira coluna do board inbox com os cards", async () => {
-    const columnData = {
-      id: "col-inbox",
-      order:100,
-      title:"inBox",
-      cards: [{ id: "card-1", position: 100, title: "Anotação", completed: false, columnId: "col-inbox" }],
-    };
-    vi.mocked(prisma.board.findFirst).mockResolvedValueOnce({ columns: [columnData] } as never);
-
-    await expect(getColumnForInBoxUser()).resolves.toEqual(columnData);
-
-    expect(prisma.board.findFirst).toHaveBeenCalledWith({
-      where: { isInbox: true, ownerId: "test-user" },
-      select: {
-        columns: {
-          take: 1,
-          select: {
-            id: true,
-            order:true,
-            title:true,
-            cards: {
-              select: { position: true, title: true, id: true, completed: true, columnId: true },
-              orderBy: { position: "desc" },
-            },
-          },
-        },
-      },
-    });
-  });
-
-  it("retorna undefined quando não há board inbox", async () => {
-    vi.mocked(prisma.board.findFirst).mockResolvedValueOnce(null as never);
-
-    await expect(getColumnForInBoxUser()).resolves.toBeUndefined();
   });
 });
 
@@ -441,3 +409,145 @@ describe("reOrderCardsFromColumns", () => {
     expect(protectedActions).toHaveBeenCalled();
   });
 });
+
+describe("editTitleCard", () => {
+  const paramAction = {cardId:"123", title:"xablau"}
+  it("O prisma é utilizado com os Parâmetros corretos", async () => {
+    await editTitleCard(paramAction);
+
+    const mock = vi.mocked(prisma.card.update);
+    expect(mock).toHaveBeenCalledWith(expect.objectContaining({
+      where:{
+        id:paramAction.cardId,
+        column:{
+          board:{
+            ownerId:"test-user"}
+          }
+        },
+      data:{title:paramAction.title},
+      }));
+
+  }) 
+
+  it("È envolvido com o protectedActions", async () => {
+
+    await editTitleCard(paramAction);
+
+    expect(protectedActions).toHaveBeenCalled();
+
+  })
+  
+
+})
+
+describe(editDescriptionCard.toString(), () => {
+
+  const paramAction = {cardId:"123", description:"Que descrição legal"};
+  it("O prisma é utilizado com os parâmetros corretos", async () => {
+
+    await editDescriptionCard(paramAction)
+
+    const mock = vi.mocked(prisma.card.update);
+    expect(mock).toHaveBeenCalledWith(expect.objectContaining({
+      where:{id:paramAction.cardId, column:{board:{ownerId:"test-user"}}},
+      data:{description:paramAction.description},
+      select:{description:true}
+    }))
+
+  })
+
+   it("È envolvido com o protectedActions", async () => {
+
+    await editDescriptionCard(paramAction);
+
+    expect(protectedActions).toHaveBeenCalled();
+
+  })
+
+})
+
+
+describe(createCommentCard.toString(), () => {
+
+  const paramAction = {cardId:"123", body:"Um comentário bacana", id:"comment-123"};
+  it("O prisma é utilizado com os parâmetros corretos", async () => {
+
+    await createCommentCard(paramAction);
+
+    const mock = vi.mocked(prisma.cardComment.create);
+    expect(mock).toHaveBeenCalledWith(expect.objectContaining({
+      data:{...paramAction, ownerId:"test-user"},
+      select:expect.objectContaining({
+        id:true,
+        owner:{select:{id:true,image:true, name:true}},
+        body:true,
+        createdAt:true,
+      })
+    }))
+
+  })
+
+   it("É envolvido com o protectedActions", async () => {
+
+    await createCommentCard(paramAction);
+
+    expect(protectedActions).toHaveBeenCalled();
+
+  })
+
+})
+
+describe(editCommentCard.toString(), () => {
+
+  const paramAction = {idComment:"comment-123", body:"Um comentário bacanão editado"};
+  it("O prisma é utilizado com os parâmetros corretos", async () => {
+
+    await editCommentCard(paramAction);
+
+    const mock = vi.mocked(prisma.cardComment.update);
+    expect(mock).toHaveBeenCalledWith(expect.objectContaining({
+      where:{id:paramAction.idComment, ownerId:"test-user"},
+      data:{body:paramAction.body},
+      select:expect.objectContaining({
+        id:true,
+        cardId:true,
+        body:true
+      })
+    }))
+
+  })
+
+   it("É envolvido com o protectedActions", async () => {
+
+    await editCommentCard(paramAction);
+
+    expect(protectedActions).toHaveBeenCalled();
+
+  })
+
+})
+
+describe(deleteCommentCard.toString(), () => {
+
+  const paramAction = {id:"comment-123"};
+  it("O prisma é utilizado com os parâmetros corretos", async () => {
+
+    await deleteCommentCard(paramAction);
+
+    const mock = vi.mocked(prisma.cardComment.delete);
+    expect(mock).toHaveBeenCalledWith(expect.objectContaining({
+      where:{id:paramAction.id, ownerId:"test-user"},
+      select:{id:true},
+    }))
+
+  })
+
+   it("É envolvido com o protectedActions", async () => {
+
+    await deleteCommentCard(paramAction);
+
+    expect(protectedActions).toHaveBeenCalled();
+
+  })
+
+})

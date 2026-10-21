@@ -81,3 +81,8 @@ export type Column = Prisma.ColumnModel
  * 
  */
 export type Card = Prisma.CardModel
+/**
+ * Model CardComment
+ * 
+ */
+export type CardComment = Prisma.CardCommentModel

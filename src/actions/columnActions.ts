@@ -19,6 +19,7 @@ export async function getColumnById(id: string, boardId:string): Promise<Column 
             title: true,
             position: true,
             completed: true,
+            description:true,
             columnId: true,
           },
           orderBy: { position: "desc" },
@@ -26,6 +27,38 @@ export async function getColumnById(id: string, boardId:string): Promise<Column 
       },
     }),
   );
+}
+
+export async function getColumnForInBoxUser() {
+  const column = await protectedActions((session) =>
+    prisma.board.findFirst({
+      where: { isInbox: true, ownerId: session.user?.id },
+      select: {
+        columns: {
+          take: 1,
+          select: {
+            id: true,
+            cards: {
+              select: {
+                position: true,
+                title: true,
+                id: true,
+                completed: true,
+                columnId: true,
+                description:true,
+              },
+
+              orderBy: { position: "desc" },
+            },
+            order: true,
+            title:true
+          },
+        },
+      },
+    }),
+  );
+
+  return column?.columns[0];
 }
 
 export async function getAllColumnsById(columnIds:string[], boardId:string):Promise<Column[]> {
