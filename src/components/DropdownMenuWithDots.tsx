@@ -34,7 +34,7 @@ const DropdownMenuWithDots = ({ children, ...props }: DropdownMenuWithDotsProps)
   };
 
   return (
-    <div className="realtive ml-auto h-full w-5 flex items-center justify-center">
+    <div className="relative ml-auto h-full w-5 flex items-center justify-center">
       <button
         ref={refButton}
         onClick={handleOpenDropdown}

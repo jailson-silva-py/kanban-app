@@ -3,7 +3,7 @@ import { render, RenderOptions, screen, waitFor } from "@testing-library/react";
 import { UserEvent } from "@testing-library/user-event";
 import { board, card as cardKey, column, columnsBoard, inBoxCards } from "@/constrants/queryKeys";
 import { ColumnClient, InBoxClient } from "@/types/clientDataTypes";
-import { BoardFull, BoardSimple, Card as CardType, ColumnSkeleton } from "@/types/dataTypes";
+import { BoardFull, Card as CardType, ColumnSkeleton } from "@/types/dataTypes";
 
 
 const createQueryClient = (): QueryClient => {

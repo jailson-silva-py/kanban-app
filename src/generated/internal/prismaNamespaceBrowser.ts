@@ -161,6 +161,7 @@ export type BoardScalarFieldEnum = (typeof BoardScalarFieldEnum)[keyof typeof Bo
 export const ColumnScalarFieldEnum = {
   id: 'id',
   title: 'title',
+  color: 'color',
   order: 'order',
   boardId: 'boardId'
 } as const

@@ -129,7 +129,7 @@ const CardContent: React.FC<CardContentProps> = ({ card, inBoxKey, index, ...pro
           {card.completed && <TbCheck size={16} role="img" aria-label="completed-svg" />}
         </div>
       </form>
-      <button onClick={() => { setOpenModalCard(true) }} lang="pt-BR" className="text-xs leading-5 line-clamp-4 text-pretty text-justify break-all hyphens-auto cursor-pointer">
+      <button onClick={() => { setOpenModalCard(true) }} lang="pt-BR" className="text-xs  line-clamp-4 leading-5 text-left tracking-normal wrap-break-word cursor-pointer">
         {card?.title}
       </button>
       <DropdownMenuWithDots>

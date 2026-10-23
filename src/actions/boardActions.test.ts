@@ -79,7 +79,7 @@ describe("getBoardById", () => {
     const board = {
       id: "board-1",
       title: "Projeto",
-      columns: [{ id: "col-1", order: 100, title: "A Fazer" }],
+      columns: [{ id: "col-1", order: 100, title: "A Fazer", color:null }],
     };
     vi.mocked(prisma.board.findFirst).mockResolvedValueOnce(board as never);
 
@@ -89,7 +89,7 @@ describe("getBoardById", () => {
       where: { id: "board-1", isInbox: false, ownerId: "test-user" },
       select: {
         columns: {
-          select: { order: true, id: true, title: true },
+          select: { order: true, id: true, title: true, color:true },
           orderBy: { order: "asc" },
         },
         id: true,

@@ -46,6 +46,7 @@ vi.mock("@/actions/actions", ():typeof actions => {
   editDescriptionCard:vi.fn(),
   editTitleCard:vi.fn(),
   getCommentsByCardId:vi.fn(),
+  changeColorColumn:vi.fn(),
 };
 });
 

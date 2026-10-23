@@ -13,6 +13,7 @@ export type ColumnClient = {
   id: string,
   title: string,
   order: number,
+  color?:string,
   cardIds: string[],
   boardId: string,
 }

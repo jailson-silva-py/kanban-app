@@ -21,6 +21,7 @@ export type Column = ColumnGetPayload<{
     boardId: true;
     title: true;
     order: true;
+    color:true;
     cards: {
       select: {
         id: true;
@@ -34,7 +35,7 @@ export type Column = ColumnGetPayload<{
   };
 }>;
 export type ColumnSimple = ColumnGetPayload<{
-  select: { id: true; cards: { select: { id: true; position: true } } };
+  select: { id: true; cards: { select: { id: true; position: true }, color:true } };
 }>;
 export type ColumnSkeleton = ColumnGetPayload<{
   select: { id: true; order: true; title: true };

@@ -5,7 +5,7 @@ import CardsLoading from "@/components/CardsLoading";
 import { useGetColumn } from "@/hooks/useGetColumn";
 import { AddCartColumn } from "./AddCardColumnBtn";
 import { CardsContainer } from "@/app/board/[id]/_components/CardsContainer";
-import BtnDeleteColumn from "./MenuOperationsCol";
+import { MenuOperationsCol } from "./MenuOperationsCol";
 import { useParams } from "next/navigation";
 
 type Iprops = {
@@ -24,14 +24,16 @@ function ColumnBoard({ id, ...props }: Iprops) {
     <li
       id={`column-${id}`}
       {...props}
-      className={`flex flex-col shadow-shadow shadow-default bg-primary/30 rounded-sm w-65 shrink-0 grow-0 max-h-[75vh]`}
+      style={{ borderLeft: data?.color ? `4px solid ${data.color}60` : "", boxShadow: data?.color ? `var(--shadow-glow-size) ${data.color}30, var(--shadow-default-size) var(--color-shadow)` : undefined }}
+      className={`relative flex flex-col overflow-hidden shadow-shadow shadow-default bg-primary/30 rounded-sm w-65 shrink-0 grow-0 max-h-[75vh]`}
+
     >
       <BtnInputEditColumnTitle
         columnTitle={data?.title || ""}
         columnId={id}
         boardId={data?.boardId as string}
       >
-        <BtnDeleteColumn boardId={boardId} columnId={id} />
+        <MenuOperationsCol boardId={boardId} columnId={id} />
       </BtnInputEditColumnTitle>
 
       <CardsColumn>

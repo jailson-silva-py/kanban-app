@@ -37,6 +37,7 @@ const selectColumn = {
   boardId: true,
   title: true,
   order: true,
+  color:true,
   cards: {
     select: {
       id: true,
@@ -84,7 +85,7 @@ describe("getColumnForInBoxUser", () => {
 
     await expect(getColumnForInBoxUser()).resolves.toEqual(columnData);
 
-    const {boardId:_,...customSelectColumn} = selectColumn;
+    const {boardId:_, color:__, ...customSelectColumn} = selectColumn;
 
     expect(prisma.board.findFirst).toHaveBeenCalledWith({
       where: { isInbox: true, ownerId: "test-user" },
@@ -117,6 +118,7 @@ describe("getAllColumnsById", () => {
       select: {
         boardId: true,
         id: true,
+        color:true,
         cards: {
           select: { id: true, title: true, completed: true, position: true, description: true, columnId: true },
           orderBy: { position: "desc" },

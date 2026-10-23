@@ -26,6 +26,8 @@
     --shadow-bottom:
         var(--shadow-bottom-size) var(--tw-shadow-color),
         var(--shadow-default-size) var(--tw-shadow-color);
+    --shadow-glow-size: 0 0 12px;
+    --shadow-glow:0 0 12px var(--tw-shadow-color);
     --font-rethink: var(--font-rethink);
     --font-geist: var(--font-geist);
     --font-marck-script: var(--font-marck-script);

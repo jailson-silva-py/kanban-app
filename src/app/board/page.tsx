@@ -2,7 +2,8 @@
 import { redirect } from "next/navigation";
 
 const BoardsPage = () => {
-  redirect("/home")
+  console.log("Redirecionando para a página home")
+  redirect("/home");
   return (
     <></>
   )

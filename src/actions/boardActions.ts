@@ -32,12 +32,11 @@ export async function createBoardFromUser({
 }
 
 export async function getBoardById(id: string): Promise<BoardFull | null> {
-  return protectedActions((session) =>
-    prisma.board.findFirst({
-      where: { id, isInbox: false, ownerId: session?.user?.id as string },
+  return await protectedActions(async (session) => prisma.board.findFirst({
+      where: { id, isInbox: false, ownerId: session.user.id },
       select: {
         columns: {
-          select: { order: true, id: true, title: true },
+          select: { order: true, id: true, title: true, color:true },
           orderBy: { order: "asc" },
         },
         id: true,

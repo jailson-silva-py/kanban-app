@@ -107,7 +107,7 @@ model Column {
 
   id        String   @id @default(uuid())
   title     String
-
+  color     String?   
   order     Float
 
   boardId   String

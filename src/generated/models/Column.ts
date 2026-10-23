@@ -37,6 +37,7 @@ export type ColumnSumAggregateOutputType = {
 export type ColumnMinAggregateOutputType = {
   id: string | null
   title: string | null
+  color: string | null
   order: number | null
   boardId: string | null
 }
@@ -44,6 +45,7 @@ export type ColumnMinAggregateOutputType = {
 export type ColumnMaxAggregateOutputType = {
   id: string | null
   title: string | null
+  color: string | null
   order: number | null
   boardId: string | null
 }
@@ -51,6 +53,7 @@ export type ColumnMaxAggregateOutputType = {
 export type ColumnCountAggregateOutputType = {
   id: number
   title: number
+  color: number
   order: number
   boardId: number
   _all: number
@@ -68,6 +71,7 @@ export type ColumnSumAggregateInputType = {
 export type ColumnMinAggregateInputType = {
   id?: true
   title?: true
+  color?: true
   order?: true
   boardId?: true
 }
@@ -75,6 +79,7 @@ export type ColumnMinAggregateInputType = {
 export type ColumnMaxAggregateInputType = {
   id?: true
   title?: true
+  color?: true
   order?: true
   boardId?: true
 }
@@ -82,6 +87,7 @@ export type ColumnMaxAggregateInputType = {
 export type ColumnCountAggregateInputType = {
   id?: true
   title?: true
+  color?: true
   order?: true
   boardId?: true
   _all?: true
@@ -176,6 +182,7 @@ export type ColumnGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type ColumnGroupByOutputType = {
   id: string
   title: string
+  color: string | null
   order: number
   boardId: string
   _count: ColumnCountAggregateOutputType | null
@@ -206,6 +213,7 @@ export type ColumnWhereInput = {
   NOT?: Prisma.ColumnWhereInput | Prisma.ColumnWhereInput[]
   id?: Prisma.StringFilter<"Column"> | string
   title?: Prisma.StringFilter<"Column"> | string
+  color?: Prisma.StringNullableFilter<"Column"> | string | null
   order?: Prisma.FloatFilter<"Column"> | number
   boardId?: Prisma.StringFilter<"Column"> | string
   board?: Prisma.XOR<Prisma.BoardScalarRelationFilter, Prisma.BoardWhereInput>
@@ -215,6 +223,7 @@ export type ColumnWhereInput = {
 export type ColumnOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  color?: Prisma.SortOrderInput | Prisma.SortOrder
   order?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
   board?: Prisma.BoardOrderByWithRelationInput
@@ -227,6 +236,7 @@ export type ColumnWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ColumnWhereInput[]
   NOT?: Prisma.ColumnWhereInput | Prisma.ColumnWhereInput[]
   title?: Prisma.StringFilter<"Column"> | string
+  color?: Prisma.StringNullableFilter<"Column"> | string | null
   order?: Prisma.FloatFilter<"Column"> | number
   boardId?: Prisma.StringFilter<"Column"> | string
   board?: Prisma.XOR<Prisma.BoardScalarRelationFilter, Prisma.BoardWhereInput>
@@ -236,6 +246,7 @@ export type ColumnWhereUniqueInput = Prisma.AtLeast<{
 export type ColumnOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  color?: Prisma.SortOrderInput | Prisma.SortOrder
   order?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
   _count?: Prisma.ColumnCountOrderByAggregateInput
@@ -251,6 +262,7 @@ export type ColumnScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ColumnScalarWhereWithAggregatesInput | Prisma.ColumnScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Column"> | string
   title?: Prisma.StringWithAggregatesFilter<"Column"> | string
+  color?: Prisma.StringNullableWithAggregatesFilter<"Column"> | string | null
   order?: Prisma.FloatWithAggregatesFilter<"Column"> | number
   boardId?: Prisma.StringWithAggregatesFilter<"Column"> | string
 }
@@ -258,6 +270,7 @@ export type ColumnScalarWhereWithAggregatesInput = {
 export type ColumnCreateInput = {
   id?: string
   title: string
+  color?: string | null
   order: number
   board: Prisma.BoardCreateNestedOneWithoutColumnsInput
   cards?: Prisma.CardCreateNestedManyWithoutColumnInput
@@ -266,6 +279,7 @@ export type ColumnCreateInput = {
 export type ColumnUncheckedCreateInput = {
   id?: string
   title: string
+  color?: string | null
   order: number
   boardId: string
   cards?: Prisma.CardUncheckedCreateNestedManyWithoutColumnInput
@@ -274,6 +288,7 @@ export type ColumnUncheckedCreateInput = {
 export type ColumnUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   order?: Prisma.FloatFieldUpdateOperationsInput | number
   board?: Prisma.BoardUpdateOneRequiredWithoutColumnsNestedInput
   cards?: Prisma.CardUpdateManyWithoutColumnNestedInput
@@ -282,6 +297,7 @@ export type ColumnUpdateInput = {
 export type ColumnUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   order?: Prisma.FloatFieldUpdateOperationsInput | number
   boardId?: Prisma.StringFieldUpdateOperationsInput | string
   cards?: Prisma.CardUncheckedUpdateManyWithoutColumnNestedInput
@@ -290,6 +306,7 @@ export type ColumnUncheckedUpdateInput = {
 export type ColumnCreateManyInput = {
   id?: string
   title: string
+  color?: string | null
   order: number
   boardId: string
 }
@@ -297,12 +314,14 @@ export type ColumnCreateManyInput = {
 export type ColumnUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   order?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
 export type ColumnUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   order?: Prisma.FloatFieldUpdateOperationsInput | number
   boardId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -320,6 +339,7 @@ export type ColumnOrderByRelationAggregateInput = {
 export type ColumnCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   order?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
 }
@@ -331,6 +351,7 @@ export type ColumnAvgOrderByAggregateInput = {
 export type ColumnMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   order?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
 }
@@ -338,6 +359,7 @@ export type ColumnMaxOrderByAggregateInput = {
 export type ColumnMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  color?: Prisma.SortOrder
   order?: Prisma.SortOrder
   boardId?: Prisma.SortOrder
 }
@@ -418,6 +440,7 @@ export type ColumnUpdateOneRequiredWithoutCardsNestedInput = {
 export type ColumnCreateWithoutBoardInput = {
   id?: string
   title: string
+  color?: string | null
   order: number
   cards?: Prisma.CardCreateNestedManyWithoutColumnInput
 }
@@ -425,6 +448,7 @@ export type ColumnCreateWithoutBoardInput = {
 export type ColumnUncheckedCreateWithoutBoardInput = {
   id?: string
   title: string
+  color?: string | null
   order: number
   cards?: Prisma.CardUncheckedCreateNestedManyWithoutColumnInput
 }
@@ -461,6 +485,7 @@ export type ColumnScalarWhereInput = {
   NOT?: Prisma.ColumnScalarWhereInput | Prisma.ColumnScalarWhereInput[]
   id?: Prisma.StringFilter<"Column"> | string
   title?: Prisma.StringFilter<"Column"> | string
+  color?: Prisma.StringNullableFilter<"Column"> | string | null
   order?: Prisma.FloatFilter<"Column"> | number
   boardId?: Prisma.StringFilter<"Column"> | string
 }
@@ -468,6 +493,7 @@ export type ColumnScalarWhereInput = {
 export type ColumnCreateWithoutCardsInput = {
   id?: string
   title: string
+  color?: string | null
   order: number
   board: Prisma.BoardCreateNestedOneWithoutColumnsInput
 }
@@ -475,6 +501,7 @@ export type ColumnCreateWithoutCardsInput = {
 export type ColumnUncheckedCreateWithoutCardsInput = {
   id?: string
   title: string
+  color?: string | null
   order: number
   boardId: string
 }
@@ -498,6 +525,7 @@ export type ColumnUpdateToOneWithWhereWithoutCardsInput = {
 export type ColumnUpdateWithoutCardsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   order?: Prisma.FloatFieldUpdateOperationsInput | number
   board?: Prisma.BoardUpdateOneRequiredWithoutColumnsNestedInput
 }
@@ -505,6 +533,7 @@ export type ColumnUpdateWithoutCardsInput = {
 export type ColumnUncheckedUpdateWithoutCardsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   order?: Prisma.FloatFieldUpdateOperationsInput | number
   boardId?: Prisma.StringFieldUpdateOperationsInput | string
 }
@@ -512,12 +541,14 @@ export type ColumnUncheckedUpdateWithoutCardsInput = {
 export type ColumnCreateManyBoardInput = {
   id?: string
   title: string
+  color?: string | null
   order: number
 }
 
 export type ColumnUpdateWithoutBoardInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   order?: Prisma.FloatFieldUpdateOperationsInput | number
   cards?: Prisma.CardUpdateManyWithoutColumnNestedInput
 }
@@ -525,6 +556,7 @@ export type ColumnUpdateWithoutBoardInput = {
 export type ColumnUncheckedUpdateWithoutBoardInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   order?: Prisma.FloatFieldUpdateOperationsInput | number
   cards?: Prisma.CardUncheckedUpdateManyWithoutColumnNestedInput
 }
@@ -532,6 +564,7 @@ export type ColumnUncheckedUpdateWithoutBoardInput = {
 export type ColumnUncheckedUpdateManyWithoutBoardInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   order?: Prisma.FloatFieldUpdateOperationsInput | number
 }
 
@@ -569,6 +602,7 @@ export type ColumnCountOutputTypeCountCardsArgs<ExtArgs extends runtime.Types.Ex
 export type ColumnSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
+  color?: boolean
   order?: boolean
   boardId?: boolean
   board?: boolean | Prisma.BoardDefaultArgs<ExtArgs>
@@ -579,6 +613,7 @@ export type ColumnSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type ColumnSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
+  color?: boolean
   order?: boolean
   boardId?: boolean
   board?: boolean | Prisma.BoardDefaultArgs<ExtArgs>
@@ -587,6 +622,7 @@ export type ColumnSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type ColumnSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
+  color?: boolean
   order?: boolean
   boardId?: boolean
   board?: boolean | Prisma.BoardDefaultArgs<ExtArgs>
@@ -595,11 +631,12 @@ export type ColumnSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type ColumnSelectScalar = {
   id?: boolean
   title?: boolean
+  color?: boolean
   order?: boolean
   boardId?: boolean
 }
 
-export type ColumnOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "order" | "boardId", ExtArgs["result"]["column"]>
+export type ColumnOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "color" | "order" | "boardId", ExtArgs["result"]["column"]>
 export type ColumnInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   board?: boolean | Prisma.BoardDefaultArgs<ExtArgs>
   cards?: boolean | Prisma.Column$cardsArgs<ExtArgs>
@@ -621,6 +658,7 @@ export type $ColumnPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     title: string
+    color: string | null
     order: number
     boardId: string
   }, ExtArgs["result"]["column"]>
@@ -1050,6 +1088,7 @@ export interface Prisma__ColumnClient<T, Null = never, ExtArgs extends runtime.T
 export interface ColumnFieldRefs {
   readonly id: Prisma.FieldRef<"Column", 'String'>
   readonly title: Prisma.FieldRef<"Column", 'String'>
+  readonly color: Prisma.FieldRef<"Column", 'String'>
   readonly order: Prisma.FieldRef<"Column", 'Float'>
   readonly boardId: Prisma.FieldRef<"Column", 'String'>
 }

@@ -12,6 +12,7 @@ export async function getColumnById(id: string, boardId:string): Promise<Column 
         id: true,
         boardId: true,
         title: true,
+        color:true,
         order: true,
         cards: {
           select: {
@@ -72,6 +73,7 @@ export async function getAllColumnsById(columnIds:string[], boardId:string):Prom
       select:{
         boardId:true,
         id:true,
+        color:true,
         cards:{
           select: {
             id:true,
@@ -148,3 +150,19 @@ export const deleteColumnById = async ({ id }: { id: string }) => {
     }),
   );
 };
+
+export async function changeColorColumn({id, color}:{id:string, color:string}) {
+
+  return await protectedActions(async (session) => {
+
+    return await prisma.column.update({
+      where:{
+        id, board:{ownerId:session.user.id}
+      },
+      data:{color},
+      select:{color:true, id:true}
+    })
+
+  })
+
+}
