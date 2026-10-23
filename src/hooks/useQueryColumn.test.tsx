@@ -41,7 +41,7 @@ describe("useQueryColumn", () => {
     });
 
     expect(columnClient).toEqual({
-      id: "col-1", boardId: "board-123", title: "Coluna", order: 100, cardIds: ["card-1"],
+      id: "col-1", boardId: "board-123", title: "Coluna", order: 100, color: null, cardIds: ["card-1"],
     });
   });
 

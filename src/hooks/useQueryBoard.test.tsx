@@ -75,11 +75,13 @@ describe("useQueryBoard", () => {
 
       expect(queryClient.getQueryData(column("col-1"))).toEqual({
         ...boardData.columns[0],
+        color: null,
         boardId: "board-1",
         cardIds: [],
       });
       expect(queryClient.getQueryData(column("col-2"))).toEqual({
         ...boardData.columns[1],
+        color: null,
         boardId: "board-1",
         cardIds: [],
       });
