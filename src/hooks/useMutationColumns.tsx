@@ -48,7 +48,7 @@ export function useMutationColumns() {
 
             } else if (operation === "create") {
 
-                createColumn({ boardId, id: columnId, cardIds: [], order: Infinity, title });
+                createColumn({ boardId, id: columnId, cardIds: [], order: Infinity, title, color: null, });
 
             } else if (operation === "edit-title") {
 

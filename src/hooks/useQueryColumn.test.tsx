@@ -37,7 +37,7 @@ describe("useQueryColumn", () => {
     const { result } = renderColumn(queryClient);
 
     const columnClient = result.current.createColumnClient({
-      id: "col-1", boardId: "board-123", title: "Coluna", order: 100, cards: [card],
+      id: "col-1", boardId: "board-123", title: "Coluna", order: 100, cards: [card], color: null,
     });
 
     expect(columnClient).toEqual({
@@ -52,11 +52,11 @@ describe("useQueryColumn", () => {
     const { result } = renderColumn(queryClient);
 
     result.current.createCardsInitialData({
-      id: "col-1", boardId: "board-123", title: "Coluna", order: 100, cards: [cardA, cardB],
+      id: "col-1", boardId: "board-123", title: "Coluna", order: 100, cards: [cardA, cardB], color: null,
     });
     seedColumn(
       queryClient,
-      createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["a", "b"] }),
+      createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["a", "b"], color: null, }),
     );
 
     expect(queryClient.getQueryData(cardKey("a"))).toEqual(cardA);
@@ -65,7 +65,7 @@ describe("useQueryColumn", () => {
 
   it("atualiza parcialmente uma coluna sem perder seus demais campos", () => {
     const queryClient = createQueryClient();
-    const columnData = createColumnClient({ id: "col-1", title: "Antiga", boardId: "board-123", cardIds: [] });
+    const columnData = createColumnClient({ id: "col-1", title: "Antiga", boardId: "board-123", cardIds: [], color: null, });
     seedColumn(queryClient, columnData);
     const { result } = renderColumn(queryClient);
 
@@ -76,7 +76,7 @@ describe("useQueryColumn", () => {
 
   it("cria o card no topo da coluna e sincroniza columns-board", () => {
     const queryClient = createQueryClient();
-    seedColumn(queryClient, createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["b"] }));
+    seedColumn(queryClient, createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["b"], color: null, }));
     const { result } = renderColumn(queryClient);
 
     result.current.createCard("col-1", createCard({ id: "a" }));
@@ -90,7 +90,7 @@ describe("useQueryColumn", () => {
     const queryClient = createQueryClient();
     seedColumn(
       queryClient,
-      createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["a", "b"] }),
+      createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["a", "b"], color: null, }),
       [createCard({ id: "a" }), createCard({ id: "b", position: 200 })],
     );
     const { result } = renderColumn(queryClient);
@@ -106,7 +106,7 @@ describe("useQueryColumn", () => {
     const queryClient = createQueryClient();
     const top = createCard({ id: "top", position: 300 });
     const bottom = createCard({ id: "bottom", position: 100 });
-    const columnData = createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["top", "bottom"] });
+    const columnData = createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["top", "bottom"], color: null, });
     seedColumn(queryClient, columnData, [top, bottom]);
     const { result } = renderColumn(queryClient);
 
@@ -117,7 +117,7 @@ describe("useQueryColumn", () => {
 
   it("retorna a posição 100 ao soltar na primeira coluna vazia", () => {
     const queryClient = createQueryClient();
-    seedColumn(queryClient, createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: [] }));
+    seedColumn(queryClient, createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: [], color: null, }));
     const { result } = renderColumn(queryClient);
 
     expect(result.current.getMovedPositionCard(column("col-1"), 0)).toEqual({
@@ -134,8 +134,8 @@ describe("useQueryColumn", () => {
   it("move o card para outra coluna atualizando card, colunas e columns-board", () => {
     const queryClient = createQueryClient();
     const card = createCard({ id: "a", columnId: "col-1", position: 300 });
-    const source = createColumnClient({ id: "col-1", title: "Origem", boardId: "board-123", cardIds: ["a"] });
-    const target = createColumnClient({ id: "col-2", title: "Destino", boardId: "board-123", cardIds: [] });
+    const source = createColumnClient({ id: "col-1", title: "Origem", boardId: "board-123", cardIds: ["a"], color: null, });
+    const target = createColumnClient({ id: "col-2", title: "Destino", boardId: "board-123", cardIds: [], color: null, });
     queryClient.setQueryData(column(source.id), source);
     queryClient.setQueryData(column(target.id), target);
     queryClient.setQueryData(columnsBoard("board-123"), [source, target]);
@@ -155,7 +155,7 @@ describe("useQueryColumn", () => {
   it("reordena o card dentro da mesma coluna sem duplicar o id", () => {
     const queryClient = createQueryClient();
     const card = createCard({ id: "a", columnId: "col-1", position: 300 });
-    const columnData = createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["a", "b"] });
+    const columnData = createColumnClient({ id: "col-1", title: "Coluna", boardId: "board-123", cardIds: ["a", "b"], color: null, });
     seedColumn(queryClient, columnData, [card, createCard({ id: "b", position: 100 })]);
     const { result } = renderColumn(queryClient);
 
@@ -170,7 +170,7 @@ describe("useQueryColumn", () => {
     const queryClient = createQueryClient();
     const card = createCard({ id: "a", columnId: "inbox-col", position: 100 });
     queryClient.setQueryData(inBoxCards, { id: "inbox-col", order: 100, title: "InBox", cardIds: ["a"] });
-    const target = createColumnClient({ id: "col-2", title: "Destino", boardId: "board-123", cardIds: [] });
+    const target = createColumnClient({ id: "col-2", title: "Destino", boardId: "board-123", cardIds: [], color: null, });
     queryClient.setQueryData(column("col-2"), target);
     queryClient.setQueryData(columnsBoard("board-123"), [target]);
     queryClient.setQueryData(cardKey("a"), card);

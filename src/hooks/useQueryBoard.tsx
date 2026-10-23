@@ -25,7 +25,7 @@ export function useQueryBoard() {
 
     for (let i = 0; i < columns.length; i++) {
       const column = columns[i]
-      queryClient.setQueryData<ColumnClient>(columnKey(column.id), { ...column, boardId: boardData.id, cardIds: [] })
+      queryClient.setQueryData<ColumnClient>(columnKey(column.id), { ...column, boardId: boardData.id, cardIds: [], color: null, })
     }
 
   }

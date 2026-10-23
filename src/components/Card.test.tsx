@@ -37,7 +37,7 @@ const createQueryClient = () => new QueryClient({
 });
 
 const createColumn = (cardIds = [card.id]): ColumnClient => ({
-  id: "col-1", title: "Coluna Bacana", order: 100, boardId: "board-123", cardIds,
+  id: "col-1", title: "Coluna Bacana", order: 100, boardId: "board-123", cardIds, color: null,
 });
 
 const seedCard = (queryClient: QueryClient, cardIds = [card.id]) => {

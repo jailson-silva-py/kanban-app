@@ -38,6 +38,7 @@ const seedColumn = (queryClient: QueryClient) => {
       title: "Em andamento",
       boardId: "board-1",
       cardIds: ["card-1"],
+      color: null,
     }),
     color: "#ffffff",
   };

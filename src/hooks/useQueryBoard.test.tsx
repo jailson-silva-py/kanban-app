@@ -116,7 +116,7 @@ describe("useQueryBoard", () => {
     it("retorna as colunas do board presentes no cache", () => {
       const queryClient = createQueryClient();
       const columns = [
-        createColumnClient({ id: "col-1", title: "A fazer", boardId: "board-1", cardIds: ["card-1"] }),
+        createColumnClient({ id: "col-1", title: "A fazer", boardId: "board-1", cardIds: ["card-1"], color: null, }),
       ];
       seedBoard(queryClient, columns);
       const { result } = renderBoardHook(queryClient);
@@ -172,6 +172,7 @@ describe("useQueryBoard", () => {
       title: "Nova coluna",
       boardId: "board-1",
       cardIds: ["card-1"],
+      color: null,
     });
 
     it("adiciona uma coluna nova ao board, à lista e ao cache individual", () => {
@@ -231,12 +232,14 @@ describe("useQueryBoard", () => {
         title: "A fazer",
         boardId: "board-1",
         cardIds: ["card-1"],
+        color: null,
       });
       const otherColumn = createColumnClient({
         id: "col-2",
         title: "Concluído",
         boardId: "board-1",
         cardIds: ["card-2"],
+        color: null,
       });
       seedBoard(queryClient, [targetColumn, otherColumn]);
       queryClient.setQueryData(column("col-1"), targetColumn);
@@ -262,6 +265,7 @@ describe("useQueryBoard", () => {
         title: "A fazer",
         boardId: "board-1",
         cardIds: [],
+        color: null,
       });
       seedBoard(queryClient, [existingColumn]);
       const { result } = renderBoardHook(queryClient);
@@ -281,6 +285,7 @@ describe("useQueryBoard", () => {
         title: id,
         boardId: "board-1",
         cardIds: [],
+        color: null,
       }));
       seedBoard(queryClient, columns);
       for (const columnData of columns) {
@@ -303,6 +308,7 @@ describe("useQueryBoard", () => {
         title: "A fazer",
         boardId: "board-1",
         cardIds: [],
+        color: null,
       });
       seedBoard(queryClient, [existingColumn]);
       queryClient.setQueryData(column("col-1"), existingColumn);

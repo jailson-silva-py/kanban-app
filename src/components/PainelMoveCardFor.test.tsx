@@ -39,11 +39,11 @@ let queryClient: QueryClient;
 const card = createCard({ id: "card", columnId: "col-1", position: 300, description: null, completed: false });
 const cardBelow = createCard({ id: "c1b", columnId: "col-1", position: 200, title: "Cartão abaixo", description: null, completed: false });
 const sourceColumn: Column = {
-  id: "col-1", boardId: "board-123", title: "Coluna Bacana", order: 100,
+  id: "col-1", boardId: "board-123", title: "Coluna Bacana", order: 100, color: null,
   cards: [card, cardBelow],
 };
 const targetColumn: Column = {
-  id: "col-2", boardId: "board-123", title: "Coluna Chida", order: 200,
+  id: "col-2", boardId: "board-123", title: "Coluna Chida", order: 200, color: null,
   cards: [
     createCard({ id: "c2a", columnId: "col-2", position: 300, title: "Topo" }),
     createCard({ id: "c2b", columnId: "col-2", position: 200, title: "Meio" }),
@@ -65,8 +65,8 @@ beforeEach(() => {
   mockGetAllBoardFromUser.mockResolvedValue([{ id: "board-123", title: "Board Legal", gradient: "gradient" }]);
 
   seedBoardColumns(queryClient, "board-123", "Board Legal", [
-    { id: "col-1", title: "Coluna Bacana", order: 100, boardId: "board-123", cardIds: [card.id, cardBelow.id] },
-    { id: "col-2", title: "Coluna Chida", order: 200, boardId: "board-123", cardIds: targetColumn.cards.map(({ id }) => id) },
+    { id: "col-1", title: "Coluna Bacana", order: 100, boardId: "board-123", cardIds: [card.id, cardBelow.id], color: null, },
+    { id: "col-2", title: "Coluna Chida", order: 200, boardId: "board-123", cardIds: targetColumn.cards.map(({ id }) => id), color: null, },
   ]);
 
   seedCard(card);

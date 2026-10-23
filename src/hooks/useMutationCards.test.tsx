@@ -28,6 +28,7 @@ const seedCard = (queryClient: QueryClient, card = createCard()) => {
         id: card.columnId,
         title: "Coluna",
         boardId: "board-123",
+        color: null,
         cardIds: [card.id],
     }));
     return card;
@@ -93,8 +94,8 @@ describe("useMutationCards - onMutate", () => {
     it("move o card entre colunas, atualiza posição e sincroniza columns-board", async () => {
         const queryClient = createQueryClient();
         const card = createCard({ id: "a", position: 300 });
-        const source = createColumnClient({ id: "col-1", title: "Origem", boardId: "board-123", cardIds: [card.id] });
-        const target = createColumnClient({ id: "col-2", title: "Destino", boardId: "board-123", cardIds: [] });
+        const source = createColumnClient({ id: "col-1", title: "Origem", boardId: "board-123", cardIds: [card.id], color: null, });
+        const target = createColumnClient({ id: "col-2", title: "Destino", boardId: "board-123", cardIds: [], color: null, });
         queryClient.setQueryData(cardKey(card.id), card);
         seedBoardColumns(queryClient, source, target);
         const { result } = renderMutation(queryClient);
@@ -132,8 +133,8 @@ describe("useMutationCards - onSuccess e onError", () => {
     it("restaura a origem e o destino quando mover falha", async () => {
         const queryClient = createQueryClient();
         const card = createCard({ id: "a" });
-        const source = createColumnClient({ id: "col-1", title: "Origem", boardId: "board-123", cardIds: [card.id] });
-        const target = createColumnClient({ id: "col-2", title: "Destino", boardId: "board-123", cardIds: [] });
+        const source = createColumnClient({ id: "col-1", title: "Origem", boardId: "board-123", cardIds: [card.id], color: null, });
+        const target = createColumnClient({ id: "col-2", title: "Destino", boardId: "board-123", cardIds: [], color: null, });
         queryClient.setQueryData(cardKey(card.id), card);
         seedBoardColumns(queryClient, source, target);
         vi.mocked(reOrderCardsFromColumns).mockRejectedValueOnce(new Error("falha"));

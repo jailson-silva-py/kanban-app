@@ -38,11 +38,13 @@ export const createColumnClient = ({
   title,
   order = 100,
   boardId = "board-123",
+  color,
   cardIds = []
 }: Omit<ColumnClient, "order"> & { order?: number }): ColumnClient => ({
   id,
   title,
   order,
+  color,
   boardId,
   cardIds,
 });
